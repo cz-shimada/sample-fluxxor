@@ -9,10 +9,6 @@ var buffer = require('vinyl-buffer');
 var jsSrcPath = './app/assets/javascripts';
 var jsDestPath = './public/javascripts';
 
-var bandler = browserify({
-  entries: [jsSrcPath + '/app.js'],
-  transform: [reactify]});
-
 // local server
 gulp.task("connect", function(){
     connect.server({
