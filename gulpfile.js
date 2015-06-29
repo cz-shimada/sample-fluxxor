@@ -31,7 +31,7 @@ gulp.task('watchify', function() {
 });
 
 gulp.task("default", ['watchify'], function(){
-    gulp.start(["connect"]);
+    //gulp.start(["connect"]);
 });
 
 function jsCompile(bundler) {

@@ -12,6 +12,7 @@ var CounterStore = Fluxxor.createStore({
   },
   onUpdateCounter: function(payload) {
     this.counter = this.counter + payload.value;
+    console.log(this.counter);
     this.emit('change');
   },
   getState: function() {
@@ -43,7 +44,7 @@ var CounterApp = React.createClass({
     FluxMixin, StoreWatchMixin("CounterStore")
   ],
   getStateFromFlux: function() {
-    return this.getFlux().store('CounterStore').getState();
+    return this.getFlux().store("CounterStore").getState();
   },
   render: function() {
     return <Counter value={this.state.counter} />
@@ -52,7 +53,6 @@ var CounterApp = React.createClass({
 
 var Counter = React.createClass({
   mixins: [FluxMixin],
-
   propTypes: {
     value: React.PropTypes.number.isRequired,
   },
