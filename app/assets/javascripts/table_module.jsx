@@ -35,7 +35,11 @@ var CheckBoxLayout = React.createClass({
     }
   },
   render: function() {
-    return <input type="checkbox" defaultChecked={this.state.complete} onChange={this.handleChange} />
+    if (this.state.state.has(this.props.name)) {
+      return <input type="checkbox" onChange={this.handleChange} checked />
+    } else {
+      return <input type="checkbox" onChange={this.handleChange} />
+    }
   }
 });
 
@@ -79,18 +83,31 @@ var TableLayout = React.createClass({
   },
   rowClassNameGetter: function(rowIndex) {
     var rowData = this.rowGetter(rowIndex);
-    if (Array.isArray(rowData)) {
-      var checkBoxName = rowData[0];
-      var checkedCheckBox = this.getStateFromFlux().checkBoxStore.state;
-      if (checkedCheckBox.has(checkBoxName)) {
-        return "crimson";
-      }
+    if (this.hasCheckBoxOn(rowData)) {
+      return "crimson";
     }
     return "";
   },
   onRowClick: function(event, index, data) {
-    console.log("abc");
-    return "";
+    // ignore input.
+    if (event.target.tagName != 'INPUT') {
+      var name = data[0]
+      if (this.hasCheckBoxOn(data)) {
+        return this.getFlux().actions.checkedOff(name);
+      } else {
+        return this.getFlux().actions.checkedOn(name);
+      }
+    }
+  },
+  hasCheckBoxOn: function(rowData) {
+    if (Array.isArray(rowData)) {
+      var checkBoxName = rowData[0];
+      var checkedCheckBox = this.getStateFromFlux().checkBoxStore.state;
+      if (checkedCheckBox.has(checkBoxName)) {
+        return true;
+      }
+    }
+    return false;
   },
   render: function() {
     return <Table
@@ -160,9 +177,11 @@ var CheckBoxesStore = Fluxxor.createStore({
   },
   checkboxOn: function(payload) {
     this.checkboxOnStates.add(payload.value);
+    this.emit('change');
   },
   checkboxOff: function(payload) {
     this.checkboxOnStates.delete(payload.value);
+    this.emit('change');
   },
   getState: function() {
     return {
@@ -199,7 +218,7 @@ var TableLayoutStore = Fluxxor.createStore({
 var checkboxStore = { CheckBoxesStore: new CheckBoxesStore() };
 var tableLayoutStore = { TableLayoutStore: new TableLayoutStore() };
 
-var tableFlux = new Fluxxor.Flux(ObjectAssign(checkboxStore , tableLayoutStore));
+var tableFlux = new Fluxxor.Flux(ObjectAssign(checkboxStore , tableLayoutStore) , checkboxActions);
 var checkboxFlux = new Fluxxor.Flux(checkboxStore , checkboxActions);
 
 // Render

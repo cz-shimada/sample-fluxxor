@@ -28,20 +28,25 @@ var CounterStore = Fluxxor.createStore({
 });
 
 var actions = {
-    plusCounter: function() {
-      this.dispatch(constants.UPDATE_COUNTER, {
-        value: 1
-      });
-    },
-    minusCounter: function() {
-      this.dispatch(constants.UPDATE_COUNTER, {
-        value: -1
-      });
-    }
+  plusCounter: function() {
+    this.dispatch(constants.UPDATE_COUNTER, {
+      value: 1
+    });
+  },
+  calcCounter: function(v){
+    this.dispatch(constants.UPDATE_COUNTER, {
+      value: v
+    });
+  },
+  minusCounter: function() {
+    this.dispatch(constants.UPDATE_COUNTER, {
+      value: -1
+    });
   }
+};
 
 var FluxMixin = Fluxxor.FluxMixin(React),
-  StoreWatchMixin = Fluxxor.StoreWatchMixin;
+    StoreWatchMixin = Fluxxor.StoreWatchMixin;
 
 // View
 var CounterApp = React.createClass({displayName: "CounterApp",
@@ -59,7 +64,7 @@ var CounterApp = React.createClass({displayName: "CounterApp",
 var Counter = React.createClass({displayName: "Counter",
   mixins: [FluxMixin],
   propTypes: {
-    value: React.PropTypes.number.isRequired,
+    value: React.PropTypes.number.isRequired
   },
   onClickPlus: function() {
     return this.getFlux().actions.plusCounter();
@@ -80,12 +85,77 @@ var Counter = React.createClass({displayName: "Counter",
   }
 });
 
+
+var CounterOneHundredApp = React.createClass({displayName: "CounterOneHundredApp",
+  mixins:[
+    FluxMixin, StoreWatchMixin("CounterStore")
+  ],
+  getStateFromFlux: function(){
+    return this.getFlux().store("CounterStore").getState();
+  },
+  render: function(){
+    return(
+        React.createElement("div", null, 
+          React.createElement("h4", null, "+100"), 
+          React.createElement(CounterOneHundred, null), 
+          React.createElement("h4", null, "足したい数字を入力"), 
+          React.createElement(CounterInput, null)
+        )
+    );
+  }
+});
+
+var CounterOneHundred = React.createClass({displayName: "CounterOneHundred",
+  mixins: [ FluxMixin ],
+
+  onClickPlusOneHundred: function(){
+    return this.getFlux().actions.calcCounter(100);
+  },
+
+  render: function(){
+    return (
+        React.createElement("div", null, 
+          React.createElement("button", {onClick: this.onClickPlusOneHundred}, "+100")
+        )
+    );
+  }
+});
+
+var CounterInput = React.createClass({displayName: "CounterInput",
+  mixins: [ FluxMixin ],
+  onClickPlusInputValue: function(){
+    var value = parseInt(document.getElementById("plus_value_input").value);
+
+    if(isNaN(value)){
+      alert("数字を入力してください");
+      return;
+    }
+
+    return this.getFlux().actions.calcCounter(value);
+  },
+
+  render: function(){
+    return (
+        React.createElement("div", null, 
+          React.createElement("input", {type: "text", id: "plus_value_input"}), 
+          React.createElement("button", {onClick: this.onClickPlusInputValue}, "plus")
+        )
+    );
+  }
+
+});
+
 var stores = { CounterStore: new CounterStore() };
 var flux = new Fluxxor.Flux(stores , actions);
 
 React.render(
-  React.createElement(CounterApp, {flux: flux}),
-  document.getElementById('app-container')
+    React.createElement(CounterApp, {flux: flux}),
+    document.getElementById('app-container')
+);
+
+React.render(
+    React.createElement(CounterOneHundredApp, {flux: flux}),
+    document.getElementById('counter_other_component')
 );
 
 },{"fluxxor":59,"react":328}],3:[function(require,module,exports){
@@ -126,7 +196,11 @@ var CheckBoxLayout = React.createClass({displayName: "CheckBoxLayout",
     }
   },
   render: function() {
-    return React.createElement("input", {type: "checkbox", defaultChecked: this.state.complete, onChange: this.handleChange})
+    if (this.state.state.has(this.props.name)) {
+      return React.createElement("input", {type: "checkbox", onChange: this.handleChange, checked: true})
+    } else {
+      return React.createElement("input", {type: "checkbox", onChange: this.handleChange})
+    }
   }
 });
 
@@ -170,18 +244,31 @@ var TableLayout = React.createClass({displayName: "TableLayout",
   },
   rowClassNameGetter: function(rowIndex) {
     var rowData = this.rowGetter(rowIndex);
-    if (Array.isArray(rowData)) {
-      var checkBoxName = rowData[0];
-      var checkedCheckBox = this.getStateFromFlux().checkBoxStore.state;
-      if (checkedCheckBox.has(checkBoxName)) {
-        return "crimson";
-      }
+    if (this.hasCheckBoxOn(rowData)) {
+      return "crimson";
     }
     return "";
   },
   onRowClick: function(event, index, data) {
-    console.log("abc");
-    return "";
+    // ignore input.
+    if (event.target.tagName != 'INPUT') {
+      var name = data[0]
+      if (this.hasCheckBoxOn(data)) {
+        return this.getFlux().actions.checkedOff(name);
+      } else {
+        return this.getFlux().actions.checkedOn(name);
+      }
+    }
+  },
+  hasCheckBoxOn: function(rowData) {
+    if (Array.isArray(rowData)) {
+      var checkBoxName = rowData[0];
+      var checkedCheckBox = this.getStateFromFlux().checkBoxStore.state;
+      if (checkedCheckBox.has(checkBoxName)) {
+        return true;
+      }
+    }
+    return false;
   },
   render: function() {
     return React.createElement(Table, {
@@ -251,9 +338,11 @@ var CheckBoxesStore = Fluxxor.createStore({
   },
   checkboxOn: function(payload) {
     this.checkboxOnStates.add(payload.value);
+    this.emit('change');
   },
   checkboxOff: function(payload) {
     this.checkboxOnStates.delete(payload.value);
+    this.emit('change');
   },
   getState: function() {
     return {
@@ -290,7 +379,7 @@ var TableLayoutStore = Fluxxor.createStore({
 var checkboxStore = { CheckBoxesStore: new CheckBoxesStore() };
 var tableLayoutStore = { TableLayoutStore: new TableLayoutStore() };
 
-var tableFlux = new Fluxxor.Flux(ObjectAssign(checkboxStore , tableLayoutStore));
+var tableFlux = new Fluxxor.Flux(ObjectAssign(checkboxStore , tableLayoutStore) , checkboxActions);
 var checkboxFlux = new Fluxxor.Flux(checkboxStore , checkboxActions);
 
 // Render
