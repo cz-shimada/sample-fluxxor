@@ -5,6 +5,7 @@ var reactify = require('reactify');
 
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
+var cssify = require('cssify');
 
 var jsSrcPath = './app/assets/javascripts';
 var jsDestPath = './public/javascripts';
@@ -20,14 +21,14 @@ gulp.task("connect", function(){
 var bandlerbase = browserify({
   entries: [jsSrcPath + '/app.js'],
   transform: [reactify]})
-  .transform('browserify-css', { autoInject: true });
+  .transform(cssify);
 
 gulp.task('browserify', function(){
     return jsCompile(bandlerbase);
 });
 
 gulp.task('watchify', function() {
-    var bundler = watchify(bandlerbase)
+    var bundler = watchify(bandlerbase);
     return jsCompile(bundler);
 });
 

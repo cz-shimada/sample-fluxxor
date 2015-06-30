@@ -2,6 +2,7 @@ var React = require('react');
 var Fluxxor = require('fluxxor');
 var FixedDataTable = require('fixed-data-table');
 var ObjectAssign = require('object-assign');
+var Input = require('react-bootstrap/lib/Input');
 require('../stylesheets/fixed-data-table.css');
 require('../stylesheets/fixed-data-table-enhance.css');
 
@@ -18,7 +19,7 @@ var constants = {
 
 // CheckBoxFluxGroup.
 // View
-var CheckBox = React.createClass({
+var CheckBoxLayout = React.createClass({
   mixins: [
     FluxMixin, StoreWatchMixin("CheckBoxesStore")
   ],
@@ -53,9 +54,14 @@ var checkboxActions = {
   };
 
 function checkBoxLayout(str, key, data, index) {
-  return <CheckBox flux={checkboxFlux} name={data[0]} />
+  return <CheckBoxLayout flux={checkboxFlux} name={data[0]} />
 }
 
+function inputLayout(str, key, data, index) {
+  return <Input type='text' bsSize="medium" placeholder="enter ..." />
+}
+
+// TableLayout.
 var TableLayout = React.createClass({
   mixins: [
     FluxMixin, StoreWatchMixin("TableLayoutStore" , "CheckBoxesStore")
@@ -82,18 +88,24 @@ var TableLayout = React.createClass({
     }
     return "";
   },
+  onRowClick: function(event, index, data) {
+    console.log("abc");
+    return "";
+  },
   render: function() {
     return <Table
       rowHeight={50}
       rowGetter={this.rowGetter}
       rowClassNameGetter={this.rowClassNameGetter}
       rowsCount={5}
-      width={600}
-      height={500}
+      onRowClick={this.onRowClick}
+      width={800}
+      height={400}
       headerHeight={50}>
     <Column
       label="CheckBox"
       width={100}
+      height={100}
       dataKey={0}
       cellRenderer={checkBoxLayout}
       align="center"
@@ -108,12 +120,20 @@ var TableLayout = React.createClass({
       width={200}
       dataKey={2}
     />
+    <Column
+      label="Col 3"
+      width={200}
+      dataKey={3}
+      align="center"
+      cellRenderer={inputLayout}
+      cellClassName="vertical-center"
+    />
   </Table>
   }
 });
 
 // ButtonFluxGroup.
-var CheckBoxStateGetterButton = React.createClass({
+var CheckBoxStateButtonLayout = React.createClass({
   mixins: [
     FluxMixin, StoreWatchMixin("CheckBoxesStore")
   ],
@@ -121,7 +141,7 @@ var CheckBoxStateGetterButton = React.createClass({
     return this.getFlux().store("CheckBoxesStore").getState();
   },
   onClickHandler: function() {
-
+    console.log(this.getStateFromFlux().state);
   },
   render: function() {
     return <button onClick={this.onClickHandler}>log checkbox names</button>
@@ -154,9 +174,9 @@ var CheckBoxesStore = Fluxxor.createStore({
 var TableLayoutStore = Fluxxor.createStore({
   initialize: function() {
     this.rows = [
-      ['1A', 'b1', 'c1'],
-      ['2B', 'b2', 'c2'],
-      ['3C', 'b3', 'c3']
+      ['1A', 'b1', 'c1' , 'd1'],
+      ['2B', 'b2', 'c2' , 'd2'],
+      ['3C', 'b3', 'c3' , 'd3']
     ];
     this.bindActions(
       constants.CHECKEBOX_ON, this.checkboxOn,
@@ -176,9 +196,9 @@ var TableLayoutStore = Fluxxor.createStore({
   }
 });
 
-
 var checkboxStore = { CheckBoxesStore: new CheckBoxesStore() };
 var tableLayoutStore = { TableLayoutStore: new TableLayoutStore() };
+
 var tableFlux = new Fluxxor.Flux(ObjectAssign(checkboxStore , tableLayoutStore));
 var checkboxFlux = new Fluxxor.Flux(checkboxStore , checkboxActions);
 
@@ -190,6 +210,6 @@ React.render(
 
 var buttonFlux = new Fluxxor.Flux(checkboxStore)
 React.render(
-  <CheckBoxStateGetterButton flux={buttonFlux} />,
+  <CheckBoxStateButtonLayout flux={buttonFlux} />,
   document.getElementById('checkbox_state_button')
 );

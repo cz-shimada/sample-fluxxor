@@ -15,12 +15,15 @@
     "watchify": "^3.2.2"
   },
   "dependencies": {
+    "bootstrap": "^3.3.5",
     "collections": "^1.2.3",
+    "cssify": "^0.7.0",
     "fixed-data-table": "^0.3.0",
     "fluxxor": "^1.6.0",
     "get-style-property": "^0.1.1",
     "object-assign": "^3.0.0",
     "react": "^0.13.3",
+    "react-bootstrap": "^0.23.5",
     "reactable": "^0.10.2",
     "select2-browserify": "^3.4.5",
     "superagent": "^1.2.0",
