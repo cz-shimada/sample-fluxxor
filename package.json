@@ -2,19 +2,21 @@
   "name": "sample-fluxxor",
   "version": "1.0.0",
   "devDependencies": {
+    "browserify": "^8.0.2",
+    "browserify-css": "^0.6.1",
+    "browserify-shim": "^3.8.9",
+    "bulk-require": "^0.2.1",
     "gulp": "^3.8.10",
     "gulp-browserify": "^0.5.1",
-    "bulk-require": "^0.2.1",
-    "browserify": "^8.0.2",
-    "browserify-shim": "^3.8.9",
-    "watchify": "^3.2.2",
     "reactify": "^0.17.1",
-    "vinyl-source-stream": "^1.0.0",
     "vinyl-buffer": "^1.0.0",
-    "vinyl-transform": "^1.0.0"
+    "vinyl-source-stream": "^1.0.0",
+    "vinyl-transform": "^1.0.0",
+    "watchify": "^3.2.2"
   },
   "dependencies": {
     "collections": "^1.2.3",
+    "fixed-data-table": "^0.3.0",
     "fluxxor": "^1.6.0",
     "get-style-property": "^0.1.1",
     "object-assign": "^3.0.0",

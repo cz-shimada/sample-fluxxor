@@ -19,7 +19,8 @@ gulp.task("connect", function(){
 
 var bandlerbase = browserify({
   entries: [jsSrcPath + '/app.js'],
-  transform: [reactify]});
+  transform: [reactify]})
+  .transform('browserify-css', { autoInject: true });
 
 gulp.task('browserify', function(){
     return jsCompile(bandlerbase);
