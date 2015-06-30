@@ -1,10 +1,11 @@
 var React = require('react');
-var Reactable = require('reactable');
 var Fluxxor = require('fluxxor');
+var FixedDataTable = require('fixed-data-table');
 
-var Table = Reactable.Table,
-    Tr = Reactable.Tr,
-    Td = Reactable.Td;
+require('../stylesheets/fixed-data-table.css');
+
+var Table = FixedDataTable.Table;
+var Column = FixedDataTable.Column;
 
 var FluxMixin = Fluxxor.FluxMixin(React),
   StoreWatchMixin = Fluxxor.StoreWatchMixin;
@@ -16,7 +17,7 @@ var constants = {
 
 // CheckBoxFluxGroup.
 // View
-var CheckBox = React.createClass({
+var CheckBoxFlux = React.createClass({
   mixins: [
     FluxMixin, StoreWatchMixin("CheckBoxesStore")
   ],
@@ -48,7 +49,53 @@ var checkboxActions = {
         value: name
       });
     }
+  };
+
+
+var rows = [
+  ['1', 'b1', 'c1'],
+  ['2', 'b2', 'c2'],
+  ['3', 'b3', 'c3']
+];
+
+function rowGetter(rowIndex) {
+  return rows[rowIndex];
+}
+
+function checkBox(data){
+  console.log(this.rowData[0]);
+  return <CheckBoxFlux flux={checkboxFlux} name={this.rowData[0]} />
+}
+
+var TableLayout = React.createClass({
+  render: function() {
+    return <Table
+      rowHeight={50}
+      rowGetter={rowGetter}
+      rowsCount={rows.length}
+      width={600}
+      height={500}
+      headerHeight={50}>
+    <Column
+      label="CheckBox"
+      width={300}
+      dataKey={0}
+      cellRenderer={checkBox}
+      align="center"
+    />
+    <Column
+      label="Col 1"
+      width={300}
+      dataKey={1}
+    />
+    <Column
+      label="Col 2"
+      width={200}
+      dataKey={2}
+    />
+  </Table>
   }
+});
 
 // ButtonFluxGroup.
 var CheckBoxStateGetterButton = React.createClass({
@@ -60,10 +107,9 @@ var CheckBoxStateGetterButton = React.createClass({
   },
   onClickHandler: function() {
     console.log(this.getStateFromFlux().state);
-    alert(this.getStateFromFlux().state);
   },
   render: function() {
-    return <button onClick={this.onClickHandler}>Find Checked CheckboxName</button>
+    return <button onClick={this.onClickHandler}>log checkbox names</button>
   }
 });
 
@@ -92,43 +138,18 @@ var CheckBoxesStore = Fluxxor.createStore({
   }
 });
 
+
 var stores = { CheckBoxesStore: new CheckBoxesStore() };
 var checkboxFlux = new Fluxxor.Flux(stores , checkboxActions)
 
-// Render - Table
+// Render
 React.render(
-  <Table className="table" id="table">
-      <Tr>
-          <Td column="checkBox">
-            <CheckBox flux={checkboxFlux} name="checkbox1" />
-          </Td>
-          <Td column="Name">
-              <a href="http://github.com">
-                octacat
-              </a>
-          </Td>
-          <Td column="Age">18</Td>
-      </Tr>
-      <Tr>
-          <Td column="checkBox">
-            <CheckBox flux={checkboxFlux} name="checkbox2" />
-          </Td>
-          <Td column="Name">Lee Salminen</Td>
-          <Td column="Age">23</Td>
-      </Tr>
-      <Tr>
-          <Td column="checkBox">
-            <CheckBox flux={checkboxFlux} name="checkbox3" />
-          </Td>
-          <Td column="Position">Developer</Td>
-          <Td column="Age">29</Td>
-      </Tr>
-  </Table>,
+  <TableLayout />,
     document.getElementById('table')
 );
 
 var buttonFlux = new Fluxxor.Flux(stores)
 React.render(
-  <CheckBoxStateGetterButton  flux={buttonFlux} />,
+  <CheckBoxStateGetterButton flux={buttonFlux} />,
   document.getElementById('checkbox_state_button')
 );

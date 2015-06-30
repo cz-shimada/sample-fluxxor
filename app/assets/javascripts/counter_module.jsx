@@ -7,7 +7,7 @@ var constants = {
 
 var CounterStore = Fluxxor.createStore({
   initialize: function() {
-    this.counter = 0;
+    this.counter = 1;
     this.bindActions(constants.UPDATE_COUNTER, this.onUpdateCounter);
   },
   onUpdateCounter: function(payload) {

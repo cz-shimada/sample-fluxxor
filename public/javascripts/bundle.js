@@ -12,7 +12,7 @@ var constants = {
 
 var CounterStore = Fluxxor.createStore({
   initialize: function() {
-    this.counter = 0;
+    this.counter = 1;
     this.bindActions(constants.UPDATE_COUNTER, this.onUpdateCounter);
   },
   onUpdateCounter: function(payload) {
@@ -88,14 +88,15 @@ React.render(
   document.getElementById('app-container')
 );
 
-},{"fluxxor":5,"react":256}],3:[function(require,module,exports){
+},{"fluxxor":58,"react":313}],3:[function(require,module,exports){
 var React = require('react');
-var Reactable = require('reactable');
 var Fluxxor = require('fluxxor');
+var FixedDataTable = require('fixed-data-table');
 
-var Table = Reactable.Table,
-    Tr = Reactable.Tr,
-    Td = Reactable.Td;
+require('../stylesheets/fixed-data-table.css');
+
+var Table = FixedDataTable.Table;
+var Column = FixedDataTable.Column;
 
 var FluxMixin = Fluxxor.FluxMixin(React),
   StoreWatchMixin = Fluxxor.StoreWatchMixin;
@@ -107,7 +108,7 @@ var constants = {
 
 // CheckBoxFluxGroup.
 // View
-var CheckBox = React.createClass({displayName: "CheckBox",
+var CheckBoxFlux = React.createClass({displayName: "CheckBoxFlux",
   mixins: [
     FluxMixin, StoreWatchMixin("CheckBoxesStore")
   ],
@@ -139,7 +140,53 @@ var checkboxActions = {
         value: name
       });
     }
+  };
+
+
+var rows = [
+  ['1', 'b1', 'c1'],
+  ['2', 'b2', 'c2'],
+  ['3', 'b3', 'c3']
+];
+
+function rowGetter(rowIndex) {
+  return rows[rowIndex];
+}
+
+function checkBox(data){
+  console.log(this.rowData[0]);
+  return React.createElement(CheckBoxFlux, {flux: checkboxFlux, name: this.rowData[0]})
+}
+
+var TableLayout = React.createClass({displayName: "TableLayout",
+  render: function() {
+    return React.createElement(Table, {
+      rowHeight: 50, 
+      rowGetter: rowGetter, 
+      rowsCount: rows.length, 
+      width: 600, 
+      height: 500, 
+      headerHeight: 50}, 
+    React.createElement(Column, {
+      label: "CheckBox", 
+      width: 300, 
+      dataKey: 0, 
+      cellRenderer: checkBox, 
+      align: "center"}
+    ), 
+    React.createElement(Column, {
+      label: "Col 1", 
+      width: 300, 
+      dataKey: 1}
+    ), 
+    React.createElement(Column, {
+      label: "Col 2", 
+      width: 200, 
+      dataKey: 2}
+    )
+  )
   }
+});
 
 // ButtonFluxGroup.
 var CheckBoxStateGetterButton = React.createClass({displayName: "CheckBoxStateGetterButton",
@@ -151,10 +198,9 @@ var CheckBoxStateGetterButton = React.createClass({displayName: "CheckBoxStateGe
   },
   onClickHandler: function() {
     console.log(this.getStateFromFlux().state);
-    alert(this.getStateFromFlux().state);
   },
   render: function() {
-    return React.createElement("button", {onClick: this.onClickHandler}, "Find Checked CheckboxName")
+    return React.createElement("button", {onClick: this.onClickHandler}, "log checkbox names")
   }
 });
 
@@ -183,38 +229,13 @@ var CheckBoxesStore = Fluxxor.createStore({
   }
 });
 
+
 var stores = { CheckBoxesStore: new CheckBoxesStore() };
 var checkboxFlux = new Fluxxor.Flux(stores , checkboxActions)
 
-// Render - Table
+// Render
 React.render(
-  React.createElement(Table, {className: "table", id: "table"}, 
-      React.createElement(Tr, null, 
-          React.createElement(Td, {column: "checkBox"}, 
-            React.createElement(CheckBox, {flux: checkboxFlux, name: "checkbox1"})
-          ), 
-          React.createElement(Td, {column: "Name"}, 
-              React.createElement("a", {href: "http://github.com"}, 
-                "octacat"
-              )
-          ), 
-          React.createElement(Td, {column: "Age"}, "18")
-      ), 
-      React.createElement(Tr, null, 
-          React.createElement(Td, {column: "checkBox"}, 
-            React.createElement(CheckBox, {flux: checkboxFlux, name: "checkbox2"})
-          ), 
-          React.createElement(Td, {column: "Name"}, "Lee Salminen"), 
-          React.createElement(Td, {column: "Age"}, "23")
-      ), 
-      React.createElement(Tr, null, 
-          React.createElement(Td, {column: "checkBox"}, 
-            React.createElement(CheckBox, {flux: checkboxFlux, name: "checkbox3"})
-          ), 
-          React.createElement(Td, {column: "Position"}, "Developer"), 
-          React.createElement(Td, {column: "Age"}, "29")
-      )
-  ),
+  React.createElement(TableLayout, null),
     document.getElementById('table')
 );
 
@@ -224,7 +245,61 @@ React.render(
   document.getElementById('checkbox_state_button')
 );
 
-},{"fluxxor":5,"react":256,"reactable":257}],4:[function(require,module,exports){
+},{"../stylesheets/fixed-data-table.css":4,"fixed-data-table":57,"fluxxor":58,"react":313}],4:[function(require,module,exports){
+var css = "/**\n * FixedDataTable v0.3.0\n *\n * Copyright (c) 2015, Facebook, Inc.\n * All rights reserved.\n *\n * This source code is licensed under the BSD-style license found in the\n * LICENSE file in the root directory of this source tree. An additional grant\n * of patent rights can be found in the PATENTS file in the same directory.\n */\n/**\n * Copyright (c) 2015, Facebook, Inc.\n * All rights reserved.\n *\n * This source code is licensed under the BSD-style license found in the\n * LICENSE file in the root directory of this source tree. An additional grant\n * of patent rights can be found in the PATENTS file in the same directory.\n *\n * @providesModule Scrollbar\n */\n.public_Scrollbar_main {\n  box-sizing: border-box;\n  outline: none;\n  overflow: hidden;\n  position: absolute;\n  -webkit-transition-duration: 250ms;\n  transition-duration: 250ms;\n  -webkit-transition-timing-function: ease;\n  transition-timing-function: ease;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.public_Scrollbar_mainVertical {\n  bottom: 0;\n  right: 0;\n  top: 0;\n  -webkit-transition-property: background-color width;\n  transition-property: background-color width;\n  width: 15px;\n}\n/* Touching the scroll-track directly makes the scroll-track bolder */\n.public_Scrollbar_mainVertical.Scrollbar_mainActive,\n.public_Scrollbar_mainVertical:hover {\n  background-color: rgba(255, 255, 255, 0.8);\n  width: 17px;\n}\n.public_Scrollbar_mainHorizontal {\n  bottom: 0;\n  height: 15px;\n  left: 0;\n  -webkit-transition-property: background-color height;\n  transition-property: background-color height;\n}\n/* Touching the scroll-track directly makes the scroll-track bolder */\n.public_Scrollbar_mainHorizontal.Scrollbar_mainActive,\n.public_Scrollbar_mainHorizontal:hover {\n  background-color: rgba(255, 255, 255, 0.8);\n  height: 17px;\n}\n.Scrollbar_mainOpaque,\n.Scrollbar_mainOpaque.Scrollbar_mainActive,\n.Scrollbar_mainOpaque:hover {\n  background-color: #fff;\n}\n.Scrollbar_face {\n  left: 0;\n  overflow: hidden;\n  position: absolute;\n  z-index: 1;\n}\n/**\n * This selector renders the \"nub\" of the scrollface. The nub must\n * be rendered as pseudo-element so that it won't receive any UI events then\n * we can get the correct `event.offsetX` and `event.offsetY` from the\n * scrollface element while dragging it.\n */\n.Scrollbar_face:after {\n  background-color: #c2c2c2;\n  border-radius: 6px;\n  content: '';\n  display: block;\n  position: absolute;\n  -webkit-transition: background-color 250ms ease;\n  transition: background-color 250ms ease;\n}\n.public_Scrollbar_main:hover .Scrollbar_face:after,\n.Scrollbar_mainActive .Scrollbar_face:after,\n.Scrollbar_faceActive:after {\n  background-color: #7d7d7d;\n}\n.Scrollbar_faceHorizontal {\n  bottom: 0;\n  left: 0;\n  top: 0;\n}\n.Scrollbar_faceHorizontal:after {\n  bottom: 4px;\n  left: 0;\n  top: 4px;\n  width: 100%;\n}\n.Scrollbar_faceVertical {\n  left: 0;\n  right: 0;\n  top: 0;\n}\n.Scrollbar_faceVertical:after {\n  height: 100%;\n  left: 4px;\n  right: 4px;\n  top: 0;\n}\n/**\n * Copyright (c) 2015, Facebook, Inc.\n * All rights reserved.\n *\n * This source code is licensed under the BSD-style license found in the\n * LICENSE file in the root directory of this source tree. An additional grant\n * of patent rights can be found in the PATENTS file in the same directory.\n *\n * @providesModule fixedDataTable\n */\n.public_fixedDataTable_main {\n  border: solid 1px #d3d3d3;\n  box-sizing: border-box;\n  overflow: hidden;\n  position: relative;\n}\n.public_fixedDataTable_header,\n.fixedDataTable_hasBottomBorder {\n  border-bottom: solid 1px #d3d3d3;\n}\n.public_fixedDataTableRow_main.fixedDataTable_hasBottomBorder {\n  box-sizing: content-box;\n}\n.public_fixedDataTable_header .public_fixedDataTableCell_main {\n  font-weight: bold;\n}\n.public_fixedDataTable_header,\n.public_fixedDataTable_header .public_fixedDataTableCell_main {\n  background-color: #f6f7f8;\n  background-image: -webkit-linear-gradient(#fff, #efefef);\n  background-image: linear-gradient(#fff, #efefef);\n}\n.public_fixedDataTable_footer .public_fixedDataTableCell_main {\n  background-color: #f6f7f8;\n  border-top: solid 1px #d3d3d3;\n}\n.fixedDataTable_topShadow,\n.fixedDataTable_bottomShadow {\n  height: 4px;\n  left: 0;\n  position: absolute;\n  right: 0;\n  z-index: 1;\n}\n.fixedDataTable_topShadow {\n  background: 0 0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAECAYAAABP2FU6AAAAF0lEQVR4AWPUkNeSBhHCjJoK2twgFisAFagCCp3pJlAAAAAASUVORK5CYII=) repeat-x;\n}\n.fixedDataTable_bottomShadow {\n  background: 0 0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAECAYAAABP2FU6AAAAHElEQVQI12MwNjZmZdAT1+Nm0JDWEGZQk1GTBgAWkwIeAEp52AAAAABJRU5ErkJggg==) repeat-x;\n  margin-top: -4px;\n}\n.fixedDataTable_rowsContainer {\n  overflow: hidden;\n  position: relative;\n}\n.fixedDataTable_horizontalScrollbar {\n  bottom: 0;\n  position: absolute;\n}\n.fixedDataTable_horizontalScrollbar .public_Scrollbar_mainHorizontal {\n  background: #fff;\n}\n/**\n * Copyright (c) 2015, Facebook, Inc.\n * All rights reserved.\n *\n * This source code is licensed under the BSD-style license found in the\n * LICENSE file in the root directory of this source tree. An additional grant\n * of patent rights can be found in the PATENTS file in the same directory.\n *\n * @providesModule fixedDataTableCell\n */\n.public_fixedDataTableCell_main {\n  background-color: #fff;\n  border: solid 1px #d3d3d3;\n  border-width: 0 1px 0 0;\n  box-sizing: border-box;\n  display: block;\n  overflow: hidden;\n  position: absolute;\n  white-space: normal;\n}\n.public_fixedDataTableCell_lastChild {\n  border-width: 0 1px 1px 0;\n}\n.public_fixedDataTableCell_highlighted {\n  background-color: #f4f4f4;\n}\n.public_fixedDataTableCell_alignRight {\n  text-align: right;\n}\n.public_fixedDataTableCell_alignCenter {\n  text-align: center;\n}\n.public_fixedDataTableCell_wrap1 {\n  display: table;\n}\n.public_fixedDataTableCell_wrap2 {\n  display: table-row;\n}\n.public_fixedDataTableCell_wrap3 {\n  display: table-cell;\n  vertical-align: middle;\n}\n.public_fixedDataTableCell_cellContent {\n  padding: 8px;\n}\n.fixedDataTableCell_columnResizerContainer {\n  position: absolute;\n  right: 0px;\n  width: 6px;\n  z-index: 1;\n}\n.fixedDataTableCell_columnResizerContainer:hover {\n  cursor: ew-resize;\n}\n.fixedDataTableCell_columnResizerContainer:hover .fixedDataTableCell_columnResizerKnob {\n  visibility: visible;\n}\n.fixedDataTableCell_columnResizerKnob {\n  background-color: #0284ff;\n  position: absolute;\n  right: 0px;\n  visibility: hidden;\n  width: 4px;\n}\n/**\n * Copyright (c) 2015, Facebook, Inc.\n * All rights reserved.\n *\n * This source code is licensed under the BSD-style license found in the\n * LICENSE file in the root directory of this source tree. An additional grant\n * of patent rights can be found in the PATENTS file in the same directory.\n *\n * @providesModule fixedDataTableCellGroup\n */\n.fixedDataTableCellGroup_cellGroup {\n  -webkit-backface-visibility: hidden;\n  backface-visibility: hidden;\n  left: 0;\n  overflow: hidden;\n  position: absolute;\n  top: 0;\n  white-space: nowrap;\n}\n.fixedDataTableCellGroup_cellGroup > .public_fixedDataTableCell_main {\n  display: inline-block;\n  vertical-align: top;\n  white-space: normal;\n}\n.fixedDataTableCellGroup_cellGroupWrapper {\n  position: absolute;\n  top: 0;\n}\n/**\n * Copyright (c) 2015, Facebook, Inc.\n * All rights reserved.\n *\n * This source code is licensed under the BSD-style license found in the\n * LICENSE file in the root directory of this source tree. An additional grant\n * of patent rights can be found in the PATENTS file in the same directory.\n *\n * @providesModule fixedDataTableColumnResizerLine\n */\n.fixedDataTableColumnResizerLine_mouseArea {\n  cursor: ew-resize;\n  position: absolute;\n  right: -5px;\n  width: 12px;\n}\n.fixedDataTableColumnResizerLine_main {\n  border-right: 1px solid #0284ff;\n  box-sizing: border-box;\n  position: absolute;\n  z-index: 10;\n}\n.fixedDataTableColumnResizerLine_hiddenElem {\n  display: none !important;\n}\n/**\n * Copyright (c) 2015, Facebook, Inc.\n * All rights reserved.\n *\n * This source code is licensed under the BSD-style license found in the\n * LICENSE file in the root directory of this source tree. An additional grant\n * of patent rights can be found in the PATENTS file in the same directory.\n *\n * @providesModule fixedDataTableRow\n */\n.public_fixedDataTableRow_main {\n  background-color: #fff;\n  box-sizing: border-box;\n  overflow: hidden;\n  position: absolute;\n  top: 0;\n}\n.fixedDataTableRow_body {\n  left: 0;\n  position: absolute;\n  top: 0;\n}\n.public_fixedDataTableRow_highlighted,\n.public_fixedDataTableRow_highlighted .public_fixedDataTableCell_main {\n  background-color: #f6f7f8;\n}\n.fixedDataTableRow_fixedColumnsDivider {\n  -webkit-backface-visibility: hidden;\n  backface-visibility: hidden;\n  border-left: solid 1px #d3d3d3;\n  left: 0;\n  position: absolute;\n  top: 0;\n  width: 0;\n}\n.fixedDataTableRow_columnsShadow {\n  background: 0 0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAABCAYAAAD5PA/NAAAAFklEQVQIHWPSkNeSBmJhTQVtbiDNCgASagIIuJX8OgAAAABJRU5ErkJggg==) repeat-y;\n  width: 4px;\n}\n.fixedDataTableRow_rowWrapper {\n  position: absolute;\n  top: 0;\n}\n"; (require("browserify-css").createStyle(css, { "href": "app/assets/stylesheets/fixed-data-table.css"})); module.exports = css;
+},{"browserify-css":5}],5:[function(require,module,exports){
+'use strict';
+// For more information about browser field, check out the browser field at https://github.com/substack/browserify-handbook#browser-field.
+
+module.exports = {
+    // Create a <link> tag with optional data attributes
+    createLink: function(href, attributes) {
+        var head = document.head || document.getElementsByTagName('head')[0];
+        var link = document.createElement('link');
+
+        link.href = href;
+        link.rel = 'stylesheet';
+
+        for (var key in attributes) {
+            if ( ! attributes.hasOwnProperty(key)) {
+                continue;
+            }
+            var value = attributes[key];
+            link.setAttribute('data-' + key, value);
+        }
+
+        head.appendChild(link);
+    },
+    // Create a <style> tag with optional data attributes
+    createStyle: function(cssText, attributes) {
+        var head = document.head || document.getElementsByTagName('head')[0],
+            style = document.createElement('style');
+
+        style.type = 'text/css';
+
+        for (var key in attributes) {
+            if ( ! attributes.hasOwnProperty(key)) {
+                continue;
+            }
+            var value = attributes[key];
+            style.setAttribute('data-' + key, value);
+        }
+        
+        if (style.sheet) { // for jsdom and IE9+
+            style.innerHTML = cssText;
+            style.sheet.cssText = cssText;
+            head.appendChild(style);
+        } else if (style.styleSheet) { // for IE8 and below
+            head.appendChild(style);
+            style.styleSheet.cssText = cssText;
+        } else { // for Chrome, Firefox, and Safari
+            style.appendChild(document.createTextNode(cssText));
+            head.appendChild(style);
+        }
+    }
+};
+
+},{}],6:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -284,7 +359,6103 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],5:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule BrowserSupportCore
+ */
+
+'use strict';
+
+var getVendorPrefixedName = require('./getVendorPrefixedName');
+
+var BrowserSupportCore = {
+  /**
+   * @return {bool} True if browser supports css animations.
+   */
+  hasCSSAnimations: function hasCSSAnimations() {
+    return !!getVendorPrefixedName('animationName');
+  },
+
+  /**
+   * @return {bool} True if browser supports css transforms.
+   */
+  hasCSSTransforms: function hasCSSTransforms() {
+    return !!getVendorPrefixedName('transform');
+  },
+
+  /**
+   * @return {bool} True if browser supports css 3d transforms.
+   */
+  hasCSS3DTransforms: function hasCSS3DTransforms() {
+    return !!getVendorPrefixedName('perspective');
+  },
+
+  /**
+   * @return {bool} True if browser supports css transitions.
+   */
+  hasCSSTransitions: function hasCSSTransitions() {
+    return !!getVendorPrefixedName('transition');
+  } };
+
+module.exports = BrowserSupportCore;
+},{"./getVendorPrefixedName":44}],8:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * This class listens to events on the document and then updates a react
+ * component through callbacks.
+ * Please note that captureMouseMove must be called in
+ * order to initialize listeners on mousemove and mouseup.
+ * releaseMouseMove must be called to remove them. It is important to
+ * call releaseMouseMoves since mousemove is expensive to listen to.
+ *
+ * @providesModule DOMMouseMoveTracker
+ * @typechecks
+ */
+
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var EventListener = require('./EventListener');
+
+var cancelAnimationFramePolyfill = require('./cancelAnimationFramePolyfill');
+var requestAnimationFramePolyfill = require('./requestAnimationFramePolyfill');
+
+var DOMMouseMoveTracker = (function () {
+  /**
+   * onMove is the callback that will be called on every mouse move.
+   * onMoveEnd is called on mouse up when movement has ended.
+   */
+
+  function DOMMouseMoveTracker(
+  /*function*/onMove,
+  /*function*/onMoveEnd,
+  /*DOMElement*/domNode) {
+    _classCallCheck(this, DOMMouseMoveTracker);
+
+    this._isDragging = false;
+    this._animationFrameID = null;
+    this._domNode = domNode;
+    this._onMove = onMove;
+    this._onMoveEnd = onMoveEnd;
+    this._onMouseMove = this._onMouseMove.bind(this);
+    this._onMouseUp = this._onMouseUp.bind(this);
+    this._didMouseMove = this._didMouseMove.bind(this);
+  }
+
+  _createClass(DOMMouseMoveTracker, [{
+    key: 'captureMouseMoves',
+
+    /**
+     * This is to set up the listeners for listening to mouse move
+     * and mouse up signaling the movement has ended. Please note that these
+     * listeners are added at the document.body level. It takes in an event
+     * in order to grab inital state.
+     */
+    value: function captureMouseMoves( /*object*/event) {
+      if (!this._eventMoveToken && !this._eventUpToken) {
+        this._eventMoveToken = EventListener.listen(this._domNode, 'mousemove', this._onMouseMove);
+        this._eventUpToken = EventListener.listen(this._domNode, 'mouseup', this._onMouseUp);
+      }
+
+      if (!this._isDragging) {
+        this._deltaX = 0;
+        this._deltaY = 0;
+        this._isDragging = true;
+        this._x = event.clientX;
+        this._y = event.clientY;
+      }
+      event.preventDefault();
+    }
+  }, {
+    key: 'releaseMouseMoves',
+
+    /**
+     * These releases all of the listeners on document.body.
+     */
+    value: function releaseMouseMoves() {
+      if (this._eventMoveToken && this._eventUpToken) {
+        this._eventMoveToken.remove();
+        this._eventMoveToken = null;
+        this._eventUpToken.remove();
+        this._eventUpToken = null;
+      }
+
+      if (this._animationFrameID !== null) {
+        cancelAnimationFramePolyfill(this._animationFrameID);
+        this._animationFrameID = null;
+      }
+
+      if (this._isDragging) {
+        this._isDragging = false;
+        this._x = null;
+        this._y = null;
+      }
+    }
+  }, {
+    key: 'isDragging',
+
+    /**
+     * Returns whether or not if the mouse movement is being tracked.
+     */
+    value: function isDragging() /*boolean*/{
+      return this._isDragging;
+    }
+  }, {
+    key: '_onMouseMove',
+
+    /**
+     * Calls onMove passed into constructor and updates internal state.
+     */
+    value: function _onMouseMove( /*object*/event) {
+      var x = event.clientX;
+      var y = event.clientY;
+
+      this._deltaX += x - this._x;
+      this._deltaY += y - this._y;
+
+      if (this._animationFrameID === null) {
+        // The mouse may move faster then the animation frame does.
+        // Use `requestAnimationFramePolyfill` to avoid over-updating.
+        this._animationFrameID = requestAnimationFramePolyfill(this._didMouseMove);
+      }
+
+      this._x = x;
+      this._y = y;
+      event.preventDefault();
+    }
+  }, {
+    key: '_didMouseMove',
+    value: function _didMouseMove() {
+      this._animationFrameID = null;
+      this._onMove(this._deltaX, this._deltaY);
+      this._deltaX = 0;
+      this._deltaY = 0;
+    }
+  }, {
+    key: '_onMouseUp',
+
+    /**
+     * Calls onMoveEnd passed into constructor and updates internal state.
+     */
+    value: function _onMouseUp() {
+      if (this._animationFrameID) {
+        this._didMouseMove();
+      }
+      this._onMoveEnd();
+    }
+  }]);
+
+  return DOMMouseMoveTracker;
+})();
+
+module.exports = DOMMouseMoveTracker;
+},{"./EventListener":9,"./cancelAnimationFramePolyfill":37,"./requestAnimationFramePolyfill":54}],9:[function(require,module,exports){
+(function (process){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule EventListener
+ * @typechecks
+ */
+
+'use strict';
+
+var emptyFunction = require('./emptyFunction');
+
+/**
+ * Upstream version of event listener. Does not take into account specific
+ * nature of platform.
+ */
+var EventListener = {
+  /**
+   * Listen to DOM events during the bubble phase.
+   *
+   * @param {DOMEventTarget} target DOM element to register listener on.
+   * @param {string} eventType Event type, e.g. 'click' or 'mouseover'.
+   * @param {function} callback Callback function.
+   * @return {object} Object with a `remove` method.
+   */
+  listen: function listen(target, eventType, callback) {
+    if (target.addEventListener) {
+      target.addEventListener(eventType, callback, false);
+      return {
+        remove: function remove() {
+          target.removeEventListener(eventType, callback, false);
+        }
+      };
+    } else if (target.attachEvent) {
+      target.attachEvent('on' + eventType, callback);
+      return {
+        remove: function remove() {
+          target.detachEvent('on' + eventType, callback);
+        }
+      };
+    }
+  },
+
+  /**
+   * Listen to DOM events during the capture phase.
+   *
+   * @param {DOMEventTarget} target DOM element to register listener on.
+   * @param {string} eventType Event type, e.g. 'click' or 'mouseover'.
+   * @param {function} callback Callback function.
+   * @return {object} Object with a `remove` method.
+   */
+  capture: function capture(target, eventType, callback) {
+    if (!target.addEventListener) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Attempted to listen to events during the capture phase on a ' + 'browser that does not support the capture phase. Your application ' + 'will not receive some events.');
+      }
+      return {
+        remove: emptyFunction
+      };
+    } else {
+      target.addEventListener(eventType, callback, true);
+      return {
+        remove: function remove() {
+          target.removeEventListener(eventType, callback, true);
+        }
+      };
+    }
+  },
+
+  registerDefault: function registerDefault() {}
+};
+
+module.exports = EventListener;
+}).call(this,require('_process'))
+},{"./emptyFunction":43,"_process":6}],10:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule ExecutionEnvironment
+ */
+
+/*jslint evil: true */
+
+'use strict';
+
+var canUseDOM = !!(typeof window !== 'undefined' && window.document && window.document.createElement);
+
+/**
+ * Simple, lightweight module assisting with the detection and context of
+ * Worker. Helps avoid circular dependencies and allows code to reason about
+ * whether or not they are in a Worker, even if they never include the main
+ * `ReactWorker` dependency.
+ */
+var ExecutionEnvironment = {
+
+  canUseDOM: canUseDOM,
+
+  canUseWorkers: typeof Worker !== 'undefined',
+
+  canUseEventListeners: canUseDOM && !!(window.addEventListener || window.attachEvent),
+
+  canUseViewport: canUseDOM && !!window.screen,
+
+  isInWorker: !canUseDOM // For now, this is true - might change in the future.
+
+};
+
+module.exports = ExecutionEnvironment;
+},{}],11:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule FixedDataTable.react
+ * @typechecks
+ */
+
+/* jslint bitwise: true */
+
+'use strict';
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var FixedDataTableHelper = require('./FixedDataTableHelper');
+var Locale = require('./Locale');
+var React = require('./React');
+var ReactComponentWithPureRenderMixin = require('./ReactComponentWithPureRenderMixin');
+var ReactWheelHandler = require('./ReactWheelHandler');
+var Scrollbar = require('./Scrollbar.react');
+var FixedDataTableBufferedRows = require('./FixedDataTableBufferedRows.react');
+var FixedDataTableColumnResizeHandle = require('./FixedDataTableColumnResizeHandle.react');
+var FixedDataTableRow = require('./FixedDataTableRow.react');
+var FixedDataTableScrollHelper = require('./FixedDataTableScrollHelper');
+var FixedDataTableWidthHelper = require('./FixedDataTableWidthHelper');
+
+var cloneWithProps = require('./cloneWithProps');
+var cx = require('./cx');
+var debounceCore = require('./debounceCore');
+var emptyFunction = require('./emptyFunction');
+var invariant = require('./invariant');
+var shallowEqual = require('./shallowEqual');
+var translateDOMPositionXY = require('./translateDOMPositionXY');
+
+var PropTypes = React.PropTypes;
+
+var ReactChildren = React.Children;
+
+var renderToString = FixedDataTableHelper.renderToString;
+var EMPTY_OBJECT = {};
+var BORDER_HEIGHT = 1;
+
+/**
+ * Data grid component with fixed or scrollable header and columns.
+ *
+ * The layout of the data table is as follows:
+ *
+ * ```
+ * +---------------------------------------------------+
+ * | Fixed Column Group    | Scrollable Column Group   |
+ * | Header                | Header                    |
+ * |                       |                           |
+ * +---------------------------------------------------+
+ * |                       |                           |
+ * | Fixed Header Columns  | Scrollable Header Columns |
+ * |                       |                           |
+ * +-----------------------+---------------------------+
+ * |                       |                           |
+ * | Fixed Body Columns    | Scrollable Body Columns   |
+ * |                       |                           |
+ * +-----------------------+---------------------------+
+ * |                       |                           |
+ * | Fixed Footer Columns  | Scrollable Footer Columns |
+ * |                       |                           |
+ * +-----------------------+---------------------------+
+ * ```
+ *
+ * - Fixed Column Group Header: These are the headers for a group
+ *   of columns if included in the table that do not scroll
+ *   vertically or horizontally.
+ *
+ * - Scrollable Column Group Header: The header for a group of columns
+ *   that do not move while scrolling vertically, but move horizontally
+ *   with the horizontal scrolling.
+ *
+ * - Fixed Header Columns: The header columns that do not move while scrolling
+ *   vertically or horizontally.
+ *
+ * - Scrollable Header Columns: The header columns that do not move
+ *   while scrolling vertically, but move horizontally with the horizontal
+ *   scrolling.
+ *
+ * - Fixed Body Columns: The body columns that do not move while scrolling
+ *   horizontally, but move vertically with the vertical scrolling.
+ *
+ * - Scrollable Body Columns: The body columns that move while scrolling
+ *   vertically or horizontally.
+ */
+var FixedDataTable = React.createClass({
+  displayName: 'FixedDataTable',
+
+  propTypes: {
+
+    /**
+     * Pixel width of table. If all columns do not fit,
+     * a horizontal scrollbar will appear.
+     */
+    width: PropTypes.number.isRequired,
+
+    /**
+     * Pixel height of table. If all rows do not fit,
+     * a vertical scrollbar will appear.
+     *
+     * Either `height` or `maxHeight` must be specified.
+     */
+    height: PropTypes.number,
+
+    /**
+     * Maximum pixel height of table. If all rows do not fit,
+     * a vertical scrollbar will appear.
+     *
+     * Either `height` or `maxHeight` must be specified.
+     */
+    maxHeight: PropTypes.number,
+
+    /**
+     * Pixel height of table's owner, this is used in a managed scrolling
+     * situation when you want to slide the table up from below the fold
+     * without having to constantly update the height on every scroll tick.
+     * Instead, vary this property on scroll. By using `ownerHeight`, we
+     * over-render the table while making sure the footer and horizontal
+     * scrollbar of the table are visible when the current space for the table
+     * in view is smaller than the final, over-flowing height of table. It
+     * allows us to avoid resizing and reflowing table when it is moving in the
+     * view.
+     *
+     * This is used if `ownerHeight < height` (or `maxHeight`).
+     */
+    ownerHeight: PropTypes.number,
+
+    overflowX: PropTypes.oneOf(['hidden', 'auto']),
+    overflowY: PropTypes.oneOf(['hidden', 'auto']),
+
+    /**
+     * Number of rows in the table.
+     */
+    rowsCount: PropTypes.number.isRequired,
+
+    /**
+     * Pixel height of rows unless `rowHeightGetter` is specified and returns
+     * different value.
+     */
+    rowHeight: PropTypes.number.isRequired,
+
+    /**
+     * If specified, `rowHeightGetter(index)` is called for each row and the
+     * returned value overrides `rowHeight` for particular row.
+     */
+    rowHeightGetter: PropTypes.func,
+
+    /**
+     * To get rows to display in table, `rowGetter(index)`
+     * is called. `rowGetter` should be smart enough to handle async
+     * fetching of data and return temporary objects
+     * while data is being fetched.
+     */
+    rowGetter: PropTypes.func.isRequired,
+
+    /**
+     * To get any additional CSS classes that should be added to a row,
+     * `rowClassNameGetter(index)` is called.
+     */
+    rowClassNameGetter: PropTypes.func,
+
+    /**
+     * Pixel height of the column group header.
+     */
+    groupHeaderHeight: PropTypes.number,
+
+    /**
+     * Pixel height of header.
+     */
+    headerHeight: PropTypes.number.isRequired,
+
+    /**
+     * Function that is called to get the data for the header row.
+     */
+    headerDataGetter: PropTypes.func,
+
+    /**
+     * Pixel height of footer.
+     */
+    footerHeight: PropTypes.number,
+
+    /**
+     * DEPRECATED - use footerDataGetter instead.
+     * Data that will be passed to footer cell renderers.
+     */
+    footerData: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+
+    /**
+     * Function that is called to get the data for the footer row.
+     */
+    footerDataGetter: PropTypes.func,
+
+    /**
+     * Value of horizontal scroll.
+     */
+    scrollLeft: PropTypes.number,
+
+    /**
+     * Index of column to scroll to.
+     */
+    scrollToColumn: PropTypes.number,
+
+    /**
+     * Value of vertical scroll.
+     */
+    scrollTop: PropTypes.number,
+
+    /**
+     * Index of row to scroll to.
+     */
+    scrollToRow: PropTypes.number,
+
+    /**
+     * Callback that is called when scrolling ends or stops with new horizontal
+     * and vertical scroll values.
+     */
+    onScrollEnd: PropTypes.func,
+
+    /**
+     * Callback that is called when `rowHeightGetter` returns a different height
+     * for a row than the `rowHeight` prop. This is necessary because initially
+     * table estimates heights of some parts of the content.
+     */
+    onContentHeightChange: PropTypes.func,
+
+    /**
+     * Callback that is called when a row is clicked.
+     */
+    onRowClick: PropTypes.func,
+
+    /**
+     * Callback that is called when a row is double clicked.
+     */
+    onRowDoubleClick: PropTypes.func,
+
+    /**
+     * Callback that is called when a mouse-down event happens on a row.
+     */
+    onRowMouseDown: PropTypes.func,
+
+    /**
+     * Callback that is called when a mouse-enter event happens on a row.
+     */
+    onRowMouseEnter: PropTypes.func,
+
+    /**
+     * Callback that is called when a mouse-leave event happens on a row.
+     */
+    onRowMouseLeave: PropTypes.func,
+
+    /**
+     * Callback that is called when resizer has been released
+     * and column needs to be updated.
+     */
+    onColumnResizeEndCallback: PropTypes.func,
+
+    /**
+     * Whether a column is currently being resized.
+     */
+    isColumnResizing: PropTypes.bool },
+
+  getDefaultProps: function getDefaultProps() /*object*/{
+    return {
+      footerHeight: 0,
+      groupHeaderHeight: 0,
+      headerHeight: 0,
+      scrollLeft: 0,
+      scrollTop: 0 };
+  },
+
+  getInitialState: function getInitialState() /*object*/{
+    var props = this.props;
+    var viewportHeight = props.height - props.headerHeight - props.footerHeight - props.groupHeaderHeight;
+    this._scrollHelper = new FixedDataTableScrollHelper(props.rowsCount, props.rowHeight, viewportHeight, props.rowHeightGetter);
+    if (props.scrollTop) {
+      this._scrollHelper.scrollTo(props.scrollTop);
+    }
+    this._didScrollStop = debounceCore(this._didScrollStop, 160, this);
+
+    return this._calculateState(this.props);
+  },
+
+  componentWillMount: function componentWillMount() {
+    var scrollToRow = this.props.scrollToRow;
+    if (scrollToRow !== undefined && scrollToRow !== null) {
+      this._rowToScrollTo = scrollToRow;
+    }
+    var scrollToColumn = this.props.scrollToColumn;
+    if (scrollToColumn !== undefined && scrollToColumn !== null) {
+      this._columnToScrollTo = scrollToColumn;
+    }
+    this._wheelHandler = new ReactWheelHandler(this._onWheel, this._shouldHandleWheelX, this._shouldHandleWheelY);
+  },
+
+  _shouldHandleWheelX: function _shouldHandleWheelX( /*number*/delta) /*boolean*/{
+    if (this.props.overflowX === 'hidden') {
+      return false;
+    }
+
+    delta = Math.round(delta);
+    if (delta === 0) {
+      return false;
+    }
+
+    return delta < 0 && this.state.scrollX > 0 || delta >= 0 && this.state.scrollX < this.state.maxScrollX;
+  },
+
+  _shouldHandleWheelY: function _shouldHandleWheelY( /*number*/delta) /*boolean*/{
+    if (this.props.overflowY === 'hidden' || delta === 0) {
+      return false;
+    }
+
+    delta = Math.round(delta);
+    if (delta === 0) {
+      return false;
+    }
+
+    return delta < 0 && this.state.scrollY > 0 || delta >= 0 && this.state.scrollY < this.state.maxScrollY;
+  },
+
+  _reportContentHeight: function _reportContentHeight() {
+    var scrollContentHeight = this.state.scrollContentHeight;
+    var reservedHeight = this.state.reservedHeight;
+    var requiredHeight = scrollContentHeight + reservedHeight;
+    var contentHeight;
+    var useMaxHeight = this.props.height === undefined;
+    if (useMaxHeight && this.props.maxHeight > requiredHeight) {
+      contentHeight = requiredHeight;
+    } else if (this.state.height > requiredHeight && this.props.ownerHeight) {
+      contentHeight = Math.max(requiredHeight, this.props.ownerHeight);
+    } else {
+      contentHeight = this.state.height + this.state.maxScrollY;
+    }
+    if (contentHeight !== this._contentHeight && this.props.onContentHeightChange) {
+      this.props.onContentHeightChange(contentHeight);
+    }
+    this._contentHeight = contentHeight;
+  },
+
+  componentDidMount: function componentDidMount() {
+    this._reportContentHeight();
+  },
+
+  componentWillReceiveProps: function componentWillReceiveProps( /*object*/nextProps) {
+    var scrollToRow = nextProps.scrollToRow;
+    if (scrollToRow !== undefined && scrollToRow !== null) {
+      this._rowToScrollTo = scrollToRow;
+    }
+    var scrollToColumn = nextProps.scrollToColumn;
+    if (scrollToColumn !== undefined && scrollToColumn !== null) {
+      this._columnToScrollTo = scrollToColumn;
+    }
+
+    var newOverflowX = nextProps.overflowX;
+    var newOverflowY = nextProps.overflowY;
+    if (newOverflowX !== this.props.overflowX || newOverflowY !== this.props.overflowY) {
+      this._wheelHandler = new ReactWheelHandler(this._onWheel, newOverflowX !== 'hidden', // Should handle horizontal scroll
+      newOverflowY !== 'hidden' // Should handle vertical scroll
+      );
+    }
+
+    this.setState(this._calculateState(nextProps, this.state));
+  },
+
+  componentDidUpdate: function componentDidUpdate() {
+    this._reportContentHeight();
+  },
+
+  render: function render() /*object*/{
+    var state = this.state;
+    var props = this.props;
+
+    var groupHeader;
+    if (state.useGroupHeader) {
+      groupHeader = React.createElement(FixedDataTableRow, {
+        key: 'group_header',
+        className: cx('public/fixedDataTable/header'),
+        data: state.groupHeaderData,
+        width: state.width,
+        height: state.groupHeaderHeight,
+        index: 0,
+        zIndex: 1,
+        offsetTop: 0,
+        scrollLeft: state.scrollX,
+        fixedColumns: state.groupHeaderFixedColumns,
+        scrollableColumns: state.groupHeaderScrollableColumns
+      });
+    }
+
+    var maxScrollY = this.state.maxScrollY;
+    var showScrollbarX = state.maxScrollX > 0 && state.overflowX !== 'hidden';
+    var showScrollbarY = maxScrollY > 0 && state.overflowY !== 'hidden';
+    var scrollbarXHeight = showScrollbarX ? Scrollbar.SIZE : 0;
+    var scrollbarYHeight = state.height - scrollbarXHeight - 2 * BORDER_HEIGHT;
+
+    var headerOffsetTop = state.useGroupHeader ? state.groupHeaderHeight : 0;
+    var bodyOffsetTop = headerOffsetTop + state.headerHeight;
+    var bottomSectionOffset = 0;
+    var footOffsetTop = props.maxHeight != null ? bodyOffsetTop + state.bodyHeight : scrollbarYHeight - props.footerHeight;
+    var rowsContainerHeight = footOffsetTop + state.footerHeight;
+
+    if (props.ownerHeight !== undefined && props.ownerHeight < state.height) {
+      bottomSectionOffset = props.ownerHeight - state.height;
+      footOffsetTop = Math.min(footOffsetTop, scrollbarYHeight + bottomSectionOffset - state.footerHeight);
+      scrollbarYHeight = props.ownerHeight - scrollbarXHeight;
+    }
+
+    var verticalScrollbar;
+    if (showScrollbarY) {
+      verticalScrollbar = React.createElement(Scrollbar, {
+        size: scrollbarYHeight,
+        contentSize: scrollbarYHeight + maxScrollY,
+        onScroll: this._onVerticalScroll,
+        position: state.scrollY
+      });
+    }
+
+    var horizontalScrollbar;
+    if (showScrollbarX) {
+      var scrollbarYWidth = showScrollbarY ? Scrollbar.SIZE : 0;
+      var scrollbarXWidth = state.width - scrollbarYWidth;
+      horizontalScrollbar = React.createElement(HorizontalScrollbar, {
+        contentSize: scrollbarXWidth + state.maxScrollX,
+        offset: bottomSectionOffset,
+        onScroll: this._onHorizontalScroll,
+        position: state.scrollX,
+        size: scrollbarXWidth
+      });
+    }
+
+    var dragKnob = React.createElement(FixedDataTableColumnResizeHandle, {
+      height: state.height,
+      initialWidth: state.columnResizingData.width || 0,
+      minWidth: state.columnResizingData.minWidth || 0,
+      maxWidth: state.columnResizingData.maxWidth || Number.MAX_VALUE,
+      visible: !!state.isColumnResizing,
+      leftOffset: state.columnResizingData.left || 0,
+      knobHeight: state.headerHeight,
+      initialEvent: state.columnResizingData.initialEvent,
+      onColumnResizeEnd: props.onColumnResizeEndCallback,
+      columnKey: state.columnResizingData.key
+    });
+
+    var footer = null;
+    if (state.footerHeight) {
+      var footerData = props.footerDataGetter ? props.footerDataGetter() : props.footerData;
+
+      footer = React.createElement(FixedDataTableRow, {
+        key: 'footer',
+        className: cx('public/fixedDataTable/footer'),
+        data: footerData,
+        fixedColumns: state.footFixedColumns,
+        height: state.footerHeight,
+        index: -1,
+        zIndex: 1,
+        offsetTop: footOffsetTop,
+        scrollableColumns: state.footScrollableColumns,
+        scrollLeft: state.scrollX,
+        width: state.width
+      });
+    }
+
+    var rows = this._renderRows(bodyOffsetTop);
+
+    var header = React.createElement(FixedDataTableRow, {
+      key: 'header',
+      className: cx('public/fixedDataTable/header'),
+      data: state.headData,
+      width: state.width,
+      height: state.headerHeight,
+      index: -1,
+      zIndex: 1,
+      offsetTop: headerOffsetTop,
+      scrollLeft: state.scrollX,
+      fixedColumns: state.headFixedColumns,
+      scrollableColumns: state.headScrollableColumns,
+      onColumnResize: this._onColumnResize
+    });
+
+    var topShadow;
+    var bottomShadow;
+    if (state.scrollY) {
+      topShadow = React.createElement('div', {
+        className: cx('fixedDataTable/topShadow'),
+        style: { top: bodyOffsetTop }
+      });
+    }
+
+    if (state.ownerHeight != null && state.ownerHeight < state.height && state.scrollContentHeight + state.reservedHeight > state.ownerHeight || state.scrollY < maxScrollY) {
+      bottomShadow = React.createElement('div', {
+        className: cx('fixedDataTable/bottomShadow'),
+        style: { top: footOffsetTop }
+      });
+    }
+
+    return React.createElement(
+      'div',
+      {
+        className: cx('public/fixedDataTable/main'),
+        onWheel: this._wheelHandler.onWheel,
+        style: { height: state.height, width: state.width } },
+      React.createElement(
+        'div',
+        {
+          className: cx('fixedDataTable/rowsContainer'),
+          style: { height: rowsContainerHeight, width: state.width } },
+        dragKnob,
+        groupHeader,
+        header,
+        rows,
+        footer,
+        topShadow,
+        bottomShadow
+      ),
+      verticalScrollbar,
+      horizontalScrollbar
+    );
+  },
+
+  _renderRows: function _renderRows( /*number*/offsetTop) /*object*/{
+    var state = this.state;
+
+    return React.createElement(FixedDataTableBufferedRows, {
+      defaultRowHeight: state.rowHeight,
+      firstRowIndex: state.firstRowIndex,
+      firstRowOffset: state.firstRowOffset,
+      fixedColumns: state.bodyFixedColumns,
+      height: state.bodyHeight,
+      offsetTop: offsetTop,
+      onRowClick: state.onRowClick,
+      onRowDoubleClick: state.onRowDoubleClick,
+      onRowMouseDown: state.onRowMouseDown,
+      onRowMouseEnter: state.onRowMouseEnter,
+      onRowMouseLeave: state.onRowMouseLeave,
+      rowClassNameGetter: state.rowClassNameGetter,
+      rowsCount: state.rowsCount,
+      rowGetter: state.rowGetter,
+      rowHeightGetter: state.rowHeightGetter,
+      scrollLeft: state.scrollX,
+      scrollableColumns: state.bodyScrollableColumns,
+      showLastRowBorder: true,
+      width: state.width,
+      rowPositionGetter: this._scrollHelper.getRowPosition
+    });
+  },
+
+  /**
+   * This is called when a cell that is in the header of a column has its
+   * resizer knob clicked on. It displays the resizer and puts in the correct
+   * location on the table.
+   */
+  _onColumnResize: function _onColumnResize(
+  /*number*/combinedWidth,
+  /*number*/leftOffset,
+  /*number*/cellWidth,
+  /*?number*/cellMinWidth,
+  /*?number*/cellMaxWidth,
+  /*number|string*/columnKey,
+  /*object*/event) {
+    if (Locale.isRTL()) {
+      leftOffset = -leftOffset;
+    }
+    this.setState({
+      isColumnResizing: true,
+      columnResizingData: {
+        left: leftOffset + combinedWidth - cellWidth,
+        width: cellWidth,
+        minWidth: cellMinWidth,
+        maxWidth: cellMaxWidth,
+        initialEvent: {
+          clientX: event.clientX,
+          clientY: event.clientY,
+          preventDefault: emptyFunction
+        },
+        key: columnKey
+      }
+    });
+  },
+
+  _areColumnSettingsIdentical: function _areColumnSettingsIdentical(oldColumns, newColumns) {
+    if (oldColumns.length !== newColumns.length) {
+      return false;
+    }
+    for (var index = 0; index < oldColumns.length; ++index) {
+      if (!shallowEqual(oldColumns[index].props, newColumns[index].props)) {
+        return false;
+      }
+    }
+    return true;
+  },
+
+  _populateColumnsAndColumnData: function _populateColumnsAndColumnData(columns, columnGroups, oldState) {
+    var canReuseColumnSettings = false;
+    var canReuseColumnGroupSettings = false;
+
+    if (oldState && oldState.columns) {
+      canReuseColumnSettings = this._areColumnSettingsIdentical(columns, oldState.columns);
+    }
+    if (oldState && oldState.columnGroups && columnGroups) {
+      canReuseColumnGroupSettings = this._areColumnSettingsIdentical(columnGroups, oldState.columnGroups);
+    }
+
+    var columnInfo = {};
+    if (canReuseColumnSettings) {
+      columnInfo.bodyFixedColumns = oldState.bodyFixedColumns;
+      columnInfo.bodyScrollableColumns = oldState.bodyScrollableColumns;
+      columnInfo.headFixedColumns = oldState.headFixedColumns;
+      columnInfo.headScrollableColumns = oldState.headScrollableColumns;
+      columnInfo.footFixedColumns = oldState.footFixedColumns;
+      columnInfo.footScrollableColumns = oldState.footScrollableColumns;
+    } else {
+      var bodyColumnTypes = this._splitColumnTypes(columns);
+      columnInfo.bodyFixedColumns = bodyColumnTypes.fixed;
+      columnInfo.bodyScrollableColumns = bodyColumnTypes.scrollable;
+
+      var headColumnTypes = this._splitColumnTypes(this._createHeadColumns(columns));
+      columnInfo.headFixedColumns = headColumnTypes.fixed;
+      columnInfo.headScrollableColumns = headColumnTypes.scrollable;
+
+      var footColumnTypes = this._splitColumnTypes(this._createFootColumns(columns));
+      columnInfo.footFixedColumns = footColumnTypes.fixed;
+      columnInfo.footScrollableColumns = footColumnTypes.scrollable;
+    }
+
+    if (canReuseColumnGroupSettings) {
+      columnInfo.groupHeaderFixedColumns = oldState.groupHeaderFixedColumns;
+      columnInfo.groupHeaderScrollableColumns = oldState.groupHeaderScrollableColumns;
+    } else {
+      if (columnGroups) {
+        columnInfo.groupHeaderData = this._getGroupHeaderData(columnGroups);
+        columnGroups = this._createGroupHeaderColumns(columnGroups);
+        var groupHeaderColumnTypes = this._splitColumnTypes(columnGroups);
+        columnInfo.groupHeaderFixedColumns = groupHeaderColumnTypes.fixed;
+        columnInfo.groupHeaderScrollableColumns = groupHeaderColumnTypes.scrollable;
+      }
+    }
+
+    columnInfo.headData = this._getHeadData(columns);
+
+    return columnInfo;
+  },
+
+  _calculateState: function _calculateState( /*object*/props, /*?object*/oldState) /*object*/{
+    invariant(props.height !== undefined || props.maxHeight !== undefined, 'You must set either a height or a maxHeight');
+
+    var children = [];
+    ReactChildren.forEach(props.children, function (child, index) {
+      if (child == null) {
+        return;
+      }
+      invariant(child.type.__TableColumnGroup__ || child.type.__TableColumn__, 'child type should be <FixedDataTableColumn /> or ' + '<FixedDataTableColumnGroup />');
+      children.push(child);
+    });
+
+    var useGroupHeader = false;
+    if (children.length && children[0].type.__TableColumnGroup__) {
+      useGroupHeader = true;
+    }
+
+    var firstRowIndex = oldState && oldState.firstRowIndex || 0;
+    var firstRowOffset = oldState && oldState.firstRowOffset || 0;
+    var scrollX, scrollY;
+    if (oldState && props.overflowX !== 'hidden') {
+      scrollX = oldState.scrollX;
+    } else {
+      scrollX = props.scrollLeft;
+    }
+    if (oldState && props.overflowY !== 'hidden') {
+      scrollY = oldState.scrollY;
+    } else {
+      scrollState = this._scrollHelper.scrollTo(props.scrollTop);
+      firstRowIndex = scrollState.index;
+      firstRowOffset = scrollState.offset;
+      scrollY = scrollState.position;
+    }
+
+    if (this._rowToScrollTo !== undefined) {
+      scrollState = this._scrollHelper.scrollRowIntoView(this._rowToScrollTo);
+      firstRowIndex = scrollState.index;
+      firstRowOffset = scrollState.offset;
+      scrollY = scrollState.position;
+      delete this._rowToScrollTo;
+    }
+
+    var groupHeaderHeight = useGroupHeader ? props.groupHeaderHeight : 0;
+
+    if (oldState && props.rowsCount !== oldState.rowsCount) {
+      // Number of rows changed, try to scroll to the row from before the
+      // change
+      var viewportHeight = props.height - props.headerHeight - props.footerHeight - groupHeaderHeight;
+      this._scrollHelper = new FixedDataTableScrollHelper(props.rowsCount, props.rowHeight, viewportHeight, props.rowHeightGetter);
+      var scrollState = this._scrollHelper.scrollToRow(firstRowIndex, firstRowOffset);
+      firstRowIndex = scrollState.index;
+      firstRowOffset = scrollState.offset;
+      scrollY = scrollState.position;
+    } else if (oldState && props.rowHeightGetter !== oldState.rowHeightGetter) {
+      this._scrollHelper.setRowHeightGetter(props.rowHeightGetter);
+    }
+
+    var columnResizingData;
+    if (props.isColumnResizing) {
+      columnResizingData = oldState && oldState.columnResizingData;
+    } else {
+      columnResizingData = EMPTY_OBJECT;
+    }
+
+    var columns;
+    var columnGroups;
+
+    if (useGroupHeader) {
+      var columnGroupSettings = FixedDataTableWidthHelper.adjustColumnGroupWidths(children, props.width);
+      columns = columnGroupSettings.columns;
+      columnGroups = columnGroupSettings.columnGroups;
+    } else {
+      columns = FixedDataTableWidthHelper.adjustColumnWidths(children, props.width);
+    }
+
+    var columnInfo = this._populateColumnsAndColumnData(columns, columnGroups, oldState);
+
+    if (this._columnToScrollTo !== undefined) {
+      // If selected column is a fixed column, don't scroll
+      var fixedColumnsCount = columnInfo.bodyFixedColumns.length;
+      if (this._columnToScrollTo >= fixedColumnsCount) {
+        var totalFixedColumnsWidth = 0;
+        var i, column;
+        for (i = 0; i < columnInfo.bodyFixedColumns.length; ++i) {
+          column = columnInfo.bodyFixedColumns[i];
+          totalFixedColumnsWidth += column.props.width;
+        }
+
+        var scrollableColumnIndex = this._columnToScrollTo - fixedColumnsCount;
+        var previousColumnsWidth = 0;
+        for (i = 0; i < scrollableColumnIndex; ++i) {
+          column = columnInfo.bodyScrollableColumns[i];
+          previousColumnsWidth += column.props.width;
+        }
+
+        var availableScrollWidth = props.width - totalFixedColumnsWidth;
+        var selectedColumnWidth = columnInfo.bodyScrollableColumns[this._columnToScrollTo - fixedColumnsCount].props.width;
+        var minAcceptableScrollPosition = previousColumnsWidth + selectedColumnWidth - availableScrollWidth;
+
+        if (scrollX < minAcceptableScrollPosition) {
+          scrollX = minAcceptableScrollPosition;
+        }
+
+        if (scrollX > previousColumnsWidth) {
+          scrollX = previousColumnsWidth;
+        }
+      }
+      delete this._columnToScrollTo;
+    }
+
+    var useMaxHeight = props.height === undefined;
+    var height = useMaxHeight ? props.maxHeight : props.height;
+    var totalHeightReserved = props.footerHeight + props.headerHeight + groupHeaderHeight + 2 * BORDER_HEIGHT;
+    var bodyHeight = height - totalHeightReserved;
+    var scrollContentHeight = this._scrollHelper.getContentHeight();
+    var totalHeightNeeded = scrollContentHeight + totalHeightReserved;
+    var scrollContentWidth = FixedDataTableWidthHelper.getTotalWidth(columns);
+
+    var horizontalScrollbarVisible = scrollContentWidth > props.width && props.overflowX !== 'hidden';
+
+    if (horizontalScrollbarVisible) {
+      bodyHeight -= Scrollbar.SIZE;
+      totalHeightNeeded += Scrollbar.SIZE;
+      totalHeightReserved += Scrollbar.SIZE;
+    }
+
+    var maxScrollX = Math.max(0, scrollContentWidth - props.width);
+    var maxScrollY = Math.max(0, scrollContentHeight - bodyHeight);
+    scrollX = Math.min(scrollX, maxScrollX);
+    scrollY = Math.min(scrollY, maxScrollY);
+
+    if (!maxScrollY) {
+      // no vertical scrollbar necessary, use the totals we tracked so we
+      // can shrink-to-fit vertically
+      if (useMaxHeight) {
+        height = totalHeightNeeded;
+      }
+      bodyHeight = totalHeightNeeded - totalHeightReserved;
+    }
+
+    this._scrollHelper.setViewportHeight(bodyHeight);
+
+    // The order of elements in this object metters and bringing bodyHeight,
+    // height or useGroupHeader to the top can break various features
+    var newState = _extends({
+      isColumnResizing: oldState && oldState.isColumnResizing }, columnInfo, props, {
+
+      columns: columns,
+      columnGroups: columnGroups,
+      columnResizingData: columnResizingData,
+      firstRowIndex: firstRowIndex,
+      firstRowOffset: firstRowOffset,
+      horizontalScrollbarVisible: horizontalScrollbarVisible,
+      maxScrollX: maxScrollX,
+      maxScrollY: maxScrollY,
+      reservedHeight: totalHeightReserved,
+      scrollContentHeight: scrollContentHeight,
+      scrollX: scrollX,
+      scrollY: scrollY,
+
+      // These properties may overwrite properties defined in
+      // columnInfo and props
+      bodyHeight: bodyHeight,
+      height: height,
+      groupHeaderHeight: groupHeaderHeight,
+      useGroupHeader: useGroupHeader });
+
+    // Both `headData` and `groupHeaderData` are generated by
+    // `FixedDataTable` will be passed to each header cell to render.
+    // In order to prevent over-rendering the cells, we do not pass the
+    // new `headData` or `groupHeaderData`
+    // if they haven't changed.
+    if (oldState) {
+      if (oldState.headData && newState.headData && shallowEqual(oldState.headData, newState.headData)) {
+        newState.headData = oldState.headData;
+      }
+      if (oldState.groupHeaderData && newState.groupHeaderData && shallowEqual(oldState.groupHeaderData, newState.groupHeaderData)) {
+        newState.groupHeaderData = oldState.groupHeaderData;
+      }
+    }
+
+    return newState;
+  },
+
+  _createGroupHeaderColumns: function _createGroupHeaderColumns( /*array*/columnGroups) /*array*/{
+    var newColumnGroups = [];
+    for (var i = 0; i < columnGroups.length; ++i) {
+      newColumnGroups[i] = cloneWithProps(columnGroups[i], {
+        dataKey: i,
+        children: undefined,
+        columnData: columnGroups[i].props.columnGroupData,
+        cellRenderer: columnGroups[i].props.groupHeaderRenderer || renderToString,
+        isHeaderCell: true });
+    }
+    return newColumnGroups;
+  },
+
+  _createHeadColumns: function _createHeadColumns( /*array*/columns) /*array*/{
+    var headColumns = [];
+    for (var i = 0; i < columns.length; ++i) {
+      var columnProps = columns[i].props;
+      headColumns.push(cloneWithProps(columns[i], {
+        cellRenderer: columnProps.headerRenderer || renderToString,
+        columnData: columnProps.columnData,
+        dataKey: columnProps.dataKey,
+        isHeaderCell: true,
+        label: columnProps.label }));
+    }
+    return headColumns;
+  },
+
+  _createFootColumns: function _createFootColumns( /*array*/columns) /*array*/{
+    var footColumns = [];
+    for (var i = 0; i < columns.length; ++i) {
+      var columnProps = columns[i].props;
+      footColumns.push(cloneWithProps(columns[i], {
+        cellRenderer: columnProps.footerRenderer || renderToString,
+        columnData: columnProps.columnData,
+        dataKey: columnProps.dataKey,
+        isFooterCell: true }));
+    }
+    return footColumns;
+  },
+
+  _getHeadData: function _getHeadData( /*array*/columns) /*object*/{
+    var headData = {};
+    for (var i = 0; i < columns.length; ++i) {
+      var columnProps = columns[i].props;
+      if (this.props.headerDataGetter) {
+        headData[columnProps.dataKey] = this.props.headerDataGetter(columnProps.dataKey);
+      } else {
+        headData[columnProps.dataKey] = columnProps.label || '';
+      }
+    }
+    return headData;
+  },
+
+  _getGroupHeaderData: function _getGroupHeaderData( /*array*/columnGroups) /*array*/{
+    var groupHeaderData = [];
+    for (var i = 0; i < columnGroups.length; ++i) {
+      groupHeaderData[i] = columnGroups[i].props.label || '';
+    }
+    return groupHeaderData;
+  },
+
+  _splitColumnTypes: function _splitColumnTypes( /*array*/columns) /*object*/{
+    var fixedColumns = [];
+    var scrollableColumns = [];
+    for (var i = 0; i < columns.length; ++i) {
+      if (columns[i].props.fixed) {
+        fixedColumns.push(columns[i]);
+      } else {
+        scrollableColumns.push(columns[i]);
+      }
+    }
+    return {
+      fixed: fixedColumns,
+      scrollable: scrollableColumns };
+  },
+
+  _onWheel: function _onWheel( /*number*/deltaX, /*number*/deltaY) {
+    if (this.isMounted()) {
+      var x = this.state.scrollX;
+      if (Math.abs(deltaY) > Math.abs(deltaX) && this.props.overflowY !== 'hidden') {
+        var scrollState = this._scrollHelper.scrollBy(Math.round(deltaY));
+        var maxScrollY = Math.max(0, scrollState.contentHeight - this.state.bodyHeight);
+        this.setState({
+          firstRowIndex: scrollState.index,
+          firstRowOffset: scrollState.offset,
+          scrollY: scrollState.position,
+          scrollContentHeight: scrollState.contentHeight,
+          maxScrollY: maxScrollY });
+      } else if (deltaX && this.props.overflowX !== 'hidden') {
+        x += deltaX;
+        x = x < 0 ? 0 : x;
+        x = x > this.state.maxScrollX ? this.state.maxScrollX : x;
+        this.setState({
+          scrollX: x });
+      }
+
+      this._didScrollStop();
+    }
+  },
+
+  _onHorizontalScroll: function _onHorizontalScroll( /*number*/scrollPos) {
+    if (this.isMounted() && scrollPos !== this.state.scrollX) {
+      this.setState({
+        scrollX: scrollPos });
+      this._didScrollStop();
+    }
+  },
+
+  _onVerticalScroll: function _onVerticalScroll( /*number*/scrollPos) {
+    if (this.isMounted() && scrollPos !== this.state.scrollY) {
+      var scrollState = this._scrollHelper.scrollTo(Math.round(scrollPos));
+      this.setState({
+        firstRowIndex: scrollState.index,
+        firstRowOffset: scrollState.offset,
+        scrollY: scrollState.position,
+        scrollContentHeight: scrollState.contentHeight });
+      this._didScrollStop();
+    }
+  },
+
+  _didScrollStop: function _didScrollStop() {
+    if (this.isMounted()) {
+      if (this.props.onScrollEnd) {
+        this.props.onScrollEnd(this.state.scrollX, this.state.scrollY);
+      }
+    }
+  }
+});
+
+var HorizontalScrollbar = React.createClass({
+  displayName: 'HorizontalScrollbar',
+
+  mixins: [ReactComponentWithPureRenderMixin],
+  propTypes: {
+    contentSize: PropTypes.number.isRequired,
+    offset: PropTypes.number.isRequired,
+    onScroll: PropTypes.func.isRequired,
+    position: PropTypes.number.isRequired,
+    size: PropTypes.number.isRequired },
+
+  render: function render() /*object*/{
+    var outerContainerStyle = {
+      height: Scrollbar.SIZE,
+      width: this.props.size };
+    var innerContainerStyle = {
+      height: Scrollbar.SIZE,
+      position: 'absolute',
+      overflow: 'hidden',
+      width: this.props.size };
+    translateDOMPositionXY(innerContainerStyle, 0, this.props.offset);
+
+    return React.createElement(
+      'div',
+      {
+        className: cx('fixedDataTable/horizontalScrollbar'),
+        style: outerContainerStyle },
+      React.createElement(
+        'div',
+        { style: innerContainerStyle },
+        React.createElement(Scrollbar, _extends({}, this.props, {
+          isOpaque: true,
+          orientation: 'horizontal',
+          offset: undefined
+        }))
+      )
+    );
+  } });
+
+module.exports = FixedDataTable;
+
+// isColumnResizing should be overwritten by value from props if
+// avaialble
+},{"./FixedDataTableBufferedRows.react":12,"./FixedDataTableColumnResizeHandle.react":17,"./FixedDataTableHelper":18,"./FixedDataTableRow.react":20,"./FixedDataTableScrollHelper":22,"./FixedDataTableWidthHelper":23,"./Locale":29,"./React":31,"./ReactComponentWithPureRenderMixin":32,"./ReactWheelHandler":33,"./Scrollbar.react":34,"./cloneWithProps":39,"./cx":41,"./debounceCore":42,"./emptyFunction":43,"./invariant":45,"./shallowEqual":55,"./translateDOMPositionXY":56}],12:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule FixedDataTableBufferedRows.react
+ * @typechecks
+ */
+
+'use strict';
+
+var React = require('./React');
+var FixedDataTableRowBuffer = require('./FixedDataTableRowBuffer');
+var FixedDataTableRow = require('./FixedDataTableRow.react');
+
+var cx = require('./cx');
+var emptyFunction = require('./emptyFunction');
+var joinClasses = require('./joinClasses');
+var translateDOMPositionXY = require('./translateDOMPositionXY');
+
+var PropTypes = React.PropTypes;
+
+var FixedDataTableBufferedRows = React.createClass({
+  displayName: 'FixedDataTableBufferedRows',
+
+  propTypes: {
+    defaultRowHeight: PropTypes.number.isRequired,
+    firstRowIndex: PropTypes.number.isRequired,
+    firstRowOffset: PropTypes.number.isRequired,
+    fixedColumns: PropTypes.array.isRequired,
+    height: PropTypes.number.isRequired,
+    offsetTop: PropTypes.number.isRequired,
+    onRowClick: PropTypes.func,
+    onRowDoubleClick: PropTypes.func,
+    onRowMouseDown: PropTypes.func,
+    onRowMouseEnter: PropTypes.func,
+    onRowMouseLeave: PropTypes.func,
+    rowClassNameGetter: PropTypes.func,
+    rowsCount: PropTypes.number.isRequired,
+    rowGetter: PropTypes.func.isRequired,
+    rowHeightGetter: PropTypes.func,
+    rowPositionGetter: PropTypes.func.isRequired,
+    scrollLeft: PropTypes.number.isRequired,
+    scrollableColumns: PropTypes.array.isRequired,
+    showLastRowBorder: PropTypes.bool,
+    width: PropTypes.number.isRequired },
+
+  getInitialState: function getInitialState() /*object*/{
+    this._rowBuffer = new FixedDataTableRowBuffer(this.props.rowsCount, this.props.defaultRowHeight, this.props.height, this._getRowHeight);
+    return {
+      rowsToRender: this._rowBuffer.getRows(this.props.firstRowIndex, this.props.firstRowOffset) };
+  },
+
+  componentWillMount: function componentWillMount() {
+    this._staticRowArray = [];
+  },
+
+  componentDidMount: function componentDidMount() {
+    this._bufferUpdateTimer = setTimeout(this._updateBuffer, 1000);
+  },
+
+  componentWillReceiveProps: function componentWillReceiveProps( /*object*/nextProps) {
+    if (nextProps.rowsCount !== this.props.rowsCount || nextProps.defaultRowHeight !== this.props.defaultRowHeight || nextProps.height !== this.props.height) {
+      this._rowBuffer = new FixedDataTableRowBuffer(nextProps.rowsCount, nextProps.defaultRowHeight, nextProps.height, this._getRowHeight);
+    }
+    this.setState({
+      rowsToRender: this._rowBuffer.getRows(nextProps.firstRowIndex, nextProps.firstRowOffset) });
+    if (this._bufferUpdateTimer) {
+      clearTimeout(this._bufferUpdateTimer);
+    }
+    this._bufferUpdateTimer = setTimeout(this._updateBuffer, 400);
+  },
+
+  _updateBuffer: function _updateBuffer() {
+    this._bufferUpdateTimer = null;
+    if (this.isMounted()) {
+      this.setState({
+        rowsToRender: this._rowBuffer.getRowsWithUpdatedBuffer() });
+    }
+  },
+
+  shouldComponentUpdate: function shouldComponentUpdate() /*boolean*/{
+    // Don't add PureRenderMixin to this component please.
+    return true;
+  },
+
+  componentWillUnmount: function componentWillUnmount() {
+    this._staticRowArray.length = 0;
+  },
+
+  render: function render() /*object*/{
+    var props = this.props;
+    var rowClassNameGetter = props.rowClassNameGetter || emptyFunction;
+    var rowGetter = props.rowGetter;
+    var rowPositionGetter = props.rowPositionGetter;
+
+    var rowsToRender = this.state.rowsToRender;
+    this._staticRowArray.length = rowsToRender.length;
+
+    for (var i = 0; i < rowsToRender.length; ++i) {
+      var rowIndex = rowsToRender[i];
+      var currentRowHeight = this._getRowHeight(rowIndex);
+      var rowOffsetTop = rowPositionGetter(rowIndex);
+
+      var hasBottomBorder = rowIndex === props.rowsCount - 1 && props.showLastRowBorder;
+
+      this._staticRowArray[i] = React.createElement(FixedDataTableRow, {
+        key: i,
+        index: rowIndex,
+        data: rowGetter(rowIndex),
+        width: props.width,
+        height: currentRowHeight,
+        scrollLeft: Math.round(props.scrollLeft),
+        offsetTop: Math.round(rowOffsetTop),
+        fixedColumns: props.fixedColumns,
+        scrollableColumns: props.scrollableColumns,
+        onClick: props.onRowClick,
+        onDoubleClick: props.onRowDoubleClick,
+        onMouseDown: props.onRowMouseDown,
+        onMouseEnter: props.onRowMouseEnter,
+        onMouseLeave: props.onRowMouseLeave,
+        className: joinClasses(rowClassNameGetter(rowIndex), cx('public/fixedDataTable/bodyRow'), hasBottomBorder ? cx('fixedDataTable/hasBottomBorder') : null)
+      });
+    }
+
+    var firstRowPosition = props.rowPositionGetter(props.firstRowIndex);
+
+    var style = {
+      position: 'absolute' };
+
+    translateDOMPositionXY(style, 0, props.firstRowOffset - firstRowPosition + props.offsetTop);
+
+    return React.createElement(
+      'div',
+      { style: style },
+      this._staticRowArray
+    );
+  },
+
+  _getRowHeight: function _getRowHeight( /*number*/index) /*number*/{
+    return this.props.rowHeightGetter ? this.props.rowHeightGetter(index) : this.props.defaultRowHeight;
+  } });
+
+module.exports = FixedDataTableBufferedRows;
+},{"./FixedDataTableRow.react":20,"./FixedDataTableRowBuffer":21,"./React":31,"./cx":41,"./emptyFunction":43,"./joinClasses":48,"./translateDOMPositionXY":56}],13:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule FixedDataTableCell.react
+ * @typechecks
+ */
+
+'use strict';
+
+var ImmutableObject = require('./ImmutableObject');
+var React = require('./React');
+var ReactComponentWithPureRenderMixin = require('./ReactComponentWithPureRenderMixin');
+var cloneWithProps = require('./cloneWithProps');
+var cx = require('./cx');
+var joinClasses = require('./joinClasses');
+
+var PropTypes = React.PropTypes;
+
+var DEFAULT_PROPS = new ImmutableObject({
+  align: 'left',
+  highlighted: false,
+  isFooterCell: false,
+  isHeaderCell: false });
+
+var FixedDataTableCell = React.createClass({
+  displayName: 'FixedDataTableCell',
+
+  mixins: [ReactComponentWithPureRenderMixin],
+
+  propTypes: {
+    align: PropTypes.oneOf(['left', 'center', 'right']),
+    className: PropTypes.string,
+    highlighted: PropTypes.bool,
+    isFooterCell: PropTypes.bool,
+    isHeaderCell: PropTypes.bool,
+    width: PropTypes.number.isRequired,
+    minWidth: PropTypes.number,
+    maxWidth: PropTypes.number,
+    height: PropTypes.number.isRequired,
+
+    /**
+     * The cell data that will be passed to `cellRenderer` to render.
+     */
+    cellData: PropTypes.any,
+
+    /**
+     * The key to retrieve the cell data from the `rowData`.
+     */
+    cellDataKey: PropTypes.oneOfType([PropTypes.string.isRequired, PropTypes.number.isRequired]),
+
+    /**
+     * The function to render the `cellData`.
+     */
+    cellRenderer: PropTypes.func.isRequired,
+
+    /**
+     * The column data that will be passed to `cellRenderer` to render.
+     */
+    columnData: PropTypes.any,
+
+    /**
+     * The row data that will be passed to `cellRenderer` to render.
+     */
+    rowData: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
+
+    /**
+     * The row index that will be passed to `cellRenderer` to render.
+     */
+    rowIndex: PropTypes.number.isRequired,
+
+    /**
+     * Callback for when resizer knob (in FixedDataTableCell) is clicked
+     * to initialize resizing. Please note this is only on the cells
+     * in the header.
+     * @param number combinedWidth
+     * @param number left
+     * @param number width
+     * @param number minWidth
+     * @param number maxWidth
+     * @param number|string columnKey
+     * @param object event
+     */
+    onColumnResize: PropTypes.func,
+
+    /**
+     * The left offset in pixels of the cell.
+     */
+    left: PropTypes.number },
+
+  getDefaultProps: function getDefaultProps() /*object*/{
+    return DEFAULT_PROPS;
+  },
+
+  render: function render() /*object*/{
+    var props = this.props;
+
+    var style = {
+      height: props.height,
+      left: props.left,
+      width: props.width };
+
+    var className = joinClasses(cx({
+      'public/fixedDataTableCell/main': true,
+      'public/fixedDataTableCell/highlighted': props.highlighted,
+      'public/fixedDataTableCell/lastChild': props.lastChild,
+      'public/fixedDataTableCell/alignRight': props.align === 'right',
+      'public/fixedDataTableCell/alignCenter': props.align === 'center'
+    }), props.className);
+
+    var content;
+    if (props.isHeaderCell || props.isFooterCell) {
+      content = props.cellRenderer(props.cellData, props.cellDataKey, props.columnData, props.rowData, props.width);
+    } else {
+      content = props.cellRenderer(props.cellData, props.cellDataKey, props.rowData, props.rowIndex, props.columnData, props.width);
+    }
+
+    var contentClass = cx('public/fixedDataTableCell/cellContent');
+    if (React.isValidElement(content)) {
+      content = cloneWithProps(content, {
+        key: content.key,
+        className: contentClass });
+    } else {
+      content = React.createElement(
+        'div',
+        { className: contentClass },
+        content
+      );
+    }
+
+    var columnResizerComponent;
+    if (props.onColumnResize) {
+      var columnResizerStyle = {
+        height: props.height
+      };
+      columnResizerComponent = React.createElement(
+        'div',
+        {
+          className: cx('fixedDataTableCell/columnResizerContainer'),
+          style: columnResizerStyle,
+          onMouseDown: this._onColumnResizerMouseDown },
+        React.createElement('div', {
+          className: cx('fixedDataTableCell/columnResizerKnob'),
+          style: columnResizerStyle
+        })
+      );
+    }
+
+    var innerStyle = {
+      height: props.height,
+      width: props.width };
+
+    return React.createElement(
+      'div',
+      { className: className, style: style },
+      columnResizerComponent,
+      React.createElement(
+        'div',
+        {
+          className: cx('public/fixedDataTableCell/wrap1'),
+          style: innerStyle },
+        React.createElement(
+          'div',
+          { className: cx('public/fixedDataTableCell/wrap2') },
+          React.createElement(
+            'div',
+            { className: cx('public/fixedDataTableCell/wrap3') },
+            content
+          )
+        )
+      )
+    );
+  },
+
+  _onColumnResizerMouseDown: function _onColumnResizerMouseDown( /*object*/event) {
+    this.props.onColumnResize(this.props.left, this.props.width, this.props.minWidth, this.props.maxWidth, this.props.cellDataKey, event);
+  } });
+
+module.exports = FixedDataTableCell;
+},{"./ImmutableObject":25,"./React":31,"./ReactComponentWithPureRenderMixin":32,"./cloneWithProps":39,"./cx":41,"./joinClasses":48}],14:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule FixedDataTableCellGroup.react
+ * @typechecks
+ */
+
+'use strict';
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
+var FixedDataTableHelper = require('./FixedDataTableHelper');
+var ImmutableObject = require('./ImmutableObject');
+var React = require('./React');
+var ReactComponentWithPureRenderMixin = require('./ReactComponentWithPureRenderMixin');
+var FixedDataTableCell = require('./FixedDataTableCell.react');
+
+var cx = require('./cx');
+var renderToString = FixedDataTableHelper.renderToString;
+var translateDOMPositionXY = require('./translateDOMPositionXY');
+
+var PropTypes = React.PropTypes;
+
+var EMPTY_OBJECT = new ImmutableObject({});
+
+var FixedDataTableCellGroupImpl = React.createClass({
+  displayName: 'FixedDataTableCellGroupImpl',
+
+  mixins: [ReactComponentWithPureRenderMixin],
+
+  propTypes: {
+
+    /**
+     * Array of <FixedDataTableColumn />.
+     */
+    columns: PropTypes.array.isRequired,
+
+    /**
+     * The row data to render. The data format can be a simple Map object
+     * or an Array of data.
+     */
+    data: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+
+    left: PropTypes.number,
+
+    onColumnResize: PropTypes.func,
+
+    rowHeight: PropTypes.number.isRequired,
+
+    rowIndex: PropTypes.number.isRequired,
+
+    width: PropTypes.number.isRequired,
+
+    zIndex: PropTypes.number.isRequired },
+
+  render: function render() /*object*/{
+    var props = this.props;
+    var columns = props.columns;
+    var cells = new Array(columns.length);
+
+    var currentPosition = 0;
+    for (var i = 0, j = columns.length; i < j; i++) {
+      var columnProps = columns[i].props;
+      if (!columnProps.allowCellsRecycling || currentPosition - props.left <= props.width && currentPosition - props.left + columnProps.width >= 0) {
+        var key = 'cell_' + i;
+        cells[i] = this._renderCell(props.data, props.rowIndex, props.rowHeight, columnProps, currentPosition, key);
+      }
+      currentPosition += columnProps.width;
+    }
+
+    var contentWidth = this._getColumnsWidth(columns);
+
+    var style = {
+      height: props.height,
+      position: 'absolute',
+      width: contentWidth,
+      zIndex: props.zIndex };
+    translateDOMPositionXY(style, -1 * props.left, 0);
+
+    return React.createElement(
+      'div',
+      { className: cx('fixedDataTableCellGroup/cellGroup'), style: style },
+      cells
+    );
+  },
+
+  _renderCell: function _renderCell(
+  /*object|array*/rowData,
+  /*number*/rowIndex,
+  /*number*/height,
+  /*object*/columnProps,
+  /*number*/left,
+  /*string*/key) /*object*/{
+    var cellRenderer = columnProps.cellRenderer || renderToString;
+    var columnData = columnProps.columnData || EMPTY_OBJECT;
+    var cellDataKey = columnProps.dataKey;
+    var isFooterCell = columnProps.isFooterCell;
+    var isHeaderCell = columnProps.isHeaderCell;
+    var cellData;
+
+    if (isHeaderCell || isFooterCell) {
+      cellData = rowData[cellDataKey];
+    } else {
+      var cellDataGetter = columnProps.cellDataGetter;
+      cellData = cellDataGetter ? cellDataGetter(cellDataKey, rowData) : rowData[cellDataKey];
+    }
+
+    var cellIsResizable = columnProps.isResizable && this.props.onColumnResize;
+    var onColumnResize = cellIsResizable ? this.props.onColumnResize : null;
+
+    return React.createElement(FixedDataTableCell, {
+      align: columnProps.align,
+      cellData: cellData,
+      cellDataKey: cellDataKey,
+      cellRenderer: cellRenderer,
+      className: columnProps.cellClassName,
+      columnData: columnData,
+      height: height,
+      isFooterCell: isFooterCell,
+      isHeaderCell: isHeaderCell,
+      key: key,
+      maxWidth: columnProps.maxWidth,
+      minWidth: columnProps.minWidth,
+      onColumnResize: onColumnResize,
+      rowData: rowData,
+      rowIndex: rowIndex,
+      width: columnProps.width,
+      left: left
+    });
+  },
+
+  _getColumnsWidth: function _getColumnsWidth(columns) {
+    var width = 0;
+    for (var i = 0; i < columns.length; ++i) {
+      width += columns[i].props.width;
+    }
+    return width;
+  } });
+
+var FixedDataTableCellGroup = React.createClass({
+  displayName: 'FixedDataTableCellGroup',
+
+  mixins: [ReactComponentWithPureRenderMixin],
+
+  propTypes: {
+    /**
+     * Height of the row.
+     */
+    height: PropTypes.number.isRequired,
+
+    offsetLeft: PropTypes.number,
+
+    /**
+     * Z-index on which the row will be displayed. Used e.g. for keeping
+     * header and footer in front of other rows.
+     */
+    zIndex: PropTypes.number.isRequired },
+
+  render: function render() /*object*/{
+    var _props = this.props;
+    var offsetLeft = _props.offsetLeft;
+
+    var props = _objectWithoutProperties(_props, ['offsetLeft']);
+
+    var style = {
+      height: props.height };
+
+    if (offsetLeft) {
+      translateDOMPositionXY(style, offsetLeft, 0);
+    }
+
+    var onColumnResize = props.onColumnResize ? this._onColumnResize : null;
+
+    return React.createElement(
+      'div',
+      {
+        style: style,
+        className: cx('fixedDataTableCellGroup/cellGroupWrapper') },
+      React.createElement(FixedDataTableCellGroupImpl, _extends({}, props, {
+        onColumnResize: onColumnResize
+      }))
+    );
+  },
+
+  _onColumnResize: function _onColumnResize(
+  /*number*/left,
+  /*number*/width,
+  /*?number*/minWidth,
+  /*?number*/maxWidth,
+  /*string|number*/cellDataKey,
+  /*object*/event) {
+    this.props.onColumnResize && this.props.onColumnResize(this.props.offsetLeft, left - this.props.left + width, width, minWidth, maxWidth, cellDataKey, event);
+  } });
+
+module.exports = FixedDataTableCellGroup;
+},{"./FixedDataTableCell.react":13,"./FixedDataTableHelper":18,"./ImmutableObject":25,"./React":31,"./ReactComponentWithPureRenderMixin":32,"./cx":41,"./translateDOMPositionXY":56}],15:[function(require,module,exports){
+(function (process){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule FixedDataTableColumn.react
+ * @typechecks
+ */
+
+'use strict';
+
+var React = require('./React');
+
+var PropTypes = React.PropTypes;
+
+/**
+ * Component that defines the attributes of table column.
+ */
+var FixedDataTableColumn = React.createClass({
+  displayName: 'FixedDataTableColumn',
+
+  statics: {
+    __TableColumn__: true
+  },
+
+  propTypes: {
+    /**
+     * The horizontal alignment of the table cell content.
+     */
+    align: PropTypes.oneOf(['left', 'center', 'right']),
+
+    /**
+     * className for each of this column's data cells.
+     */
+    cellClassName: PropTypes.string,
+
+    /**
+     * The cell renderer that returns React-renderable content for table cell.
+     * ```
+     * function(
+     *   cellData: any,
+     *   cellDataKey: string,
+     *   rowData: object,
+     *   rowIndex: number,
+     *   columnData: any,
+     *   width: number
+     * ): ?$jsx
+     * ```
+     */
+    cellRenderer: PropTypes.func,
+
+    /**
+     * The getter `function(string_cellDataKey, object_rowData)` that returns
+     * the cell data for the `cellRenderer`.
+     * If not provided, the cell data will be collected from
+     * `rowData[cellDataKey]` instead. The value that `cellDataGetter` returns
+     * will be used to determine whether the cell should re-render.
+     */
+    cellDataGetter: PropTypes.func,
+
+    /**
+     * The key to retrieve the cell data from the data row. Provided key type
+     * must be either `string` or `number`. Since we use this
+     * for keys, it must be specified for each column.
+     */
+    dataKey: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+
+    /**
+     * Controls if the column is fixed when scrolling in the X axis.
+     */
+    fixed: PropTypes.bool,
+
+    /**
+     * The cell renderer that returns React-renderable content for table column
+     * header.
+     * ```
+     * function(
+     *   label: ?string,
+     *   cellDataKey: string,
+     *   columnData: any,
+     *   rowData: array<?object>,
+     *   width: number
+     * ): ?$jsx
+     * ```
+     */
+    headerRenderer: PropTypes.func,
+
+    /**
+     * The cell renderer that returns React-renderable content for table column
+     * footer.
+     * ```
+     * function(
+     *   label: ?string,
+     *   cellDataKey: string,
+     *   columnData: any,
+     *   rowData: array<?object>,
+     *   width: number
+     * ): ?$jsx
+     * ```
+     */
+    footerRenderer: PropTypes.func,
+
+    /**
+     * Bucket for any data to be passed into column renderer functions.
+     */
+    columnData: PropTypes.object,
+
+    /**
+     * The column's header label.
+     */
+    label: PropTypes.string,
+
+    /**
+     * The pixel width of the column.
+     */
+    width: PropTypes.number.isRequired,
+
+    /**
+     * If this is a resizable column this is its minimum pixel width.
+     */
+    minWidth: PropTypes.number,
+
+    /**
+     * If this is a resizable column this is its maximum pixel width.
+     */
+    maxWidth: PropTypes.number,
+
+    /**
+     * The grow factor relative to other columns. Same as the flex-grow API
+     * from http://www.w3.org/TR/css3-flexbox/. Basically, take any available
+     * extra width and distribute it proportionally according to all columns'
+     * flexGrow values. Defaults to zero (no-flexing).
+     */
+    flexGrow: PropTypes.number,
+
+    /**
+     * Whether the column can be resized with the
+     * FixedDataTableColumnResizeHandle. Please note that if a column
+     * has a flex grow, once you resize the column this will be set to 0.
+     */
+    isResizable: PropTypes.bool,
+
+    /**
+     * Experimental feature
+     * Whether cells in this column can be removed from document when outside
+     * of viewport as a result of horizontal scrolling.
+     * Setting this property to true allows the table to not render cells in
+     * particular column that are outside of viewport for visible rows. This
+     * allows to create table with many columns and not have vertical scrolling
+     * performance drop.
+     * Setting the property to false will keep previous behaviour and keep
+     * cell rendered if the row it belongs to is visible.
+     */
+    allowCellsRecycling: PropTypes.bool },
+
+  getDefaultProps: function getDefaultProps() /*object*/{
+    return {
+      allowCellsRecycling: false,
+      fixed: false };
+  },
+
+  render: function render() {
+    if (process.env.NODE_ENV !== 'production') {
+      throw new Error('Component <FixedDataTableColumn /> should never render');
+    }
+    return null;
+  } });
+
+module.exports = FixedDataTableColumn;
+}).call(this,require('_process'))
+},{"./React":31,"_process":6}],16:[function(require,module,exports){
+(function (process){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule FixedDataTableColumnGroup.react
+ * @typechecks
+ */
+
+'use strict';
+
+var React = require('./React');
+
+var PropTypes = React.PropTypes;
+
+/**
+ * Component that defines the attributes of a table column group.
+ */
+var FixedDataTableColumnGroup = React.createClass({
+  displayName: 'FixedDataTableColumnGroup',
+
+  statics: {
+    __TableColumnGroup__: true
+  },
+
+  propTypes: {
+    /**
+     * The horizontal alignment of the table cell content.
+     */
+    align: PropTypes.oneOf(['left', 'center', 'right']),
+
+    /**
+     * Controls if the column group is fixed when scrolling in the X axis.
+     */
+    fixed: PropTypes.bool,
+
+    /**
+     * Bucket for any data to be passed into column group renderer functions.
+     */
+    columnGroupData: PropTypes.object,
+
+    /**
+     * The column group's header label.
+     */
+    label: PropTypes.string,
+
+    /**
+     * The cell renderer that returns React-renderable content for a table
+     * column group header. If it's not specified, the label from props will
+     * be rendered as header content.
+     * ```
+     * function(
+     *   label: ?string,
+     *   cellDataKey: string,
+     *   columnGroupData: any,
+     *   rowData: array<?object>, // array of labels of all coludmnGroups
+     *   width: number
+     * ): ?$jsx
+     * ```
+     */
+    groupHeaderRenderer: PropTypes.func },
+
+  getDefaultProps: function getDefaultProps() /*object*/{
+    return {
+      fixed: false };
+  },
+
+  render: function render() {
+    if (process.env.NODE_ENV !== 'production') {
+      throw new Error('Component <FixedDataTableColumnGroup /> should never render');
+    }
+    return null;
+  } });
+
+module.exports = FixedDataTableColumnGroup;
+}).call(this,require('_process'))
+},{"./React":31,"_process":6}],17:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * This is to be used with the FixedDataTable. It is a read line
+ * that when you click on a column that is resizable appears and allows
+ * you to resize the corresponding column.
+ *
+ * @providesModule FixedDataTableColumnResizeHandle.react
+ * @typechecks
+ */
+
+'use strict';
+
+var DOMMouseMoveTracker = require('./DOMMouseMoveTracker');
+var Locale = require('./Locale');
+var React = require('./React');
+var ReactComponentWithPureRenderMixin = require('./ReactComponentWithPureRenderMixin');
+
+var clamp = require('./clamp');
+var cx = require('./cx');
+
+var PropTypes = React.PropTypes;
+
+var FixedDataTableColumnResizeHandle = React.createClass({
+  displayName: 'FixedDataTableColumnResizeHandle',
+
+  mixins: [ReactComponentWithPureRenderMixin],
+
+  propTypes: {
+    visible: PropTypes.bool.isRequired,
+
+    /**
+     * This is the height of the line
+     */
+    height: PropTypes.number.isRequired,
+
+    /**
+     * Offset from left border of the table, please note
+     * that the line is a border on diff. So this is really the
+     * offset of the column itself.
+     */
+    leftOffset: PropTypes.number.isRequired,
+
+    /**
+     * Height of the clickable region of the line.
+     * This is assumed to be at the top of the line.
+     */
+    knobHeight: PropTypes.number.isRequired,
+
+    /**
+     * The line is a border on a diff, so this is essentially
+     * the width of column.
+     */
+    initialWidth: PropTypes.number,
+
+    /**
+     * The minimum width this dragger will collapse to
+     */
+    minWidth: PropTypes.number,
+
+    /**
+     * The maximum width this dragger will collapse to
+     */
+    maxWidth: PropTypes.number,
+
+    /**
+     * Initial click event on the header cell.
+     */
+    initialEvent: PropTypes.object,
+
+    /**
+     * When resizing is complete this is called.
+     */
+    onColumnResizeEnd: PropTypes.func,
+
+    /**
+     * Column key for the column being resized.
+     */
+    columnKey: PropTypes.oneOfType([PropTypes.string, PropTypes.number]) },
+
+  getInitialState: function getInitialState() /*object*/{
+    return {
+      width: 0,
+      cursorDelta: 0
+    };
+  },
+
+  componentWillReceiveProps: function componentWillReceiveProps( /*object*/newProps) {
+    if (newProps.initialEvent && !this._mouseMoveTracker.isDragging()) {
+      this._mouseMoveTracker.captureMouseMoves(newProps.initialEvent);
+      this.setState({
+        width: newProps.initialWidth,
+        cursorDelta: newProps.initialWidth
+      });
+    }
+  },
+
+  componentDidMount: function componentDidMount() {
+    this._mouseMoveTracker = new DOMMouseMoveTracker(this._onMove, this._onColumnResizeEnd, document.body);
+  },
+
+  componentWillUnmount: function componentWillUnmount() {
+    this._mouseMoveTracker.releaseMouseMoves();
+    this._mouseMoveTracker = null;
+  },
+
+  render: function render() /*object*/{
+    var style = {
+      width: this.state.width,
+      height: this.props.height };
+    if (Locale.isRTL()) {
+      style.right = this.props.leftOffset;
+    } else {
+      style.left = this.props.leftOffset;
+    }
+    return React.createElement(
+      'div',
+      {
+        className: cx({
+          'fixedDataTableColumnResizerLine/main': true,
+          'fixedDataTableColumnResizerLine/hiddenElem': !this.props.visible
+        }),
+        style: style },
+      React.createElement('div', {
+        className: cx('fixedDataTableColumnResizerLine/mouseArea'),
+        style: { height: this.props.height }
+      })
+    );
+  },
+
+  _onMove: function _onMove( /*number*/deltaX) {
+    if (Locale.isRTL()) {
+      deltaX = -deltaX;
+    }
+    var newWidth = this.state.cursorDelta + deltaX;
+    var newColumnWidth = clamp(this.props.minWidth, newWidth, this.props.maxWidth);
+
+    // Please note cursor delta is the different between the currently width
+    // and the new width.
+    this.setState({
+      width: newColumnWidth,
+      cursorDelta: newWidth
+    });
+  },
+
+  _onColumnResizeEnd: function _onColumnResizeEnd() {
+    this._mouseMoveTracker.releaseMouseMoves();
+    this.props.onColumnResizeEnd(this.state.width, this.props.columnKey);
+  } });
+
+module.exports = FixedDataTableColumnResizeHandle;
+},{"./DOMMouseMoveTracker":8,"./Locale":29,"./React":31,"./ReactComponentWithPureRenderMixin":32,"./clamp":38,"./cx":41}],18:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule FixedDataTableHelper
+ * @typechecks
+ */
+
+'use strict';
+
+var Locale = require('./Locale');
+var React = require('./React');
+var FixedDataTableColumnGroup = require('./FixedDataTableColumnGroup.react');
+var FixedDataTableColumn = require('./FixedDataTableColumn.react');
+
+var cloneWithProps = require('./cloneWithProps');
+
+var DIR_SIGN = Locale.isRTL() ? -1 : +1;
+// A cell up to 5px outside of the visible area will still be considered visible
+var CELL_VISIBILITY_TOLERANCE = 5; // used for flyouts
+
+function renderToString(value) /*string*/{
+  if (value === null || value === undefined) {
+    return '';
+  } else {
+    return String(value);
+  }
+}
+
+/**
+ * Helper method to execute a callback against all columns given the children
+ * of a table.
+ * @param {?object|array} children
+ *    Children of a table.
+ * @param {function} callback
+ *    Function to excecute for each column. It is passed the column.
+ */
+function forEachColumn(children, callback) {
+  React.Children.forEach(children, function (child) {
+    if (child.type === FixedDataTableColumnGroup) {
+      forEachColumn(child.props.children, callback);
+    } else if (child.type === FixedDataTableColumn) {
+      callback(child);
+    }
+  });
+}
+
+/**
+ * Helper method to map columns to new columns. This takes into account column
+ * groups and will generate a new column group if its columns change.
+ * @param {?object|array} children
+ *    Children of a table.
+ * @param {function} callback
+ *    Function to excecute for each column. It is passed the column and should
+ *    return a result column.
+ */
+function mapColumns(children, callback) {
+  var newChildren = [];
+  React.Children.forEach(children, function (originalChild) {
+    var newChild = originalChild;
+
+    // The child is either a column group or a column. If it is a column group
+    // we need to iterate over its columns and then potentially generate a
+    // new column group
+    if (originalChild.type === FixedDataTableColumnGroup) {
+      var haveColumnsChanged = false;
+      var newColumns = [];
+
+      forEachColumn(originalChild.props.children, function (originalcolumn) {
+        var newColumn = callback(originalcolumn);
+        if (newColumn !== originalcolumn) {
+          haveColumnsChanged = true;
+        }
+        newColumns.push(newColumn);
+      });
+
+      // If the column groups columns have changed clone the group and supply
+      // new children
+      if (haveColumnsChanged) {
+        newChild = cloneWithProps(originalChild, {
+          key: originalChild.key,
+          children: newColumns });
+      }
+    } else if (originalChild.type === FixedDataTableColumn) {
+      newChild = callback(originalChild);
+    }
+
+    newChildren.push(newChild);
+  });
+
+  return newChildren;
+}
+
+var FixedDataTableHelper = {
+  DIR_SIGN: DIR_SIGN,
+  CELL_VISIBILITY_TOLERANCE: CELL_VISIBILITY_TOLERANCE,
+  renderToString: renderToString,
+  forEachColumn: forEachColumn,
+  mapColumns: mapColumns };
+
+module.exports = FixedDataTableHelper;
+},{"./FixedDataTableColumn.react":15,"./FixedDataTableColumnGroup.react":16,"./Locale":29,"./React":31,"./cloneWithProps":39}],19:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule FixedDataTableRoot
+ */
+
+'use strict';
+
+var FixedDataTable = require('./FixedDataTable.react');
+var FixedDataTableColumn = require('./FixedDataTableColumn.react');
+var FixedDataTableColumnGroup = require('./FixedDataTableColumnGroup.react');
+
+var FixedDataTableRoot = {
+  Column: FixedDataTableColumn,
+  ColumnGroup: FixedDataTableColumnGroup,
+  Table: FixedDataTable };
+
+FixedDataTableRoot.version = '0.3.0';
+
+module.exports = FixedDataTableRoot;
+},{"./FixedDataTable.react":11,"./FixedDataTableColumn.react":15,"./FixedDataTableColumnGroup.react":16}],20:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule FixedDataTableRow.react
+ * @typechecks
+ */
+
+'use strict';
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var FixedDataTableHelper = require('./FixedDataTableHelper');
+var React = require('./React');
+var ReactComponentWithPureRenderMixin = require('./ReactComponentWithPureRenderMixin');
+var FixedDataTableCellGroup = require('./FixedDataTableCellGroup.react');
+
+var cx = require('./cx');
+var joinClasses = require('./joinClasses');
+var translateDOMPositionXY = require('./translateDOMPositionXY');
+
+var DIR_SIGN = FixedDataTableHelper.DIR_SIGN;
+var PropTypes = React.PropTypes;
+
+/**
+ * Component that renders the row for <FixedDataTable />.
+ * This component should not be used directly by developer. Instead,
+ * only <FixedDataTable /> should use the component internally.
+ */
+var FixedDataTableRowImpl = React.createClass({
+  displayName: 'FixedDataTableRowImpl',
+
+  mixins: [ReactComponentWithPureRenderMixin],
+
+  propTypes: {
+    /**
+     * The row data to render. The data format can be a simple Map object
+     * or an Array of data.
+     */
+    data: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+
+    /**
+     * Array of <FixedDataTableColumn /> for the fixed columns.
+     */
+    fixedColumns: PropTypes.array.isRequired,
+
+    /**
+     * Height of the row.
+     */
+    height: PropTypes.number.isRequired,
+
+    /**
+     * The row index.
+     */
+    index: PropTypes.number.isRequired,
+
+    /**
+     * Array of <FixedDataTableColumn /> for the scrollable columns.
+     */
+    scrollableColumns: PropTypes.array.isRequired,
+
+    /**
+     * The distance between the left edge of the table and the leftmost portion
+     * of the row currently visible in the table.
+     */
+    scrollLeft: PropTypes.number.isRequired,
+
+    /**
+     * Width of the row.
+     */
+    width: PropTypes.number.isRequired,
+
+    /**
+     * Fire when a row is clicked.
+     */
+    onClick: PropTypes.func,
+
+    /**
+     * Fire when a row is double clicked.
+     */
+    onDoubleClick: PropTypes.func,
+
+    /**
+     * Callback for when resizer knob (in FixedDataTableCell) is clicked
+     * to initialize resizing. Please note this is only on the cells
+     * in the header.
+     * @param number combinedWidth
+     * @param number leftOffset
+     * @param number cellWidth
+     * @param number|string columnKey
+     * @param object event
+     */
+    onColumnResize: PropTypes.func },
+
+  render: function render() /*object*/{
+    var style = {
+      width: this.props.width,
+      height: this.props.height };
+
+    var className = cx({
+      'public/fixedDataTableRow/main': true,
+      'public/fixedDataTableRow/highlighted': this.props.index % 2 === 1
+    });
+
+    if (!this.props.data) {
+      return React.createElement('div', {
+        className: joinClasses(className, this.props.className),
+        style: style
+      });
+    }
+
+    var fixedColumnsWidth = this._getColumnsWidth(this.props.fixedColumns);
+    var fixedColumns = React.createElement(FixedDataTableCellGroup, {
+      key: 'fixed_cells',
+      height: this.props.height,
+      left: 0,
+      width: fixedColumnsWidth,
+      zIndex: 2,
+      columns: this.props.fixedColumns,
+      data: this.props.data,
+      onColumnResize: this.props.onColumnResize,
+      rowHeight: this.props.height,
+      rowIndex: this.props.index
+    });
+    var columnsShadow = this._renderColumnsShadow(fixedColumnsWidth);
+    var scrollableColumns = React.createElement(FixedDataTableCellGroup, {
+      key: 'scrollable_cells',
+      height: this.props.height,
+      left: this.props.scrollLeft * DIR_SIGN,
+      offsetLeft: fixedColumnsWidth * DIR_SIGN,
+      width: this.props.width - fixedColumnsWidth,
+      zIndex: 0,
+      columns: this.props.scrollableColumns,
+      data: this.props.data,
+      onColumnResize: this.props.onColumnResize,
+      rowHeight: this.props.height,
+      rowIndex: this.props.index
+    });
+
+    return React.createElement(
+      'div',
+      {
+        className: joinClasses(className, this.props.className),
+        onClick: this.props.onClick ? this._onClick : null,
+        onDoubleClick: this.props.onDoubleClick ? this._onDoubleClick : null,
+        onMouseDown: this.props.onMouseDown ? this._onMouseDown : null,
+        onMouseEnter: this.props.onMouseEnter ? this._onMouseEnter : null,
+        onMouseLeave: this.props.onMouseLeave ? this._onMouseLeave : null,
+        style: style },
+      React.createElement(
+        'div',
+        { className: cx('fixedDataTableRow/body') },
+        fixedColumns,
+        scrollableColumns,
+        columnsShadow
+      )
+    );
+  },
+
+  _getColumnsWidth: function _getColumnsWidth( /*array*/columns) /*number*/{
+    var width = 0;
+    for (var i = 0; i < columns.length; ++i) {
+      width += columns[i].props.width;
+    }
+    return width;
+  },
+
+  _renderColumnsShadow: function _renderColumnsShadow( /*number*/left) /*?object*/{
+    if (left > 0) {
+      var className = cx({
+        'fixedDataTableRow/fixedColumnsDivider': true,
+        'fixedDataTableRow/columnsShadow': this.props.scrollLeft > 0 });
+      var style = {
+        left: left,
+        height: this.props.height
+      };
+      return React.createElement('div', { className: className, style: style });
+    }
+  },
+
+  _onClick: function _onClick( /*object*/event) {
+    this.props.onClick(event, this.props.index, this.props.data);
+  },
+
+  _onDoubleClick: function _onDoubleClick( /*object*/event) {
+    this.props.onDoubleClick(event, this.props.index, this.props.data);
+  },
+
+  _onMouseDown: function _onMouseDown( /*object*/event) {
+    this.props.onMouseDown(event, this.props.index, this.props.data);
+  },
+
+  _onMouseEnter: function _onMouseEnter( /*object*/event) {
+    this.props.onMouseEnter(event, this.props.index, this.props.data);
+  },
+
+  _onMouseLeave: function _onMouseLeave( /*object*/event) {
+    this.props.onMouseLeave(event, this.props.index, this.props.data);
+  } });
+
+var FixedDataTableRow = React.createClass({
+  displayName: 'FixedDataTableRow',
+
+  mixins: [ReactComponentWithPureRenderMixin],
+
+  propTypes: {
+    /**
+     * Height of the row.
+     */
+    height: PropTypes.number.isRequired,
+
+    /**
+     * Z-index on which the row will be displayed. Used e.g. for keeping
+     * header and footer in front of other rows.
+     */
+    zIndex: PropTypes.number,
+
+    /**
+     * The vertical position where the row should render itself
+     */
+    offsetTop: PropTypes.number.isRequired,
+
+    /**
+     * Width of the row.
+     */
+    width: PropTypes.number.isRequired },
+
+  render: function render() /*object*/{
+    var style = {
+      width: this.props.width,
+      height: this.props.height,
+      zIndex: this.props.zIndex ? this.props.zIndex : 0 };
+    translateDOMPositionXY(style, 0, this.props.offsetTop);
+
+    return React.createElement(
+      'div',
+      {
+        style: style,
+        className: cx('fixedDataTableRow/rowWrapper') },
+      React.createElement(FixedDataTableRowImpl, _extends({}, this.props, {
+        offsetTop: undefined,
+        zIndex: undefined
+      }))
+    );
+  } });
+
+module.exports = FixedDataTableRow;
+},{"./FixedDataTableCellGroup.react":14,"./FixedDataTableHelper":18,"./React":31,"./ReactComponentWithPureRenderMixin":32,"./cx":41,"./joinClasses":48,"./translateDOMPositionXY":56}],21:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule FixedDataTableRowBuffer
+ * @typechecks
+ */
+
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var IntegerBufferSet = require('./IntegerBufferSet');
+
+var clamp = require('./clamp');
+var invariant = require('./invariant');
+var MIN_BUFFER_ROWS = 3;
+var MAX_BUFFER_ROWS = 6;
+
+// FixedDataTableRowBuffer is a helper class that executes row buffering
+// logic for FixedDataTable. It figures out which rows should be rendered
+// and in which positions.
+
+var FixedDataTableRowBuffer = (function () {
+  function FixedDataTableRowBuffer(
+  /*number*/rowsCount,
+  /*number*/defaultRowHeight,
+  /*number*/viewportHeight,
+  /*?function*/rowHeightGetter) {
+    _classCallCheck(this, FixedDataTableRowBuffer);
+
+    invariant(defaultRowHeight !== 0, 'defaultRowHeight musn\'t be equal 0 in FixedDataTableRowBuffer');
+
+    this._bufferSet = new IntegerBufferSet();
+    this._defaultRowHeight = defaultRowHeight;
+    this._viewportRowsBegin = 0;
+    this._viewportRowsEnd = 0;
+    this._maxVisibleRowCount = Math.ceil(viewportHeight / defaultRowHeight) + 1;
+    this._bufferRowsCount = clamp(MIN_BUFFER_ROWS, Math.floor(this._maxVisibleRowCount / 2), MAX_BUFFER_ROWS);
+    this._rowsCount = rowsCount;
+    this._rowHeightGetter = rowHeightGetter;
+    this._rows = [];
+    this._viewportHeight = viewportHeight;
+
+    this.getRows = this.getRows.bind(this);
+    this.getRowsWithUpdatedBuffer = this.getRowsWithUpdatedBuffer.bind(this);
+  }
+
+  _createClass(FixedDataTableRowBuffer, [{
+    key: 'getRowsWithUpdatedBuffer',
+    value: function getRowsWithUpdatedBuffer() /*array*/{
+      var remainingBufferRows = 2 * this._bufferRowsCount;
+      var bufferRowIndex = Math.max(this._viewportRowsBegin - this._bufferRowsCount, 0);
+      while (bufferRowIndex < this._viewportRowsBegin) {
+        this._addRowToBuffer(bufferRowIndex, this._viewportRowsBegin, this._viewportRowsEnd - 1);
+        bufferRowIndex++;
+        remainingBufferRows--;
+      }
+      bufferRowIndex = this._viewportRowsEnd;
+      while (bufferRowIndex < this._rowsCount && remainingBufferRows > 0) {
+        this._addRowToBuffer(bufferRowIndex, this._viewportRowsBegin, this._viewportRowsEnd - 1);
+        bufferRowIndex++;
+        remainingBufferRows--;
+      }
+      return this._rows;
+    }
+  }, {
+    key: 'getRows',
+    value: function getRows(
+    /*number*/firstRowIndex,
+    /*number*/firstRowOffset) /*array*/{
+      var top = firstRowOffset;
+      var totalHeight = top;
+      var rowIndex = firstRowIndex;
+      var endIndex = Math.min(firstRowIndex + this._maxVisibleRowCount, this._rowsCount);
+
+      this._viewportRowsBegin = firstRowIndex;
+      while (rowIndex < endIndex || totalHeight < this._viewportHeight && rowIndex < this._rowsCount) {
+        this._addRowToBuffer(rowIndex, firstRowIndex, endIndex - 1);
+        totalHeight += this._rowHeightGetter(rowIndex);
+        ++rowIndex;
+        // Store index after the last viewport row as end, to be able to
+        // distinguish when there are no rows rendered in viewport
+        this._viewportRowsEnd = rowIndex;
+      }
+
+      return this._rows;
+    }
+  }, {
+    key: '_addRowToBuffer',
+    value: function _addRowToBuffer(
+    /*number*/rowIndex,
+    /*number*/firstViewportRowIndex,
+    /*number*/lastViewportRowIndex) {
+      var rowPosition = this._bufferSet.getValuePosition(rowIndex);
+      var viewportRowsCount = lastViewportRowIndex - firstViewportRowIndex + 1;
+      var allowedRowsCount = viewportRowsCount + this._bufferRowsCount * 2;
+      if (rowPosition === null && this._bufferSet.getSize() >= allowedRowsCount) {
+        rowPosition = this._bufferSet.replaceFurthestValuePosition(firstViewportRowIndex, lastViewportRowIndex, rowIndex);
+      }
+      if (rowPosition === null) {
+        // We can't reuse any of existing positions for this row. We have to
+        // create new position
+        rowPosition = this._bufferSet.getNewPositionForValue(rowIndex);
+        this._rows[rowPosition] = rowIndex;
+      } else {
+        // This row already is in the table with rowPosition position or it
+        // can replace row that is in that position
+        this._rows[rowPosition] = rowIndex;
+      }
+    }
+  }]);
+
+  return FixedDataTableRowBuffer;
+})();
+
+module.exports = FixedDataTableRowBuffer;
+},{"./IntegerBufferSet":27,"./clamp":38,"./invariant":45}],22:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule FixedDataTableScrollHelper
+ * @typechecks
+ */
+
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var PrefixIntervalTree = require('./PrefixIntervalTree');
+var clamp = require('./clamp');
+
+var BUFFER_ROWS = 5;
+
+var FixedDataTableScrollHelper = (function () {
+  function FixedDataTableScrollHelper(
+  /*number*/rowCount,
+  /*number*/defaultRowHeight,
+  /*number*/viewportHeight,
+  /*?function*/rowHeightGetter) {
+    _classCallCheck(this, FixedDataTableScrollHelper);
+
+    this._rowOffsets = new PrefixIntervalTree(rowCount, defaultRowHeight);
+    this._storedHeights = new Array(rowCount);
+    for (var i = 0; i < rowCount; ++i) {
+      this._storedHeights[i] = defaultRowHeight;
+    }
+    this._rowCount = rowCount;
+    this._position = 0;
+    this._contentHeight = rowCount * defaultRowHeight;
+    this._defaultRowHeight = defaultRowHeight;
+    this._rowHeightGetter = rowHeightGetter ? rowHeightGetter : function () {
+      return defaultRowHeight;
+    };
+    this._viewportHeight = viewportHeight;
+    this.scrollRowIntoView = this.scrollRowIntoView.bind(this);
+    this.setViewportHeight = this.setViewportHeight.bind(this);
+    this.scrollBy = this.scrollBy.bind(this);
+    this.scrollTo = this.scrollTo.bind(this);
+    this.scrollToRow = this.scrollToRow.bind(this);
+    this.setRowHeightGetter = this.setRowHeightGetter.bind(this);
+    this.getContentHeight = this.getContentHeight.bind(this);
+    this.getRowPosition = this.getRowPosition.bind(this);
+
+    this._updateHeightsInViewport(0, 0);
+  }
+
+  _createClass(FixedDataTableScrollHelper, [{
+    key: 'setRowHeightGetter',
+    value: function setRowHeightGetter( /*function*/rowHeightGetter) {
+      this._rowHeightGetter = rowHeightGetter;
+    }
+  }, {
+    key: 'setViewportHeight',
+    value: function setViewportHeight( /*number*/viewportHeight) {
+      this._viewportHeight = viewportHeight;
+    }
+  }, {
+    key: 'getContentHeight',
+    value: function getContentHeight() /*number*/{
+      return this._contentHeight;
+    }
+  }, {
+    key: '_updateHeightsInViewport',
+    value: function _updateHeightsInViewport(
+    /*number*/firstRowIndex,
+    /*number*/firstRowOffset) {
+      var top = firstRowOffset;
+      var index = firstRowIndex;
+      while (top <= this._viewportHeight && index < this._rowCount) {
+        this._updateRowHeight(index);
+        top += this._storedHeights[index];
+        index++;
+      }
+    }
+  }, {
+    key: '_updateHeightsAboveViewport',
+    value: function _updateHeightsAboveViewport( /*number*/firstRowIndex) {
+      var index = firstRowIndex - 1;
+      while (index >= 0 && index >= firstRowIndex - BUFFER_ROWS) {
+        var delta = this._updateRowHeight(index);
+        this._position += delta;
+        index--;
+      }
+    }
+  }, {
+    key: '_updateRowHeight',
+    value: function _updateRowHeight( /*number*/rowIndex) /*number*/{
+      if (rowIndex < 0 || rowIndex >= this._rowCount) {
+        return 0;
+      }
+      var newHeight = this._rowHeightGetter(rowIndex);
+      if (newHeight !== this._storedHeights[rowIndex]) {
+        var change = newHeight - this._storedHeights[rowIndex];
+        this._rowOffsets.set(rowIndex, newHeight);
+        this._storedHeights[rowIndex] = newHeight;
+        this._contentHeight += change;
+        return change;
+      }
+      return 0;
+    }
+  }, {
+    key: 'getRowPosition',
+    value: function getRowPosition( /*number*/rowIndex) /*number*/{
+      this._updateRowHeight(rowIndex);
+      return this._rowOffsets.get(rowIndex).value - this._rowHeightGetter(rowIndex);
+    }
+  }, {
+    key: 'scrollBy',
+    value: function scrollBy( /*number*/delta) /*object*/{
+      var firstRow = this._rowOffsets.upperBound(this._position);
+      var firstRowPosition = firstRow.value - this._storedHeights[firstRow.index];
+      var rowIndex = firstRow.index;
+      var position = this._position;
+
+      var rowHeightChange = this._updateRowHeight(rowIndex);
+      if (firstRowPosition !== 0) {
+        position += rowHeightChange;
+      }
+      var visibleRowHeight = this._storedHeights[rowIndex] - (position - firstRowPosition);
+
+      if (delta >= 0) {
+
+        while (delta > 0 && rowIndex < this._rowCount) {
+          if (delta < visibleRowHeight) {
+            position += delta;
+            delta = 0;
+          } else {
+            delta -= visibleRowHeight;
+            position += visibleRowHeight;
+            rowIndex++;
+          }
+          if (rowIndex < this._rowCount) {
+            this._updateRowHeight(rowIndex);
+            visibleRowHeight = this._storedHeights[rowIndex];
+          }
+        }
+      } else if (delta < 0) {
+        delta = -delta;
+        var invisibleRowHeight = this._storedHeights[rowIndex] - visibleRowHeight;
+
+        while (delta > 0 && rowIndex >= 0) {
+          if (delta < invisibleRowHeight) {
+            position -= delta;
+            delta = 0;
+          } else {
+            position -= invisibleRowHeight;
+            delta -= invisibleRowHeight;
+            rowIndex--;
+          }
+          if (rowIndex >= 0) {
+            var change = this._updateRowHeight(rowIndex);
+            invisibleRowHeight = this._storedHeights[rowIndex];
+            position += change;
+          }
+        }
+      }
+
+      var maxPosition = this._contentHeight - this._viewportHeight;
+      position = clamp(0, position, maxPosition);
+      this._position = position;
+      var firstVisibleRow = this._rowOffsets.upperBound(position);
+      var firstRowIndex = firstVisibleRow.index;
+      firstRowPosition = firstVisibleRow.value - this._rowHeightGetter(firstRowIndex);
+      var firstRowOffset = firstRowPosition - position;
+
+      this._updateHeightsInViewport(firstRowIndex, firstRowOffset);
+      this._updateHeightsAboveViewport(firstRowIndex);
+
+      return {
+        index: firstRowIndex,
+        offset: firstRowOffset,
+        position: this._position,
+        contentHeight: this._contentHeight };
+    }
+  }, {
+    key: '_getRowAtEndPosition',
+    value: function _getRowAtEndPosition( /*number*/rowIndex) /*number*/{
+      // We need to update enough rows above the selected one to be sure that when
+      // we scroll to selected position all rows between first shown and selected
+      // one have most recent heights computed and will not resize
+      this._updateRowHeight(rowIndex);
+      var currentRowIndex = rowIndex;
+      var top = this._storedHeights[currentRowIndex];
+      while (top < this._viewportHeight && currentRowIndex >= 0) {
+        currentRowIndex--;
+        if (currentRowIndex >= 0) {
+          this._updateRowHeight(currentRowIndex);
+          top += this._storedHeights[currentRowIndex];
+        }
+      }
+      var position = this._rowOffsets.get(rowIndex).value - this._viewportHeight;
+      if (position < 0) {
+        position = 0;
+      }
+      return position;
+    }
+  }, {
+    key: 'scrollTo',
+    value: function scrollTo( /*number*/position) /*object*/{
+      if (position <= 0) {
+        // If position less than or equal to 0 first row should be fully visible
+        // on top
+        this._position = 0;
+        this._updateHeightsInViewport(0, 0);
+
+        return {
+          index: 0,
+          offset: 0,
+          position: this._position,
+          contentHeight: this._contentHeight };
+      } else if (position >= this._contentHeight - this._viewportHeight) {
+        // If position is equal to or greater than max scroll value, we need
+        // to make sure to have bottom border of last row visible.
+        var rowIndex = this._rowCount - 1;
+        position = this._getRowAtEndPosition(rowIndex);
+      }
+      this._position = position;
+
+      var firstVisibleRow = this._rowOffsets.upperBound(position);
+      var firstRowIndex = Math.max(firstVisibleRow.index, 0);
+      var firstRowPosition = firstVisibleRow.value - this._rowHeightGetter(firstRowIndex);
+      var firstRowOffset = firstRowPosition - position;
+
+      this._updateHeightsInViewport(firstRowIndex, firstRowOffset);
+      this._updateHeightsAboveViewport(firstRowIndex);
+
+      return {
+        index: firstRowIndex,
+        offset: firstRowOffset,
+        position: this._position,
+        contentHeight: this._contentHeight };
+    }
+  }, {
+    key: 'scrollToRow',
+
+    /**
+     * Allows to scroll to selected row with specified offset. It always
+     * brings that row to top of viewport with that offset
+     */
+    value: function scrollToRow( /*number*/rowIndex, /*number*/offset) /*object*/{
+      rowIndex = clamp(0, rowIndex, this._rowCount - 1);
+      offset = clamp(-this._storedHeights[rowIndex], offset, 0);
+      var firstRow = this._rowOffsets.get(rowIndex);
+      return this.scrollTo(firstRow.value - this._storedHeights[rowIndex] - offset);
+    }
+  }, {
+    key: 'scrollRowIntoView',
+
+    /**
+     * Allows to scroll to selected row by bringing it to viewport with minimal
+     * scrolling. This that if row is fully visible, scroll will not be changed.
+     * If top border of row is above top of viewport it will be scrolled to be
+     * fully visible on the top of viewport. If the bottom border of row is
+     * below end of viewport, it will be scrolled up to be fully visible on the
+     * bottom of viewport.
+     */
+    value: function scrollRowIntoView( /*number*/rowIndex) /*object*/{
+      rowIndex = clamp(0, rowIndex, this._rowCount - 1);
+      var rowEnd = this._rowOffsets.get(rowIndex).value;
+      var rowBegin = rowEnd - this._storedHeights[rowIndex];
+      if (rowBegin < this._position) {
+        return this.scrollTo(rowBegin);
+      } else if (rowEnd > this._position + this._viewportHeight) {
+        var position = this._getRowAtEndPosition(rowIndex);
+        return this.scrollTo(position);
+      }
+      return this.scrollTo(this._position);
+    }
+  }]);
+
+  return FixedDataTableScrollHelper;
+})();
+
+module.exports = FixedDataTableScrollHelper;
+},{"./PrefixIntervalTree":30,"./clamp":38}],23:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule FixedDataTableWidthHelper
+ * @typechecks
+ */
+
+'use strict';
+
+var React = require('./React');
+
+var cloneWithProps = require('./cloneWithProps');
+
+function getTotalWidth( /*array*/columns) /*number*/{
+  var totalWidth = 0;
+  for (var i = 0; i < columns.length; ++i) {
+    totalWidth += columns[i].props.width;
+  }
+  return totalWidth;
+}
+
+function getTotalFlexGrow( /*array*/columns) /*number*/{
+  var totalFlexGrow = 0;
+  for (var i = 0; i < columns.length; ++i) {
+    totalFlexGrow += columns[i].props.flexGrow || 0;
+  }
+  return totalFlexGrow;
+}
+
+function distributeFlexWidth(
+/*array*/columns,
+/*number*/flexWidth) /*object*/{
+  if (flexWidth <= 0) {
+    return {
+      columns: columns,
+      width: getTotalWidth(columns) };
+  }
+  var remainingFlexGrow = getTotalFlexGrow(columns);
+  var remainingFlexWidth = flexWidth;
+  var newColumns = [];
+  var totalWidth = 0;
+  for (var i = 0; i < columns.length; ++i) {
+    var column = columns[i];
+    if (!column.props.flexGrow) {
+      totalWidth += column.props.width;
+      newColumns.push(column);
+      continue;
+    }
+    var columnFlexWidth = Math.floor(column.props.flexGrow / remainingFlexGrow * remainingFlexWidth);
+    var newColumnWidth = Math.floor(column.props.width + columnFlexWidth);
+    totalWidth += newColumnWidth;
+
+    remainingFlexGrow -= column.props.flexGrow;
+    remainingFlexWidth -= columnFlexWidth;
+
+    newColumns.push(cloneWithProps(column, { width: newColumnWidth }));
+  }
+
+  return {
+    columns: newColumns,
+    width: totalWidth };
+}
+
+function adjustColumnGroupWidths(
+/*array*/columnGroups,
+/*number*/expectedWidth) /*object*/{
+  var allColumns = [];
+  var i;
+  for (i = 0; i < columnGroups.length; ++i) {
+    React.Children.forEach(columnGroups[i].props.children, function (column) {
+      allColumns.push(column);
+    });
+  }
+  var columnsWidth = getTotalWidth(allColumns);
+  var remainingFlexGrow = getTotalFlexGrow(allColumns);
+  var remainingFlexWidth = Math.max(expectedWidth - columnsWidth, 0);
+
+  var newAllColumns = [];
+  var newColumnGroups = [];
+
+  for (i = 0; i < columnGroups.length; ++i) {
+    var columnGroup = columnGroups[i];
+    var currentColumns = [];
+
+    React.Children.forEach(columnGroup.props.children, function (column) {
+      currentColumns.push(column);
+    });
+
+    var columnGroupFlexGrow = getTotalFlexGrow(currentColumns);
+    var columnGroupFlexWidth = Math.floor(columnGroupFlexGrow / remainingFlexGrow * remainingFlexWidth);
+
+    var newColumnSettings = distributeFlexWidth(currentColumns, columnGroupFlexWidth);
+
+    remainingFlexGrow -= columnGroupFlexGrow;
+    remainingFlexWidth -= columnGroupFlexWidth;
+
+    for (var j = 0; j < newColumnSettings.columns.length; ++j) {
+      newAllColumns.push(newColumnSettings.columns[j]);
+    }
+
+    newColumnGroups.push(cloneWithProps(columnGroup, { width: newColumnSettings.width }));
+  }
+
+  return {
+    columns: newAllColumns,
+    columnGroups: newColumnGroups };
+}
+
+function adjustColumnWidths(
+/*array*/columns,
+/*number*/expectedWidth) /*array*/{
+  var columnsWidth = getTotalWidth(columns);
+  if (columnsWidth < expectedWidth) {
+    return distributeFlexWidth(columns, expectedWidth - columnsWidth).columns;
+  }
+  return columns;
+}
+
+var FixedDataTableWidthHelper = {
+  getTotalWidth: getTotalWidth,
+  getTotalFlexGrow: getTotalFlexGrow,
+  distributeFlexWidth: distributeFlexWidth,
+  adjustColumnWidths: adjustColumnWidths,
+  adjustColumnGroupWidths: adjustColumnGroupWidths };
+
+module.exports = FixedDataTableWidthHelper;
+},{"./React":31,"./cloneWithProps":39}],24:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule Heap
+ * @typechecks
+ * @preventMunge
+ */
+
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+/*
+ * @param {*} a
+ * @param {*} b
+ * @return {boolean}
+ */
+function defaultComparator(a, b) {
+  return a < b;
+}
+
+var Heap = (function () {
+  function Heap(items, comparator) {
+    _classCallCheck(this, Heap);
+
+    this._items = items || [];
+    this._size = this._items.length;
+    this._comparator = comparator || defaultComparator;
+    this._heapify();
+  }
+
+  _createClass(Heap, [{
+    key: 'empty',
+
+    /*
+     * @return {boolean}
+     */
+    value: function empty() {
+      return this._size === 0;
+    }
+  }, {
+    key: 'pop',
+
+    /*
+     * @return {*}
+     */
+    value: function pop() {
+      if (this._size === 0) {
+        return;
+      }
+
+      var elt = this._items[0];
+
+      var lastElt = this._items.pop();
+      this._size--;
+
+      if (this._size > 0) {
+        this._items[0] = lastElt;
+        this._sinkDown(0);
+      }
+
+      return elt;
+    }
+  }, {
+    key: 'push',
+
+    /*
+     * @param {*} item
+     */
+    value: function push(item) {
+      this._items[this._size++] = item;
+      this._bubbleUp(this._size - 1);
+    }
+  }, {
+    key: 'size',
+
+    /*
+     * @return {number}
+     */
+    value: function size() {
+      return this._size;
+    }
+  }, {
+    key: 'peek',
+
+    /*
+     * @return {*}
+     */
+    value: function peek() {
+      if (this._size === 0) {
+        return;
+      }
+
+      return this._items[0];
+    }
+  }, {
+    key: '_heapify',
+    value: function _heapify() {
+      for (var index = Math.floor((this._size + 1) / 2); index >= 0; index--) {
+        this._sinkDown(index);
+      }
+    }
+  }, {
+    key: '_bubbleUp',
+
+    /*
+     * @parent {number} index
+     */
+    value: function _bubbleUp(index) {
+      var elt = this._items[index];
+      while (index > 0) {
+        var parentIndex = Math.floor((index + 1) / 2) - 1;
+        var parentElt = this._items[parentIndex];
+
+        // if parentElt < elt, stop
+        if (this._comparator(parentElt, elt)) {
+          return;
+        }
+
+        // swap
+        this._items[parentIndex] = elt;
+        this._items[index] = parentElt;
+        index = parentIndex;
+      }
+    }
+  }, {
+    key: '_sinkDown',
+
+    /*
+     * @parent {number} index
+     */
+    value: function _sinkDown(index) {
+      var elt = this._items[index];
+
+      while (true) {
+        var leftChildIndex = 2 * (index + 1) - 1;
+        var rightChildIndex = 2 * (index + 1);
+        var swapIndex = -1;
+
+        if (leftChildIndex < this._size) {
+          var leftChild = this._items[leftChildIndex];
+          if (this._comparator(leftChild, elt)) {
+            swapIndex = leftChildIndex;
+          }
+        }
+
+        if (rightChildIndex < this._size) {
+          var rightChild = this._items[rightChildIndex];
+          if (this._comparator(rightChild, elt)) {
+            if (swapIndex === -1 || this._comparator(rightChild, this._items[swapIndex])) {
+              swapIndex = rightChildIndex;
+            }
+          }
+        }
+
+        // if we don't have a swap, stop
+        if (swapIndex === -1) {
+          return;
+        }
+
+        this._items[index] = this._items[swapIndex];
+        this._items[swapIndex] = elt;
+        index = swapIndex;
+      }
+    }
+  }]);
+
+  return Heap;
+})();
+
+module.exports = Heap;
+},{}],25:[function(require,module,exports){
+(function (process){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule ImmutableObject
+ * @typechecks
+ */
+
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+
+var ImmutableValue = require('./ImmutableValue');
+
+var invariant = require('./invariant');
+var keyOf = require('./keyOf');
+var mergeHelpers = require('./mergeHelpers');
+
+var checkMergeObjectArgs = mergeHelpers.checkMergeObjectArgs;
+var isTerminal = mergeHelpers.isTerminal;
+
+var SECRET_KEY = keyOf({ _DONT_EVER_TYPE_THIS_SECRET_KEY: null });
+
+/**
+ * Static methods creating and operating on instances of `ImmutableValue`.
+ */
+function assertImmutable(immutable) {
+  invariant(immutable instanceof ImmutableValue, 'ImmutableObject: Attempted to set fields on an object that is not an ' + 'instance of ImmutableValue.');
+}
+
+/**
+ * Static methods for reasoning about instances of `ImmutableObject`. Execute
+ * the freeze commands in `process.env.NODE_ENV !== 'production'` mode to alert the programmer that something
+ * is attempting to mutate. Since freezing is very expensive, we avoid doing it
+ * at all in production.
+ */
+
+var ImmutableObject = (function (_ImmutableValue) {
+  /**
+   * @arguments {array<object>} The arguments is an array of objects that, when
+   * merged together, will form the immutable objects.
+   */
+
+  function ImmutableObject() {
+    _classCallCheck(this, ImmutableObject);
+
+    _get(Object.getPrototypeOf(ImmutableObject.prototype), 'constructor', this).call(this, ImmutableValue[SECRET_KEY]);
+    ImmutableValue.mergeAllPropertiesInto(this, arguments);
+    if (process.env.NODE_ENV !== 'production') {
+      ImmutableValue.deepFreezeRootNode(this);
+    }
+  }
+
+  _inherits(ImmutableObject, _ImmutableValue);
+
+  _createClass(ImmutableObject, null, [{
+    key: 'create',
+
+    /**
+     * DEPRECATED - prefer to instantiate with new ImmutableObject().
+     *
+     * @arguments {array<object>} The arguments is an array of objects that, when
+     * merged together, will form the immutable objects.
+     */
+    value: function create() {
+      var obj = Object.create(ImmutableObject.prototype);
+      ImmutableObject.apply(obj, arguments);
+      return obj;
+    }
+  }, {
+    key: 'set',
+
+    /**
+     * Returns a new `ImmutableValue` that is identical to the supplied
+     * `ImmutableValue` but with the specified changes, `put`. Any keys that are
+     * in the intersection of `immutable` and `put` retain the ordering of
+     * `immutable`. New keys are placed after keys that exist in `immutable`.
+     *
+     * @param {ImmutableValue} immutable Starting object.
+     * @param {?object} put Fields to merge into the object.
+     * @return {ImmutableValue} The result of merging in `put` fields.
+     */
+    value: function set(immutable, put) {
+      assertImmutable(immutable);
+      invariant(typeof put === 'object' && put !== undefined && !Array.isArray(put), 'Invalid ImmutableMap.set argument `put`');
+      return new ImmutableObject(immutable, put);
+    }
+  }, {
+    key: 'setProperty',
+
+    /**
+     * Sugar for `ImmutableObject.set(ImmutableObject, {fieldName: putField})`.
+     * Look out for key crushing: Use `keyOf()` to guard against it.
+     *
+     * @param {ImmutableValue} immutableObject Object on which to set properties.
+     * @param {string} fieldName Name of the field to set.
+     * @param {*} putField Value of the field to set.
+     * @return {ImmutableValue} new ImmutableValue as described in `set`.
+     */
+    value: function setProperty(immutableObject, fieldName, putField) {
+      var put = {};
+      put[fieldName] = putField;
+      return ImmutableObject.set(immutableObject, put);
+    }
+  }, {
+    key: 'deleteProperty',
+
+    /**
+     * Returns a new immutable object with the given field name removed.
+     * Look out for key crushing: Use `keyOf()` to guard against it.
+     *
+     * @param {ImmutableObject} immutableObject from which to delete the key.
+     * @param {string} droppedField Name of the field to delete.
+     * @return {ImmutableObject} new ImmutableObject without the key
+     */
+    value: function deleteProperty(immutableObject, droppedField) {
+      var copy = {};
+      for (var key in immutableObject) {
+        if (key !== droppedField && immutableObject.hasOwnProperty(key)) {
+          copy[key] = immutableObject[key];
+        }
+      }
+      return new ImmutableObject(copy);
+    }
+  }, {
+    key: 'setDeep',
+
+    /**
+     * Returns a new `ImmutableValue` that is identical to the supplied object but
+     * with the supplied changes recursively applied.
+     *
+     * Experimental. Likely does not handle `Arrays` correctly.
+     *
+     * @param {ImmutableValue} immutable Object on which to set fields.
+     * @param {object} put Fields to merge into the object.
+     * @return {ImmutableValue} The result of merging in `put` fields.
+     */
+    value: function setDeep(immutable, put) {
+      assertImmutable(immutable);
+      return _setDeep(immutable, put);
+    }
+  }, {
+    key: 'values',
+
+    /**
+     * Retrieves an ImmutableObject's values as an array.
+     *
+     * @param {ImmutableValue} immutable
+     * @return {array}
+     */
+    value: function values(immutable) {
+      return Object.keys(immutable).map(function (key) {
+        return immutable[key];
+      });
+    }
+  }]);
+
+  return ImmutableObject;
+})(ImmutableValue);
+
+function _setDeep(obj, put) {
+  checkMergeObjectArgs(obj, put);
+  var totalNewFields = {};
+
+  // To maintain the order of the keys, copy the base object's entries first.
+  var keys = Object.keys(obj);
+  for (var ii = 0; ii < keys.length; ii++) {
+    var key = keys[ii];
+    if (!put.hasOwnProperty(key)) {
+      totalNewFields[key] = obj[key];
+    } else if (isTerminal(obj[key]) || isTerminal(put[key])) {
+      totalNewFields[key] = put[key];
+    } else {
+      totalNewFields[key] = _setDeep(obj[key], put[key]);
+    }
+  }
+
+  // Apply any new keys that the base obj didn't have.
+  var newKeys = Object.keys(put);
+  for (ii = 0; ii < newKeys.length; ii++) {
+    var newKey = newKeys[ii];
+    if (obj.hasOwnProperty(newKey)) {
+      continue;
+    }
+    totalNewFields[newKey] = put[newKey];
+  }
+
+  return obj instanceof ImmutableValue ? new ImmutableObject(totalNewFields) : put instanceof ImmutableValue ? new ImmutableObject(totalNewFields) : totalNewFields;
+}
+
+module.exports = ImmutableObject;
+}).call(this,require('_process'))
+},{"./ImmutableValue":26,"./invariant":45,"./keyOf":50,"./mergeHelpers":51,"_process":6}],26:[function(require,module,exports){
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule ImmutableValue
+ * @typechecks
+ */
+
+'use strict';
+
+var invariant = require('./invariant');
+var isNode = require('./isNode');
+var keyOf = require('./keyOf');
+
+var SECRET_KEY = keyOf({ _DONT_EVER_TYPE_THIS_SECRET_KEY: null });
+
+/**
+ * `ImmutableValue` provides a guarantee of immutability at developer time when
+ * strict mode is used. The extra computations required to enforce immutability
+ * are stripped out in production for performance reasons. `ImmutableValue`
+ * guarantees to enforce immutability for enumerable, own properties. This
+ * allows easy wrapping of `ImmutableValue` with the ability to store
+ * non-enumerable properties on the instance that only your static methods
+ * reason about. In order to achieve IE8 compatibility (which doesn't have the
+ * ability to define non-enumerable properties), modules that want to build
+ * their own reasoning of `ImmutableValue`s and store computations can define
+ * their non-enumerable properties under the name `toString`, and in IE8 only
+ * define a standard property called `toString` which will mistakenly be
+ * considered not enumerable due to its name (but only in IE8). The only
+ * limitation is that no one can store their own `toString` property.
+ * https://developer.mozilla.org/en-US/docs/ECMAScript_DontEnum_attribute#JScript_DontEnum_Bug
+ */
+
+var ImmutableValue = (function () {
+  /**
+   * An instance of `ImmutableValue` appears to be a plain JavaScript object,
+   * except `instanceof ImmutableValue` evaluates to `true`, and it is deeply
+   * frozen in development mode.
+   *
+   * @param {number} secret Ensures this isn't accidentally constructed outside
+   * of convenience constructors. If created outside of a convenience
+   * constructor, may not be frozen. Forbidding that use case for now until we
+   * have a better API.
+   */
+
+  function ImmutableValue(secret) {
+    _classCallCheck(this, ImmutableValue);
+
+    invariant(secret === ImmutableValue[SECRET_KEY], 'Only certain classes should create instances of `ImmutableValue`.' + 'You probably want something like ImmutableValueObject.create.');
+  }
+
+  _createClass(ImmutableValue, null, [{
+    key: 'mergeAllPropertiesInto',
+
+    /**
+     * Helper method for classes that make use of `ImmutableValue`.
+     * @param {ImmutableValue} destination Object to merge properties into.
+     * @param {object} propertyObjects List of objects to merge into
+     * `destination`.
+     */
+    value: function mergeAllPropertiesInto(destination, propertyObjects) {
+      var argLength = propertyObjects.length;
+      for (var i = 0; i < argLength; i++) {
+        _extends(destination, propertyObjects[i]);
+      }
+    }
+  }, {
+    key: 'deepFreezeRootNode',
+
+    /**
+     * Freezes the supplied object deeply. Other classes may implement their own
+     * version based on this.
+     *
+     * @param {*} object The object to freeze.
+     */
+    value: function deepFreezeRootNode(object) {
+      if (isNode(object)) {
+        return; // Don't try to freeze DOM nodes.
+      }
+      Object.freeze(object); // First freeze the object.
+      for (var prop in object) {
+        if (object.hasOwnProperty(prop)) {
+          ImmutableValue.recurseDeepFreeze(object[prop]);
+        }
+      }
+      Object.seal(object);
+    }
+  }, {
+    key: 'recurseDeepFreeze',
+
+    /**
+     * Differs from `deepFreezeRootNode`, in that we first check if this is a
+     * necessary recursion. If the object is already an `ImmutableValue`, then the
+     * recursion is unnecessary as it is already frozen. That check obviously
+     * wouldn't work for the root node version `deepFreezeRootNode`!
+     */
+    value: function recurseDeepFreeze(object) {
+      if (isNode(object) || !ImmutableValue.shouldRecurseFreeze(object)) {
+        return; // Don't try to freeze DOM nodes.
+      }
+      Object.freeze(object); // First freeze the object.
+      for (var prop in object) {
+        if (object.hasOwnProperty(prop)) {
+          ImmutableValue.recurseDeepFreeze(object[prop]);
+        }
+      }
+      Object.seal(object);
+    }
+  }, {
+    key: 'shouldRecurseFreeze',
+
+    /**
+     * Checks if an object should be deep frozen. Instances of `ImmutableValue`
+     * are assumed to have already been deep frozen, so we can have large
+     * `process.env.NODE_ENV !== 'production'` time savings by skipping freezing of them.
+     *
+     * @param {*} object The object to check.
+     * @return {boolean} Whether or not deep freeze is needed.
+     */
+    value: function shouldRecurseFreeze(object) {
+      return typeof object === 'object' && !(object instanceof ImmutableValue) && object !== null;
+    }
+  }]);
+
+  return ImmutableValue;
+})();
+
+ImmutableValue._DONT_EVER_TYPE_THIS_SECRET_KEY = Math.random();
+
+module.exports = ImmutableValue;
+},{"./invariant":45,"./isNode":47,"./keyOf":50}],27:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule IntegerBufferSet
+ * @typechecks
+ */
+
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var Heap = require('./Heap');
+
+var invariant = require('./invariant');
+
+// Data structure that allows to store values and assign positions to them
+// in a way to minimize changing positions of stored values when new ones are
+// added or when some values are replaced. Stored elements are alwasy assigned
+// a consecutive set of positoins startin from 0 up to count of elements less 1
+// Following actions can be executed
+// * get position assigned to given value (null if value is not stored)
+// * create new entry for new value and get assigned position back
+// * replace value that is furthest from specified value range with new value
+//   and get it's position back
+// All operations take amortized log(n) time where n is number of elements in
+// the set.
+
+var IntegerBufferSet = (function () {
+  function IntegerBufferSet() {
+    _classCallCheck(this, IntegerBufferSet);
+
+    this._valueToPositionMap = {};
+    this._size = 0;
+    this._smallValues = new Heap([], // Initial data in the heap
+    this._smallerComparator);
+    this._largeValues = new Heap([], // Initial data in the heap
+    this._greaterComparator);
+
+    this.getNewPositionForValue = this.getNewPositionForValue.bind(this);
+    this.getValuePosition = this.getValuePosition.bind(this);
+    this.getSize = this.getSize.bind(this);
+    this.replaceFurthestValuePosition = this.replaceFurthestValuePosition.bind(this);
+  }
+
+  _createClass(IntegerBufferSet, [{
+    key: 'getSize',
+    value: function getSize() /*number*/{
+      return this._size;
+    }
+  }, {
+    key: 'getValuePosition',
+    value: function getValuePosition( /*number*/value) /*?number*/{
+      if (this._valueToPositionMap[value] === undefined) {
+        return null;
+      }
+      return this._valueToPositionMap[value];
+    }
+  }, {
+    key: 'getNewPositionForValue',
+    value: function getNewPositionForValue( /*number*/value) /*number*/{
+      invariant(this._valueToPositionMap[value] === undefined, 'Shouldn\'t try to find new position for value already stored in BufferSet');
+      var newPosition = this._size;
+      this._size++;
+      this._pushToHeaps(newPosition, value);
+      this._valueToPositionMap[value] = newPosition;
+      return newPosition;
+    }
+  }, {
+    key: 'replaceFurthestValuePosition',
+    value: function replaceFurthestValuePosition(
+    /*number*/lowValue,
+    /*number*/highValue,
+    /*number*/newValue) /*?number*/{
+      invariant(this._valueToPositionMap[newValue] === undefined, 'Shouldn\'t try to replace values with value already stored value in ' + 'BufferSet');
+
+      this._cleanHeaps();
+      if (this._smallValues.empty() || this._largeValues.empty()) {
+        // Threre are currently no values stored. We will have to create new
+        // position for this value.
+        return null;
+      }
+
+      var minValue = this._smallValues.peek().value;
+      var maxValue = this._largeValues.peek().value;
+      if (minValue >= lowValue && maxValue <= highValue) {
+        // All values currently stored are necessary, we can't reuse any of them.
+        return null;
+      }
+
+      var valueToReplace;
+      if (lowValue - minValue > maxValue - highValue) {
+        // minValue is further from provided range. We will reuse it's position.
+        valueToReplace = minValue;
+        this._smallValues.pop();
+      } else {
+        valueToReplace = maxValue;
+        this._largeValues.pop();
+      }
+      var position = this._valueToPositionMap[valueToReplace];
+      delete this._valueToPositionMap[valueToReplace];
+      this._valueToPositionMap[newValue] = position;
+      this._pushToHeaps(position, newValue);
+
+      return position;
+    }
+  }, {
+    key: '_pushToHeaps',
+    value: function _pushToHeaps( /*number*/position, /*number*/value) {
+      var element = {
+        position: position,
+        value: value };
+      // We can reuse the same object in both heaps, because we don't mutate them
+      this._smallValues.push(element);
+      this._largeValues.push(element);
+    }
+  }, {
+    key: '_cleanHeaps',
+    value: function _cleanHeaps() {
+      // We not usually only remove object from one heap while moving value.
+      // Here we make sure that there is no stale data on top of heaps.
+      this._cleanHeap(this._smallValues);
+      this._cleanHeap(this._largeValues);
+      var minHeapSize = Math.min(this._smallValues.size(), this._largeValues.size());
+      var maxHeapSize = Math.max(this._smallValues.size(), this._largeValues.size());
+      if (maxHeapSize > 10 * minHeapSize) {
+        // There are many old values in one of heaps. We nned to get rid of them
+        // to not use too avoid memory leaks
+        this._recreateHeaps();
+      }
+    }
+  }, {
+    key: '_recreateHeaps',
+    value: function _recreateHeaps() {
+      var sourceHeap = this._smallValues.size() < this._largeValues.size() ? this._smallValues : this._largeValues;
+      var newSmallValues = new Heap([], // Initial data in the heap
+      this._smallerComparator);
+      var newLargeValues = new Heap([], // Initial datat in the heap
+      this._greaterComparator);
+      while (!sourceHeap.empty()) {
+        var element = sourceHeap.pop();
+        // Push all stil valid elements to new heaps
+        if (this._valueToPositionMap[element.value] !== undefined) {
+          newSmallValues.push(element);
+          newLargeValues.push(element);
+        }
+      }
+      this._smallValues = newSmallValues;
+      this._largeValues = newLargeValues;
+    }
+  }, {
+    key: '_cleanHeap',
+    value: function _cleanHeap( /*object*/heap) {
+      while (!heap.empty() && this._valueToPositionMap[heap.peek().value] === undefined) {
+        heap.pop();
+      }
+    }
+  }, {
+    key: '_smallerComparator',
+    value: function _smallerComparator( /*object*/lhs, /*object*/rhs) /*boolean*/{
+      return lhs.value < rhs.value;
+    }
+  }, {
+    key: '_greaterComparator',
+    value: function _greaterComparator( /*object*/lhs, /*object*/rhs) /*boolean*/{
+      return lhs.value > rhs.value;
+    }
+  }]);
+
+  return IntegerBufferSet;
+})();
+
+module.exports = IntegerBufferSet;
+},{"./Heap":24,"./invariant":45}],28:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule Keys
+ */
+
+"use strict";
+
+module.exports = {
+  BACKSPACE: 8,
+  TAB: 9,
+  RETURN: 13,
+  ALT: 18,
+  ESC: 27,
+  SPACE: 32,
+  PAGE_UP: 33,
+  PAGE_DOWN: 34,
+  END: 35,
+  HOME: 36,
+  LEFT: 37,
+  UP: 38,
+  RIGHT: 39,
+  DOWN: 40,
+  DELETE: 46,
+  COMMA: 188,
+  PERIOD: 190,
+  A: 65,
+  Z: 90,
+  ZERO: 48,
+  NUMPAD_0: 96,
+  NUMPAD_9: 105
+};
+},{}],29:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule Locale
+ */
+
+"use strict";
+
+// Hard code this for now.
+var Locale = {
+  isRTL: function isRTL() {
+    return false;
+  },
+  getDirection: function getDirection() {
+    return "LTR";
+  }
+};
+
+module.exports = Locale;
+},{}],30:[function(require,module,exports){
+(function (global){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule PrefixIntervalTree
+ * @typechecks
+ */
+
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+/**
+ * An interval tree that allows to set a number at index and given the value
+ * find the largest index for which prefix sum is greater than or equal to value
+ * (lower bound) or greater than value (upper bound)
+ * Complexity:
+ *   construct: O(n)
+ *   query: O(log(n))
+ *   memory: O(log(n)),
+ * where n is leafCount from the constructor
+ */
+
+var PrefixIntervalTree = (function () {
+  function PrefixIntervalTree( /*number*/leafCount, /*?number*/initialLeafValue) {
+    _classCallCheck(this, PrefixIntervalTree);
+
+    var internalLeafCount = this.getInternalLeafCount(leafCount);
+    this._leafCount = leafCount;
+    this._internalLeafCount = internalLeafCount;
+    var nodeCount = 2 * internalLeafCount;
+    var Int32Array = global.Int32Array || this._initArray;
+    this._value = new Int32Array(nodeCount);
+    this._initTables(initialLeafValue || 0);
+
+    this.get = this.get.bind(this);
+    this.set = this.set.bind(this);
+    this.lowerBound = this.lowerBound.bind(this);
+    this.upperBound = this.upperBound.bind(this);
+  }
+
+  _createClass(PrefixIntervalTree, [{
+    key: 'getInternalLeafCount',
+    value: function getInternalLeafCount( /*number*/leafCount) /*number*/{
+      var internalLeafCount = 1;
+      while (internalLeafCount < leafCount) {
+        internalLeafCount *= 2;
+      }
+      return internalLeafCount;
+    }
+  }, {
+    key: '_initArray',
+    value: function _initArray( /*number*/size) /*array*/{
+      var arr = [];
+      while (size > 0) {
+        size--;
+        arr[size] = 0;
+      }
+      return arr;
+    }
+  }, {
+    key: '_initTables',
+    value: function _initTables( /*number*/initialLeafValue) {
+      var firstLeaf = this._internalLeafCount;
+      var lastLeaf = this._internalLeafCount + this._leafCount - 1;
+      var i;
+      for (i = firstLeaf; i <= lastLeaf; ++i) {
+        this._value[i] = initialLeafValue;
+      }
+      var lastInternalNode = this._internalLeafCount - 1;
+      for (i = lastInternalNode; i > 0; --i) {
+        this._value[i] = this._value[2 * i] + this._value[2 * i + 1];
+      }
+    }
+  }, {
+    key: 'set',
+    value: function set( /*number*/position, /*number*/value) {
+      var nodeIndex = position + this._internalLeafCount;
+      this._value[nodeIndex] = value;
+      nodeIndex = Math.floor(nodeIndex / 2);
+      while (nodeIndex !== 0) {
+        this._value[nodeIndex] = this._value[2 * nodeIndex] + this._value[2 * nodeIndex + 1];
+        nodeIndex = Math.floor(nodeIndex / 2);
+      }
+    }
+  }, {
+    key: 'get',
+
+    /**
+     * Returns an object {index, value} for given position (including value at
+     * specified position), or the same for last position if provided position
+     * is out of range
+     */
+    value: function get( /*number*/position) /*object*/{
+      position = Math.min(position, this._leafCount);
+      var nodeIndex = position + this._internalLeafCount;
+      var result = this._value[nodeIndex];
+      while (nodeIndex > 1) {
+        if (nodeIndex % 2 === 1) {
+          result = this._value[nodeIndex - 1] + result;
+        }
+        nodeIndex = Math.floor(nodeIndex / 2);
+      }
+      return { index: position, value: result };
+    }
+  }, {
+    key: 'upperBound',
+
+    /**
+     * Returns an object {index, value} where index is index of leaf that was
+     * found by upper bound algorithm. Upper bound finds first element for which
+     * value is greater than argument
+     */
+    value: function upperBound( /*number*/value) /*object*/{
+      var result = this._upperBoundImpl(1, 0, this._internalLeafCount - 1, value);
+      if (result.index > this._leafCount - 1) {
+        result.index = this._leafCount - 1;
+      }
+      return result;
+    }
+  }, {
+    key: 'lowerBound',
+
+    /**
+     * Returns result in the same format as upperBound, but finds first element
+     * for which value is greater than or equal to argument
+     */
+    value: function lowerBound( /*number*/value) /*object*/{
+      var result = this.upperBound(value);
+      if (result.value > value && result.index > 0) {
+        var previousValue = result.value - this._value[this._internalLeafCount + result.index];
+        if (previousValue === value) {
+          result.value = previousValue;
+          result.index--;
+        }
+      }
+      return result;
+    }
+  }, {
+    key: '_upperBoundImpl',
+    value: function _upperBoundImpl(
+    /*number*/nodeIndex,
+    /*number*/nodeIntervalBegin,
+    /*number*/nodeIntervalEnd,
+    /*number*/value) /*object*/{
+      if (nodeIntervalBegin === nodeIntervalEnd) {
+        return {
+          index: nodeIndex - this._internalLeafCount,
+          value: this._value[nodeIndex] };
+      }
+
+      var nodeIntervalMidpoint = Math.floor((nodeIntervalBegin + nodeIntervalEnd + 1) / 2);
+      if (value < this._value[nodeIndex * 2]) {
+        return this._upperBoundImpl(2 * nodeIndex, nodeIntervalBegin, nodeIntervalMidpoint - 1, value);
+      } else {
+        var result = this._upperBoundImpl(2 * nodeIndex + 1, nodeIntervalMidpoint, nodeIntervalEnd, value - this._value[2 * nodeIndex]);
+        result.value += this._value[2 * nodeIndex];
+        return result;
+      }
+    }
+  }]);
+
+  return PrefixIntervalTree;
+})();
+
+module.exports = PrefixIntervalTree;
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],31:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule React
+ */
+
+'use strict';
+
+module.exports = require('react');
+},{"react":313}],32:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule ReactComponentWithPureRenderMixin
+ */
+
+'use strict';
+
+module.exports = require('react/lib/ReactComponentWithPureRenderMixin');
+},{"react/lib/ReactComponentWithPureRenderMixin":191}],33:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * This is utility that hanlds onWheel events and calls provided wheel
+ * callback with correct frame rate.
+ *
+ * @providesModule ReactWheelHandler
+ * @typechecks
+ */
+
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var emptyFunction = require('./emptyFunction');
+var normalizeWheel = require('./normalizeWheel');
+var requestAnimationFramePolyfill = require('./requestAnimationFramePolyfill');
+
+var ReactWheelHandler = (function () {
+  /**
+   * onWheel is the callback that will be called with right frame rate if
+   * any wheel events happened
+   * onWheel should is to be called with two arguments: deltaX and deltaY in
+   * this order
+   */
+
+  function ReactWheelHandler(
+  /*function*/onWheel,
+  /*boolean|function*/handleScrollX,
+  /*boolean|function*/handleScrollY,
+  /*?boolean|?function*/stopPropagation) {
+    _classCallCheck(this, ReactWheelHandler);
+
+    this._animationFrameID = null;
+    this._deltaX = 0;
+    this._deltaY = 0;
+    this._didWheel = this._didWheel.bind(this);
+    if (typeof handleScrollX !== 'function') {
+      handleScrollX = handleScrollX ? emptyFunction.thatReturnsTrue : emptyFunction.thatReturnsFalse;
+    }
+
+    if (typeof handleScrollY !== 'function') {
+      handleScrollY = handleScrollY ? emptyFunction.thatReturnsTrue : emptyFunction.thatReturnsFalse;
+    }
+
+    if (typeof stopPropagation !== 'function') {
+      stopPropagation = stopPropagation ? emptyFunction.thatReturnsTrue : emptyFunction.thatReturnsFalse;
+    }
+
+    this._handleScrollX = handleScrollX;
+    this._handleScrollY = handleScrollY;
+    this._stopPropagation = stopPropagation;
+    this._onWheelCallback = onWheel;
+    this.onWheel = this.onWheel.bind(this);
+  }
+
+  _createClass(ReactWheelHandler, [{
+    key: 'onWheel',
+    value: function onWheel( /*object*/event) {
+      var normalizedEvent = normalizeWheel(event);
+      var deltaX = this._deltaX + normalizedEvent.pixelX;
+      var deltaY = this._deltaY + normalizedEvent.pixelY;
+      var handleScrollX = this._handleScrollX(deltaX);
+      var handleScrollY = this._handleScrollY(deltaY);
+      if (!handleScrollX && !handleScrollY) {
+        return;
+      }
+
+      this._deltaX += handleScrollX ? normalizedEvent.pixelX : 0;
+      this._deltaY += handleScrollY ? normalizedEvent.pixelY : 0;
+      event.preventDefault();
+
+      var changed;
+      if (this._deltaX !== 0 || this._deltaY !== 0) {
+        if (this._stopPropagation()) {
+          event.stopPropagation();
+        }
+        changed = true;
+      }
+
+      if (changed === true && this._animationFrameID === null) {
+        this._animationFrameID = requestAnimationFramePolyfill(this._didWheel);
+      }
+    }
+  }, {
+    key: '_didWheel',
+    value: function _didWheel() {
+      this._animationFrameID = null;
+      this._onWheelCallback(this._deltaX, this._deltaY);
+      this._deltaX = 0;
+      this._deltaY = 0;
+    }
+  }]);
+
+  return ReactWheelHandler;
+})();
+
+module.exports = ReactWheelHandler;
+},{"./emptyFunction":43,"./normalizeWheel":53,"./requestAnimationFramePolyfill":54}],34:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule Scrollbar.react
+ * @typechecks
+ */
+
+'use strict';
+
+var DOMMouseMoveTracker = require('./DOMMouseMoveTracker');
+var Keys = require('./Keys');
+var React = require('./React');
+var ReactComponentWithPureRenderMixin = require('./ReactComponentWithPureRenderMixin');
+var ReactWheelHandler = require('./ReactWheelHandler');
+
+var cssVar = require('./cssVar');
+var cx = require('./cx');
+var emptyFunction = require('./emptyFunction');
+var translateDOMPositionXY = require('./translateDOMPositionXY');
+
+var PropTypes = React.PropTypes;
+
+var UNSCROLLABLE_STATE = {
+  position: 0,
+  scrollable: false };
+
+var FACE_MARGIN = parseInt(cssVar('scrollbar-face-margin'), 10);
+var FACE_MARGIN_2 = FACE_MARGIN * 2;
+var FACE_SIZE_MIN = 30;
+var KEYBOARD_SCROLL_AMOUNT = 40;
+
+var _lastScrolledScrollbar = null;
+
+var Scrollbar = React.createClass({
+  displayName: 'Scrollbar',
+
+  mixins: [ReactComponentWithPureRenderMixin],
+
+  propTypes: {
+    contentSize: PropTypes.number.isRequired,
+    defaultPosition: PropTypes.number,
+    isOpaque: PropTypes.bool,
+    orientation: PropTypes.oneOf(['vertical', 'horizontal']),
+    onScroll: PropTypes.func,
+    position: PropTypes.number,
+    size: PropTypes.number.isRequired,
+    trackColor: PropTypes.oneOf(['gray']),
+    zIndex: PropTypes.number },
+
+  getInitialState: function getInitialState() /*object*/{
+    var props = this.props;
+    return this._calculateState(props.position || props.defaultPosition || 0, props.size, props.contentSize, props.orientation);
+  },
+
+  componentWillReceiveProps: function componentWillReceiveProps( /*object*/nextProps) {
+    var controlledPosition = nextProps.position;
+    if (controlledPosition === undefined) {
+      this._setNextState(this._calculateState(this.state.position, nextProps.size, nextProps.contentSize, nextProps.orientation));
+    } else {
+      this._setNextState(this._calculateState(controlledPosition, nextProps.size, nextProps.contentSize, nextProps.orientation), nextProps);
+    }
+  },
+
+  getDefaultProps: function getDefaultProps() /*object*/{
+    return {
+      defaultPosition: 0,
+      isOpaque: false,
+      onScroll: emptyFunction,
+      orientation: 'vertical',
+      zIndex: 99 };
+  },
+
+  render: function render() /*?object*/{
+    if (!this.state.scrollable) {
+      return null;
+    }
+
+    var size = this.props.size;
+    var mainStyle;
+    var faceStyle;
+    var isHorizontal = this.state.isHorizontal;
+    var isVertical = !isHorizontal;
+    var isActive = this.state.focused || this.state.isDragging;
+    var faceSize = this.state.faceSize;
+    var isOpaque = this.props.isOpaque;
+
+    var mainClassName = cx({
+      'public/Scrollbar/main': true,
+      'public/Scrollbar/mainHorizontal': isHorizontal,
+      'public/Scrollbar/mainVertical': isVertical,
+      'Scrollbar/mainActive': isActive,
+      'Scrollbar/mainOpaque': isOpaque });
+
+    var faceClassName = cx({
+      'Scrollbar/face': true,
+      'Scrollbar/faceHorizontal': isHorizontal,
+      'Scrollbar/faceVertical': isVertical,
+      'Scrollbar/faceActive': isActive });
+
+    var position = this.state.position * this.state.scale + FACE_MARGIN;
+
+    if (isHorizontal) {
+      mainStyle = {
+        width: size };
+      faceStyle = {
+        width: faceSize - FACE_MARGIN_2
+      };
+      translateDOMPositionXY(faceStyle, position, 0);
+    } else {
+      mainStyle = {
+        height: size };
+      faceStyle = {
+        height: faceSize - FACE_MARGIN_2 };
+      translateDOMPositionXY(faceStyle, 0, position);
+    }
+
+    mainStyle.zIndex = this.props.zIndex;
+
+    if (this.props.trackColor === 'gray') {
+      mainStyle.backgroundColor = cssVar('fbui-desktop-background-light');
+    }
+
+    return React.createElement(
+      'div',
+      {
+        onFocus: this._onFocus,
+        onBlur: this._onBlur,
+        onKeyDown: this._onKeyDown,
+        onMouseDown: this._onMouseDown,
+        onWheel: this._wheelHandler.onWheel,
+        className: mainClassName,
+        style: mainStyle,
+        tabIndex: 0 },
+      React.createElement('div', {
+        ref: 'face',
+        className: faceClassName,
+        style: faceStyle
+      })
+    );
+  },
+
+  componentWillMount: function componentWillMount() {
+    var isHorizontal = this.props.orientation === 'horizontal';
+    var onWheel = isHorizontal ? this._onWheelX : this._onWheelY;
+
+    this._wheelHandler = new ReactWheelHandler(onWheel, this._shouldHandleX, // Should hanlde horizontal scroll
+    this._shouldHandleY // Should handle vertical scroll
+    );
+  },
+
+  componentDidMount: function componentDidMount() {
+    this._mouseMoveTracker = new DOMMouseMoveTracker(this._onMouseMove, this._onMouseMoveEnd, document.documentElement);
+
+    if (this.props.position !== undefined && this.state.position !== this.props.position) {
+      this._didScroll();
+    }
+  },
+
+  componentWillUnmount: function componentWillUnmount() {
+    this._nextState = null;
+    this._mouseMoveTracker.releaseMouseMoves();
+    if (_lastScrolledScrollbar === this) {
+      _lastScrolledScrollbar = null;
+    }
+    delete this._mouseMoveTracker;
+  },
+
+  scrollBy: function scrollBy( /*number*/delta) {
+    this._onWheel(delta);
+  },
+
+  _shouldHandleX: function _shouldHandleX( /*number*/delta) /*boolean*/{
+    return this.props.orientation === 'horizontal' ? this._shouldHandleChange(delta) : false;
+  },
+
+  _shouldHandleY: function _shouldHandleY( /*number*/delta) /*boolean*/{
+    return this.props.orientation !== 'horizontal' ? this._shouldHandleChange(delta) : false;
+  },
+
+  _shouldHandleChange: function _shouldHandleChange( /*number*/delta) /*boolean*/{
+    var nextState = this._calculateState(this.state.position + delta, this.props.size, this.props.contentSize, this.props.orientation);
+    return nextState.position !== this.state.position;
+  },
+
+  _calculateState: function _calculateState(
+  /*number*/position,
+  /*number*/size,
+  /*number*/contentSize,
+  /*string*/orientation) /*object*/{
+    if (size < 1 || contentSize <= size) {
+      return UNSCROLLABLE_STATE;
+    }
+
+    var stateKey = '' + position + '_' + size + '_' + contentSize + '_' + orientation;
+    if (this._stateKey === stateKey) {
+      return this._stateForKey;
+    }
+
+    // There are two types of positions here.
+    // 1) Phisical position: changed by mouse / keyboard
+    // 2) Logical position: changed by props.
+    // The logical position will be kept as as internal state and the `render()`
+    // function will translate it into physical position to render.
+
+    var isHorizontal = orientation === 'horizontal';
+    var scale = size / contentSize;
+    var faceSize = Math.round(size * scale);
+
+    if (faceSize < FACE_SIZE_MIN) {
+      scale = (size - FACE_SIZE_MIN) / (contentSize - FACE_SIZE_MIN);
+      faceSize = FACE_SIZE_MIN;
+    }
+
+    var scrollable = true;
+    var maxPosition = contentSize - size;
+
+    if (position < 0) {
+      position = 0;
+    } else if (position > maxPosition) {
+      position = maxPosition;
+    }
+
+    var isDragging = this._mouseMoveTracker ? this._mouseMoveTracker.isDragging() : false;
+
+    position = Math.round(position);
+    faceSize = Math.round(faceSize);
+
+    // This function should only return flat values that can be compared quiclky
+    // by `ReactComponentWithPureRenderMixin`.
+    var state = {
+      faceSize: faceSize,
+      isDragging: isDragging,
+      isHorizontal: isHorizontal,
+      position: position,
+      scale: scale,
+      scrollable: scrollable };
+
+    // cache the state for later use.
+    this._stateKey = stateKey;
+    this._stateForKey = state;
+    return state;
+  },
+
+  _onWheelY: function _onWheelY( /*number*/deltaX, /*number*/deltaY) {
+    this._onWheel(deltaY);
+  },
+
+  _onWheelX: function _onWheelX( /*number*/deltaX, /*number*/deltaY) {
+    this._onWheel(deltaX);
+  },
+
+  _onWheel: function _onWheel( /*number*/delta) {
+    var props = this.props;
+
+    // The mouse may move faster then the animation frame does.
+    // Use `requestAnimationFrame` to avoid over-updating.
+    this._setNextState(this._calculateState(this.state.position + delta, props.size, props.contentSize, props.orientation));
+  },
+
+  _onMouseDown: function _onMouseDown( /*object*/event) {
+    var nextState;
+
+    if (event.target !== React.findDOMNode(this.refs.face)) {
+      // Both `offsetX` and `layerX` are non-standard DOM property but they are
+      // magically available for browsers somehow.
+      var nativeEvent = event.nativeEvent;
+      var position = this.state.isHorizontal ? nativeEvent.offsetX || nativeEvent.layerX : nativeEvent.offsetY || nativeEvent.layerY;
+
+      // MouseDown on the scroll-track directly, move the center of the
+      // scroll-face to the mouse position.
+      var props = this.props;
+      position = position / this.state.scale;
+      nextState = this._calculateState(position - this.state.faceSize * 0.5 / this.state.scale, props.size, props.contentSize, props.orientation);
+    } else {
+      nextState = {};
+    }
+
+    nextState.focused = true;
+    this._setNextState(nextState);
+
+    this._mouseMoveTracker.captureMouseMoves(event);
+    // Focus the node so it may receive keyboard event.
+    React.findDOMNode(this).focus();
+  },
+
+  _onMouseMove: function _onMouseMove( /*number*/deltaX, /*number*/deltaY) {
+    var props = this.props;
+    var delta = this.state.isHorizontal ? deltaX : deltaY;
+    delta = delta / this.state.scale;
+
+    this._setNextState(this._calculateState(this.state.position + delta, props.size, props.contentSize, props.orientation));
+  },
+
+  _onMouseMoveEnd: function _onMouseMoveEnd() {
+    this._nextState = null;
+    this._mouseMoveTracker.releaseMouseMoves();
+    this.setState({ isDragging: false });
+  },
+
+  _onKeyDown: function _onKeyDown( /*object*/event) {
+    var keyCode = event.keyCode;
+
+    if (keyCode === Keys.TAB) {
+      // Let focus move off the scrollbar.
+      return;
+    }
+
+    var distance = KEYBOARD_SCROLL_AMOUNT;
+    var direction = 0;
+
+    if (this.state.isHorizontal) {
+      switch (keyCode) {
+        case Keys.HOME:
+          direction = -1;
+          distance = this.props.contentSize;
+          break;
+
+        case Keys.LEFT:
+          direction = -1;
+          break;
+
+        case Keys.RIGHT:
+          direction = 1;
+          break;
+
+        default:
+          return;
+      }
+    }
+
+    if (!this.state.isHorizontal) {
+      switch (keyCode) {
+        case Keys.SPACE:
+          if (event.shiftKey) {
+            direction = -1;
+          } else {
+            direction = 1;
+          }
+          break;
+
+        case Keys.HOME:
+          direction = -1;
+          distance = this.props.contentSize;
+          break;
+
+        case Keys.UP:
+          direction = -1;
+          break;
+
+        case Keys.DOWN:
+          direction = 1;
+          break;
+
+        case Keys.PAGE_UP:
+          direction = -1;
+          distance = this.props.size;
+          break;
+
+        case Keys.PAGE_DOWN:
+          direction = 1;
+          distance = this.props.size;
+          break;
+
+        default:
+          return;
+      }
+    }
+
+    event.preventDefault();
+
+    var props = this.props;
+    this._setNextState(this._calculateState(this.state.position + distance * direction, props.size, props.contentSize, props.orientation));
+  },
+
+  _onFocus: function _onFocus() {
+    this.setState({
+      focused: true });
+  },
+
+  _onBlur: function _onBlur() {
+    this.setState({
+      focused: false });
+  },
+
+  _blur: function _blur() {
+    if (this.isMounted()) {
+      try {
+        this._onBlur();
+        React.findDOMNode(this).blur();
+      } catch (oops) {}
+    }
+  },
+
+  _setNextState: function _setNextState( /*object*/nextState, /*?object*/props) {
+    props = props || this.props;
+    var controlledPosition = props.position;
+    var willScroll = this.state.position !== nextState.position;
+    if (controlledPosition === undefined) {
+      var callback = willScroll ? this._didScroll : undefined;
+      this.setState(nextState, callback);
+    } else if (controlledPosition === nextState.position) {
+      this.setState(nextState);
+    } else {
+      // Scrolling is controlled. Don't update the state and let the owner
+      // to update the scrollbar instead.
+      if (nextState.position !== undefined && nextState.position !== this.state.position) {
+        this.props.onScroll(nextState.position);
+      }
+      return;
+    }
+
+    if (willScroll && _lastScrolledScrollbar !== this) {
+      _lastScrolledScrollbar && _lastScrolledScrollbar._blur();
+      _lastScrolledScrollbar = this;
+    }
+  },
+
+  _didScroll: function _didScroll() {
+    this.props.onScroll(this.state.position);
+  } });
+
+Scrollbar.KEYBOARD_SCROLL_AMOUNT = KEYBOARD_SCROLL_AMOUNT;
+Scrollbar.SIZE = parseInt(cssVar('scrollbar-size'), 10);
+
+module.exports = Scrollbar;
+
+// pass
+},{"./DOMMouseMoveTracker":8,"./Keys":28,"./React":31,"./ReactComponentWithPureRenderMixin":32,"./ReactWheelHandler":33,"./cssVar":40,"./cx":41,"./emptyFunction":43,"./translateDOMPositionXY":56}],35:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule UserAgent_DEPRECATED
+ */
+
+/**
+ *  Provides entirely client-side User Agent and OS detection. You should prefer
+ *  the non-deprecated UserAgent module when possible, which exposes our
+ *  authoritative server-side PHP-based detection to the client.
+ *
+ *  Usage is straightforward:
+ *
+ *    if (UserAgent_DEPRECATED.ie()) {
+ *      //  IE
+ *    }
+ *
+ *  You can also do version checks:
+ *
+ *    if (UserAgent_DEPRECATED.ie() >= 7) {
+ *      //  IE7 or better
+ *    }
+ *
+ *  The browser functions will return NaN if the browser does not match, so
+ *  you can also do version compares the other way:
+ *
+ *    if (UserAgent_DEPRECATED.ie() < 7) {
+ *      //  IE6 or worse
+ *    }
+ *
+ *  Note that the version is a float and may include a minor version number,
+ *  so you should always use range operators to perform comparisons, not
+ *  strict equality.
+ *
+ *  **Note:** You should **strongly** prefer capability detection to browser
+ *  version detection where it's reasonable:
+ *
+ *    http://www.quirksmode.org/js/support.html
+ *
+ *  Further, we have a large number of mature wrapper functions and classes
+ *  which abstract away many browser irregularities. Check the documentation,
+ *  grep for things, or ask on javascript@lists.facebook.com before writing yet
+ *  another copy of "event || window.event".
+ *
+ */
+
+'use strict';
+
+var _populated = false;
+
+// Browsers
+var _ie, _firefox, _opera, _webkit, _chrome;
+
+// Actual IE browser for compatibility mode
+var _ie_real_version;
+
+// Platforms
+var _osx, _windows, _linux, _android;
+
+// Architectures
+var _win64;
+
+// Devices
+var _iphone, _ipad, _native;
+
+var _mobile;
+
+function _populate() {
+  if (_populated) {
+    return;
+  }
+
+  _populated = true;
+
+  // To work around buggy JS libraries that can't handle multi-digit
+  // version numbers, Opera 10's user agent string claims it's Opera
+  // 9, then later includes a Version/X.Y field:
+  //
+  // Opera/9.80 (foo) Presto/2.2.15 Version/10.10
+  var uas = navigator.userAgent;
+  var agent = /(?:MSIE.(\d+\.\d+))|(?:(?:Firefox|GranParadiso|Iceweasel).(\d+\.\d+))|(?:Opera(?:.+Version.|.)(\d+\.\d+))|(?:AppleWebKit.(\d+(?:\.\d+)?))|(?:Trident\/\d+\.\d+.*rv:(\d+\.\d+))/.exec(uas);
+  var os = /(Mac OS X)|(Windows)|(Linux)/.exec(uas);
+
+  _iphone = /\b(iPhone|iP[ao]d)/.exec(uas);
+  _ipad = /\b(iP[ao]d)/.exec(uas);
+  _android = /Android/i.exec(uas);
+  _native = /FBAN\/\w+;/i.exec(uas);
+  _mobile = /Mobile/i.exec(uas);
+
+  // Note that the IE team blog would have you believe you should be checking
+  // for 'Win64; x64'.  But MSDN then reveals that you can actually be coming
+  // from either x64 or ia64;  so ultimately, you should just check for Win64
+  // as in indicator of whether you're in 64-bit IE.  32-bit IE on 64-bit
+  // Windows will send 'WOW64' instead.
+  _win64 = !!/Win64/.exec(uas);
+
+  if (agent) {
+    _ie = agent[1] ? parseFloat(agent[1]) : agent[5] ? parseFloat(agent[5]) : NaN;
+    // IE compatibility mode
+    if (_ie && document && document.documentMode) {
+      _ie = document.documentMode;
+    }
+    // grab the "true" ie version from the trident token if available
+    var trident = /(?:Trident\/(\d+.\d+))/.exec(uas);
+    _ie_real_version = trident ? parseFloat(trident[1]) + 4 : _ie;
+
+    _firefox = agent[2] ? parseFloat(agent[2]) : NaN;
+    _opera = agent[3] ? parseFloat(agent[3]) : NaN;
+    _webkit = agent[4] ? parseFloat(agent[4]) : NaN;
+    if (_webkit) {
+      // We do not add the regexp to the above test, because it will always
+      // match 'safari' only since 'AppleWebKit' appears before 'Chrome' in
+      // the userAgent string.
+      agent = /(?:Chrome\/(\d+\.\d+))/.exec(uas);
+      _chrome = agent && agent[1] ? parseFloat(agent[1]) : NaN;
+    } else {
+      _chrome = NaN;
+    }
+  } else {
+    _ie = _firefox = _opera = _chrome = _webkit = NaN;
+  }
+
+  if (os) {
+    if (os[1]) {
+      // Detect OS X version.  If no version number matches, set _osx to true.
+      // Version examples:  10, 10_6_1, 10.7
+      // Parses version number as a float, taking only first two sets of
+      // digits.  If only one set of digits is found, returns just the major
+      // version number.
+      var ver = /(?:Mac OS X (\d+(?:[._]\d+)?))/.exec(uas);
+
+      _osx = ver ? parseFloat(ver[1].replace('_', '.')) : true;
+    } else {
+      _osx = false;
+    }
+    _windows = !!os[2];
+    _linux = !!os[3];
+  } else {
+    _osx = _windows = _linux = false;
+  }
+}
+
+var UserAgent_DEPRECATED = {
+
+  /**
+   *  Check if the UA is Internet Explorer.
+   *
+   *
+   *  @return float|NaN Version number (if match) or NaN.
+   */
+  ie: function ie() {
+    return _populate() || _ie;
+  },
+
+  /**
+   * Check if we're in Internet Explorer compatibility mode.
+   *
+   * @return bool true if in compatibility mode, false if
+   * not compatibility mode or not ie
+   */
+  ieCompatibilityMode: function ieCompatibilityMode() {
+    return _populate() || _ie_real_version > _ie;
+  },
+
+  /**
+   * Whether the browser is 64-bit IE.  Really, this is kind of weak sauce;  we
+   * only need this because Skype can't handle 64-bit IE yet.  We need to remove
+   * this when we don't need it -- tracked by #601957.
+   */
+  ie64: function ie64() {
+    return UserAgent_DEPRECATED.ie() && _win64;
+  },
+
+  /**
+   *  Check if the UA is Firefox.
+   *
+   *
+   *  @return float|NaN Version number (if match) or NaN.
+   */
+  firefox: function firefox() {
+    return _populate() || _firefox;
+  },
+
+  /**
+   *  Check if the UA is Opera.
+   *
+   *
+   *  @return float|NaN Version number (if match) or NaN.
+   */
+  opera: function opera() {
+    return _populate() || _opera;
+  },
+
+  /**
+   *  Check if the UA is WebKit.
+   *
+   *
+   *  @return float|NaN Version number (if match) or NaN.
+   */
+  webkit: function webkit() {
+    return _populate() || _webkit;
+  },
+
+  /**
+   *  For Push
+   *  WILL BE REMOVED VERY SOON. Use UserAgent_DEPRECATED.webkit
+   */
+  safari: function safari() {
+    return UserAgent_DEPRECATED.webkit();
+  },
+
+  /**
+   *  Check if the UA is a Chrome browser.
+   *
+   *
+   *  @return float|NaN Version number (if match) or NaN.
+   */
+  chrome: function chrome() {
+    return _populate() || _chrome;
+  },
+
+  /**
+   *  Check if the user is running Windows.
+   *
+   *  @return bool `true' if the user's OS is Windows.
+   */
+  windows: function windows() {
+    return _populate() || _windows;
+  },
+
+  /**
+   *  Check if the user is running Mac OS X.
+   *
+   *  @return float|bool   Returns a float if a version number is detected,
+   *                       otherwise true/false.
+   */
+  osx: function osx() {
+    return _populate() || _osx;
+  },
+
+  /**
+   * Check if the user is running Linux.
+   *
+   * @return bool `true' if the user's OS is some flavor of Linux.
+   */
+  linux: function linux() {
+    return _populate() || _linux;
+  },
+
+  /**
+   * Check if the user is running on an iPhone or iPod platform.
+   *
+   * @return bool `true' if the user is running some flavor of the
+   *    iPhone OS.
+   */
+  iphone: function iphone() {
+    return _populate() || _iphone;
+  },
+
+  mobile: function mobile() {
+    return _populate() || (_iphone || _ipad || _android || _mobile);
+  },
+
+  nativeApp: function nativeApp() {
+    // webviews inside of the native apps
+    return _populate() || _native;
+  },
+
+  android: function android() {
+    return _populate() || _android;
+  },
+
+  ipad: function ipad() {
+    return _populate() || _ipad;
+  }
+};
+
+module.exports = UserAgent_DEPRECATED;
+},{}],36:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule camelize
+ * @typechecks
+ */
+
+"use strict";
+
+var _hyphenPattern = /-(.)/g;
+
+/**
+ * Camelcases a hyphenated string, for example:
+ *
+ *   > camelize('background-color')
+ *   < "backgroundColor"
+ *
+ * @param {string} string
+ * @return {string}
+ */
+function camelize(string) {
+  return string.replace(_hyphenPattern, function (_, character) {
+    return character.toUpperCase();
+  });
+}
+
+module.exports = camelize;
+},{}],37:[function(require,module,exports){
+(function (global){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule cancelAnimationFramePolyfill
+ */
+
+/**
+ * Here is the native and polyfill version of cancelAnimationFrame.
+ * Please don't use it directly and use cancelAnimationFrame module instead.
+ */
+"use strict";
+
+var cancelAnimationFrame = global.cancelAnimationFrame || global.webkitCancelAnimationFrame || global.mozCancelAnimationFrame || global.oCancelAnimationFrame || global.msCancelAnimationFrame || global.clearTimeout;
+
+module.exports = cancelAnimationFrame;
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],38:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule clamp
+ * @typechecks
+ */
+
+/**
+ * @param {number} min
+ * @param {number} value
+ * @param {number} max
+ * @return {number}
+ */
+"use strict";
+
+function clamp(min, value, max) {
+  if (value < min) {
+    return min;
+  }
+  if (value > max) {
+    return max;
+  }
+  return value;
+}
+
+module.exports = clamp;
+},{}],39:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule cloneWithProps
+ */
+
+'use strict';
+
+module.exports = require('react/lib/cloneWithProps');
+},{"react/lib/cloneWithProps":265}],40:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule cssVar
+ * @typechecks
+ */
+
+'use strict';
+
+var CSS_VARS = {
+  'scrollbar-face-active-color': '#7d7d7d',
+  'scrollbar-face-color': '#c2c2c2',
+  'scrollbar-face-margin': '4px',
+  'scrollbar-face-radius': '6px',
+  'scrollbar-size': '15px',
+  'scrollbar-size-large': '17px',
+  'scrollbar-track-color': 'rgba(255, 255, 255, 0.8)' };
+
+/**
+ * @param {string} name
+ */
+function cssVar(name) {
+  if (CSS_VARS.hasOwnProperty(name)) {
+    return CSS_VARS[name];
+  }
+
+  throw new Error('cssVar' + '("' + name + '"): Unexpected class transformation.');
+}
+
+cssVar.CSS_VARS = CSS_VARS;
+
+module.exports = cssVar;
+},{}],41:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule cx
+ */
+
+'use strict';
+
+var slashReplaceRegex = /\//g;
+var cache = {};
+
+function getClassName(className) {
+  if (cache[className]) {
+    return cache[className];
+  }
+
+  cache[className] = className.replace(slashReplaceRegex, '_');
+  return cache[className];
+}
+
+/**
+ * This function is used to mark string literals representing CSS class names
+ * so that they can be transformed statically. This allows for modularization
+ * and minification of CSS class names.
+ *
+ * In static_upstream, this function is actually implemented, but it should
+ * eventually be replaced with something more descriptive, and the transform
+ * that is used in the main stack should be ported for use elsewhere.
+ *
+ * @param string|object className to modularize, or an object of key/values.
+ *                      In the object case, the values are conditions that
+ *                      determine if the className keys should be included.
+ * @param [string ...]  Variable list of classNames in the string case.
+ * @return string       Renderable space-separated CSS className.
+ */
+function cx(classNames) {
+  var classNamesArray;
+  if (typeof classNames == 'object') {
+    classNamesArray = Object.keys(classNames).filter(function (className) {
+      return classNames[className];
+    });
+  } else {
+    classNamesArray = Array.prototype.slice.call(arguments);
+  }
+
+  return classNamesArray.map(getClassName).join(' ');
+}
+
+module.exports = cx;
+},{}],42:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule debounceCore
+ * @typechecks
+ */
+
+/**
+ * Invokes the given callback after a specified number of milliseconds have
+ * elapsed, ignoring subsequent calls.
+ *
+ * For example, if you wanted to update a preview after the user stops typing
+ * you could do the following:
+ *
+ *   elem.addEventListener('keyup', debounce(this.updatePreview, 250), false);
+ *
+ * The returned function has a reset method which can be called to cancel a
+ * pending invocation.
+ *
+ *   var debouncedUpdatePreview = debounce(this.updatePreview, 250);
+ *   elem.addEventListener('keyup', debouncedUpdatePreview, false);
+ *
+ *   // later, to cancel pending calls
+ *   debouncedUpdatePreview.reset();
+ *
+ * @param {function} func - the function to debounce
+ * @param {number} wait - how long to wait in milliseconds
+ * @param {*} context - optional context to invoke the function in
+ * @param {?function} setTimeoutFunc - an implementation of setTimeout
+ *  if nothing is passed in the default setTimeout function is used
+  * @param {?function} clearTimeoutFunc - an implementation of clearTimeout
+ *  if nothing is passed in the default clearTimeout function is used
+ */
+"use strict";
+
+function debounce(func, wait, context, setTimeoutFunc, clearTimeoutFunc) {
+  setTimeoutFunc = setTimeoutFunc || setTimeout;
+  clearTimeoutFunc = clearTimeoutFunc || clearTimeout;
+  var timeout;
+
+  function debouncer() {
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    debouncer.reset();
+
+    var callback = function callback() {
+      func.apply(context, args);
+    };
+    callback.__SMmeta = func.__SMmeta;
+    timeout = setTimeoutFunc(callback, wait);
+  }
+
+  debouncer.reset = function () {
+    clearTimeoutFunc(timeout);
+  };
+
+  return debouncer;
+}
+
+module.exports = debounce;
+},{}],43:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule emptyFunction
+ */
+
+"use strict";
+
+function makeEmptyFunction(arg) {
+  return function () {
+    return arg;
+  };
+}
+
+/**
+ * This function accepts and discards inputs; it has no side effects. This is
+ * primarily useful idiomatically for overridable function endpoints which
+ * always need to be callable, since JS lacks a null-call idiom ala Cocoa.
+ */
+function emptyFunction() {}
+
+emptyFunction.thatReturns = makeEmptyFunction;
+emptyFunction.thatReturnsFalse = makeEmptyFunction(false);
+emptyFunction.thatReturnsTrue = makeEmptyFunction(true);
+emptyFunction.thatReturnsNull = makeEmptyFunction(null);
+emptyFunction.thatReturnsThis = function () {
+  return this;
+};
+emptyFunction.thatReturnsArgument = function (arg) {
+  return arg;
+};
+
+module.exports = emptyFunction;
+},{}],44:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule getVendorPrefixedName
+ * @typechecks
+ */
+
+'use strict';
+
+var ExecutionEnvironment = require('./ExecutionEnvironment');
+
+var camelize = require('./camelize');
+var invariant = require('./invariant');
+
+var memoized = {};
+var prefixes = ['Webkit', 'ms', 'Moz', 'O'];
+var prefixRegex = new RegExp('^(' + prefixes.join('|') + ')');
+var testStyle = ExecutionEnvironment.canUseDOM ? document.createElement('div').style : {};
+
+function getWithPrefix(name) {
+  for (var i = 0; i < prefixes.length; i++) {
+    var prefixedName = prefixes[i] + name;
+    if (prefixedName in testStyle) {
+      return prefixedName;
+    }
+  }
+  return null;
+}
+
+/**
+ * @param {string} property Name of a css property to check for.
+ * @return {?string} property name supported in the browser, or null if not
+ * supported.
+ */
+function getVendorPrefixedName(property) {
+  var name = camelize(property);
+  if (memoized[name] === undefined) {
+    var capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
+    if (prefixRegex.test(capitalizedName)) {
+      invariant(false, 'getVendorPrefixedName must only be called with unprefixed' + 'CSS property names. It was called with %s', property);
+    }
+    memoized[name] = name in testStyle ? name : getWithPrefix(capitalizedName);
+  }
+  return memoized[name];
+}
+
+module.exports = getVendorPrefixedName;
+},{"./ExecutionEnvironment":10,"./camelize":36,"./invariant":45}],45:[function(require,module,exports){
+(function (process){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule invariant
+ */
+
+'use strict';
+
+/**
+ * Use invariant() to assert state which your program assumes to be true.
+ *
+ * Provide sprintf-style format (only %s is supported) and arguments
+ * to provide information about what broke and what you were
+ * expecting.
+ *
+ * The invariant message will be stripped in production, but the invariant
+ * will remain to ensure logic does not differ in production.
+ */
+
+var invariant = function invariant(condition, format, a, b, c, d, e, f) {
+  if (process.env.NODE_ENV !== 'production') {
+    if (format === undefined) {
+      throw new Error('invariant requires an error message argument');
+    }
+  }
+
+  if (!condition) {
+    var error;
+    if (format === undefined) {
+      error = new Error('Minified exception occurred; use the non-minified dev environment ' + 'for the full error message and additional helpful warnings.');
+    } else {
+      var args = [a, b, c, d, e, f];
+      var argIndex = 0;
+      error = new Error('Invariant Violation: ' + format.replace(/%s/g, function () {
+        return args[argIndex++];
+      }));
+    }
+
+    error.framesToPop = 1; // we don't care about invariant's own frame
+    throw error;
+  }
+};
+
+module.exports = invariant;
+}).call(this,require('_process'))
+},{"_process":6}],46:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule isEventSupported
+ */
+
+'use strict';
+
+var ExecutionEnvironment = require('./ExecutionEnvironment');
+
+var useHasFeature;
+if (ExecutionEnvironment.canUseDOM) {
+  useHasFeature = document.implementation && document.implementation.hasFeature &&
+  // always returns true in newer browsers as per the standard.
+  // @see http://dom.spec.whatwg.org/#dom-domimplementation-hasfeature
+  document.implementation.hasFeature('', '') !== true;
+}
+
+/**
+ * Checks if an event is supported in the current execution environment.
+ *
+ * NOTE: This will not work correctly for non-generic events such as `change`,
+ * `reset`, `load`, `error`, and `select`.
+ *
+ * Borrows from Modernizr.
+ *
+ * @param {string} eventNameSuffix Event name, e.g. "click".
+ * @param {?boolean} capture Check if the capture phase is supported.
+ * @return {boolean} True if the event is supported.
+ * @internal
+ * @license Modernizr 3.0.0pre (Custom Build) | MIT
+ */
+function isEventSupported(eventNameSuffix, capture) {
+  if (!ExecutionEnvironment.canUseDOM || capture && !('addEventListener' in document)) {
+    return false;
+  }
+
+  var eventName = 'on' + eventNameSuffix;
+  var isSupported = (eventName in document);
+
+  if (!isSupported) {
+    var element = document.createElement('div');
+    element.setAttribute(eventName, 'return;');
+    isSupported = typeof element[eventName] === 'function';
+  }
+
+  if (!isSupported && useHasFeature && eventNameSuffix === 'wheel') {
+    // This is the only way to test support for the `wheel` event in IE9+.
+    isSupported = document.implementation.hasFeature('Events.wheel', '3.0');
+  }
+
+  return isSupported;
+}
+
+module.exports = isEventSupported;
+},{"./ExecutionEnvironment":10}],47:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule isNode
+ * @typechecks
+ */
+
+/**
+ * @param {*} object The object to check.
+ * @return {boolean} Whether or not the object is a DOM node.
+ */
+'use strict';
+
+function isNode(object) {
+  return !!(object && (typeof Node === 'function' ? object instanceof Node : typeof object === 'object' && typeof object.nodeType === 'number' && typeof object.nodeName === 'string'));
+}
+
+module.exports = isNode;
+},{}],48:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule joinClasses
+ * @typechecks static-only
+ */
+
+'use strict';
+
+/**
+ * Combines multiple className strings into one.
+ * http://jsperf.com/joinclasses-args-vs-array
+ *
+ * @param {...?string} classes
+ * @return {string}
+ */
+function joinClasses(className /*, ... */) {
+  if (!className) {
+    className = '';
+  }
+  var nextClass;
+  var argLength = arguments.length;
+  if (argLength > 1) {
+    for (var ii = 1; ii < argLength; ii++) {
+      nextClass = arguments[ii];
+      if (nextClass) {
+        className = (className ? className + ' ' : '') + nextClass;
+      }
+    }
+  }
+  return className;
+}
+
+module.exports = joinClasses;
+},{}],49:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule keyMirror
+ * @typechecks static-only
+ */
+
+'use strict';
+
+var invariant = require('./invariant');
+
+/**
+ * Constructs an enumeration with keys equal to their value.
+ *
+ * For example:
+ *
+ *   var COLORS = keyMirror({blue: null, red: null});
+ *   var myColor = COLORS.blue;
+ *   var isColorValid = !!COLORS[myColor];
+ *
+ * The last line could not be performed if the values of the generated enum were
+ * not equal to their keys.
+ *
+ *   Input:  {key1: val1, key2: val2}
+ *   Output: {key1: key1, key2: key2}
+ *
+ * @param {object} obj
+ * @return {object}
+ */
+var keyMirror = function keyMirror(obj) {
+  var ret = {};
+  var key;
+  invariant(obj instanceof Object && !Array.isArray(obj), 'keyMirror(...): Argument must be an object.');
+  for (key in obj) {
+    if (!obj.hasOwnProperty(key)) {
+      continue;
+    }
+    ret[key] = key;
+  }
+  return ret;
+};
+
+module.exports = keyMirror;
+},{"./invariant":45}],50:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule keyOf
+ */
+
+/**
+ * Allows extraction of a minified key. Let's the build system minify keys
+ * without losing the ability to dynamically use key strings as values
+ * themselves. Pass in an object with a single key/val pair and it will return
+ * you the string key of that single record. Suppose you want to grab the
+ * value for a key 'className' inside of an object. Key/val minification may
+ * have aliased that key to be 'xa12'. keyOf({className: null}) will return
+ * 'xa12' in that case. Resolve keys you want to use once at startup time, then
+ * reuse those resolutions.
+ */
+"use strict";
+
+var keyOf = function keyOf(oneKeyObj) {
+  var key;
+  for (key in oneKeyObj) {
+    if (!oneKeyObj.hasOwnProperty(key)) {
+      continue;
+    }
+    return key;
+  }
+  return null;
+};
+
+module.exports = keyOf;
+},{}],51:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule mergeHelpers
+ *
+ * requiresPolyfills: Array.isArray
+ */
+
+'use strict';
+
+var invariant = require('./invariant');
+var keyMirror = require('./keyMirror');
+
+/**
+ * Maximum number of levels to traverse. Will catch circular structures.
+ * @const
+ */
+var MAX_MERGE_DEPTH = 36;
+
+/**
+ * We won't worry about edge cases like new String('x') or new Boolean(true).
+ * Functions and Dates are considered terminals, and arrays are not.
+ * @param {*} o The item/object/value to test.
+ * @return {boolean} true iff the argument is a terminal.
+ */
+var isTerminal = function isTerminal(o) {
+  return typeof o !== 'object' || o instanceof Date || o === null;
+};
+
+var mergeHelpers = {
+
+  MAX_MERGE_DEPTH: MAX_MERGE_DEPTH,
+
+  isTerminal: isTerminal,
+
+  /**
+   * Converts null/undefined values into empty object.
+   *
+   * @param {?Object=} arg Argument to be normalized (nullable optional)
+   * @return {!Object}
+   */
+  normalizeMergeArg: function normalizeMergeArg(arg) {
+    return arg === undefined || arg === null ? {} : arg;
+  },
+
+  /**
+   * If merging Arrays, a merge strategy *must* be supplied. If not, it is
+   * likely the caller's fault. If this function is ever called with anything
+   * but `one` and `two` being `Array`s, it is the fault of the merge utilities.
+   *
+   * @param {*} one Array to merge into.
+   * @param {*} two Array to merge from.
+   */
+  checkMergeArrayArgs: function checkMergeArrayArgs(one, two) {
+    invariant(Array.isArray(one) && Array.isArray(two), 'Tried to merge arrays, instead got %s and %s.', one, two);
+  },
+
+  /**
+   * @param {*} one Object to merge into.
+   * @param {*} two Object to merge from.
+   */
+  checkMergeObjectArgs: function checkMergeObjectArgs(one, two) {
+    mergeHelpers.checkMergeObjectArg(one);
+    mergeHelpers.checkMergeObjectArg(two);
+  },
+
+  /**
+   * @param {*} arg
+   */
+  checkMergeObjectArg: function checkMergeObjectArg(arg) {
+    invariant(!isTerminal(arg) && !Array.isArray(arg), 'Tried to merge an object, instead got %s.', arg);
+  },
+
+  /**
+   * @param {*} arg
+   */
+  checkMergeIntoObjectArg: function checkMergeIntoObjectArg(arg) {
+    invariant((!isTerminal(arg) || typeof arg === 'function') && !Array.isArray(arg), 'Tried to merge into an object, instead got %s.', arg);
+  },
+
+  /**
+   * Checks that a merge was not given a circular object or an object that had
+   * too great of depth.
+   *
+   * @param {number} Level of recursion to validate against maximum.
+   */
+  checkMergeLevel: function checkMergeLevel(level) {
+    invariant(level < MAX_MERGE_DEPTH, 'Maximum deep merge depth exceeded. You may be attempting to merge ' + 'circular structures in an unsupported way.');
+  },
+
+  /**
+   * Checks that the supplied merge strategy is valid.
+   *
+   * @param {string} Array merge strategy.
+   */
+  checkArrayStrategy: function checkArrayStrategy(strategy) {
+    invariant(strategy === undefined || strategy in mergeHelpers.ArrayStrategies, 'You must provide an array strategy to deep merge functions to ' + 'instruct the deep merge how to resolve merging two arrays.');
+  },
+
+  /**
+   * Set of possible behaviors of merge algorithms when encountering two Arrays
+   * that must be merged together.
+   * - `clobber`: The left `Array` is ignored.
+   * - `indexByIndex`: The result is achieved by recursively deep merging at
+   *   each index. (not yet supported.)
+   */
+  ArrayStrategies: keyMirror({
+    Clobber: true,
+    IndexByIndex: true
+  })
+
+};
+
+module.exports = mergeHelpers;
+},{"./invariant":45,"./keyMirror":49}],52:[function(require,module,exports){
+(function (global){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule nativeRequestAnimationFrame
+ */
+
+"use strict";
+
+var nativeRequestAnimationFrame = global.requestAnimationFrame || global.webkitRequestAnimationFrame || global.mozRequestAnimationFrame || global.oRequestAnimationFrame || global.msRequestAnimationFrame;
+
+module.exports = nativeRequestAnimationFrame;
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],53:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule normalizeWheel
+ * @typechecks
+ */
+
+'use strict';
+
+var UserAgent_DEPRECATED = require('./UserAgent_DEPRECATED');
+
+var isEventSupported = require('./isEventSupported');
+
+// Reasonable defaults
+var PIXEL_STEP = 10;
+var LINE_HEIGHT = 40;
+var PAGE_HEIGHT = 800;
+
+/**
+ * Mouse wheel (and 2-finger trackpad) support on the web sucks.  It is
+ * complicated, thus this doc is long and (hopefully) detailed enough to answer
+ * your questions.
+ *
+ * If you need to react to the mouse wheel in a predictable way, this code is
+ * like your bestest friend. * hugs *
+ *
+ * As of today, there are 4 DOM event types you can listen to:
+ *
+ *   'wheel'                -- Chrome(31+), FF(17+), IE(9+)
+ *   'mousewheel'           -- Chrome, IE(6+), Opera, Safari
+ *   'MozMousePixelScroll'  -- FF(3.5 only!) (2010-2013) -- don't bother!
+ *   'DOMMouseScroll'       -- FF(0.9.7+) since 2003
+ *
+ * So what to do?  The is the best:
+ *
+ *   normalizeWheel.getEventType();
+ *
+ * In your event callback, use this code to get sane interpretation of the
+ * deltas.  This code will return an object with properties:
+ *
+ *   spinX   -- normalized spin speed (use for zoom) - x plane
+ *   spinY   -- " - y plane
+ *   pixelX  -- normalized distance (to pixels) - x plane
+ *   pixelY  -- " - y plane
+ *
+ * Wheel values are provided by the browser assuming you are using the wheel to
+ * scroll a web page by a number of lines or pixels (or pages).  Values can vary
+ * significantly on different platforms and browsers, forgetting that you can
+ * scroll at different speeds.  Some devices (like trackpads) emit more events
+ * at smaller increments with fine granularity, and some emit massive jumps with
+ * linear speed or acceleration.
+ *
+ * This code does its best to normalize the deltas for you:
+ *
+ *   - spin is trying to normalize how far the wheel was spun (or trackpad
+ *     dragged).  This is super useful for zoom support where you want to
+ *     throw away the chunky scroll steps on the PC and make those equal to
+ *     the slow and smooth tiny steps on the Mac. Key data: This code tries to
+ *     resolve a single slow step on a wheel to 1.
+ *
+ *   - pixel is normalizing the desired scroll delta in pixel units.  You'll
+ *     get the crazy differences between browsers, but at least it'll be in
+ *     pixels!
+ *
+ *   - positive value indicates scrolling DOWN/RIGHT, negative UP/LEFT.  This
+ *     should translate to positive value zooming IN, negative zooming OUT.
+ *     This matches the newer 'wheel' event.
+ *
+ * Why are there spinX, spinY (or pixels)?
+ *
+ *   - spinX is a 2-finger side drag on the trackpad, and a shift + wheel turn
+ *     with a mouse.  It results in side-scrolling in the browser by default.
+ *
+ *   - spinY is what you expect -- it's the classic axis of a mouse wheel.
+ *
+ *   - I dropped spinZ/pixelZ.  It is supported by the DOM 3 'wheel' event and
+ *     probably is by browsers in conjunction with fancy 3D controllers .. but
+ *     you know.
+ *
+ * Implementation info:
+ *
+ * Examples of 'wheel' event if you scroll slowly (down) by one step with an
+ * average mouse:
+ *
+ *   OS X + Chrome  (mouse)     -    4   pixel delta  (wheelDelta -120)
+ *   OS X + Safari  (mouse)     -  N/A   pixel delta  (wheelDelta  -12)
+ *   OS X + Firefox (mouse)     -    0.1 line  delta  (wheelDelta  N/A)
+ *   Win8 + Chrome  (mouse)     -  100   pixel delta  (wheelDelta -120)
+ *   Win8 + Firefox (mouse)     -    3   line  delta  (wheelDelta -120)
+ *
+ * On the trackpad:
+ *
+ *   OS X + Chrome  (trackpad)  -    2   pixel delta  (wheelDelta   -6)
+ *   OS X + Firefox (trackpad)  -    1   pixel delta  (wheelDelta  N/A)
+ *
+ * On other/older browsers.. it's more complicated as there can be multiple and
+ * also missing delta values.
+ *
+ * The 'wheel' event is more standard:
+ *
+ * http://www.w3.org/TR/DOM-Level-3-Events/#events-wheelevents
+ *
+ * The basics is that it includes a unit, deltaMode (pixels, lines, pages), and
+ * deltaX, deltaY and deltaZ.  Some browsers provide other values to maintain
+ * backward compatibility with older events.  Those other values help us
+ * better normalize spin speed.  Example of what the browsers provide:
+ *
+ *                          | event.wheelDelta | event.detail
+ *        ------------------+------------------+--------------
+ *          Safari v5/OS X  |       -120       |       0
+ *          Safari v5/Win7  |       -120       |       0
+ *         Chrome v17/OS X  |       -120       |       0
+ *         Chrome v17/Win7  |       -120       |       0
+ *                IE9/Win7  |       -120       |   undefined
+ *         Firefox v4/OS X  |     undefined    |       1
+ *         Firefox v4/Win7  |     undefined    |       3
+ *
+ */
+function normalizeWheel( /*object*/event) /*object*/{
+  var sX = 0,
+      sY = 0,
+      // spinX, spinY
+  pX = 0,
+      pY = 0; // pixelX, pixelY
+
+  // Legacy
+  if ('detail' in event) {
+    sY = event.detail;
+  }
+  if ('wheelDelta' in event) {
+    sY = -event.wheelDelta / 120;
+  }
+  if ('wheelDeltaY' in event) {
+    sY = -event.wheelDeltaY / 120;
+  }
+  if ('wheelDeltaX' in event) {
+    sX = -event.wheelDeltaX / 120;
+  }
+
+  // side scrolling on FF with DOMMouseScroll
+  if ('axis' in event && event.axis === event.HORIZONTAL_AXIS) {
+    sX = sY;
+    sY = 0;
+  }
+
+  pX = sX * PIXEL_STEP;
+  pY = sY * PIXEL_STEP;
+
+  if ('deltaY' in event) {
+    pY = event.deltaY;
+  }
+  if ('deltaX' in event) {
+    pX = event.deltaX;
+  }
+
+  if ((pX || pY) && event.deltaMode) {
+    if (event.deltaMode == 1) {
+      // delta in LINE units
+      pX *= LINE_HEIGHT;
+      pY *= LINE_HEIGHT;
+    } else {
+      // delta in PAGE units
+      pX *= PAGE_HEIGHT;
+      pY *= PAGE_HEIGHT;
+    }
+  }
+
+  // Fall-back if spin cannot be determined
+  if (pX && !sX) {
+    sX = pX < 1 ? -1 : 1;
+  }
+  if (pY && !sY) {
+    sY = pY < 1 ? -1 : 1;
+  }
+
+  return { spinX: sX,
+    spinY: sY,
+    pixelX: pX,
+    pixelY: pY };
+}
+
+/**
+ * The best combination if you prefer spinX + spinY normalization.  It favors
+ * the older DOMMouseScroll for Firefox, as FF does not include wheelDelta with
+ * 'wheel' event, making spin speed determination impossible.
+ */
+normalizeWheel.getEventType = function () /*string*/{
+  return UserAgent_DEPRECATED.firefox() ? 'DOMMouseScroll' : isEventSupported('wheel') ? 'wheel' : 'mousewheel';
+};
+
+module.exports = normalizeWheel;
+},{"./UserAgent_DEPRECATED":35,"./isEventSupported":46}],54:[function(require,module,exports){
+(function (global){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule requestAnimationFramePolyfill
+ */
+
+'use strict';
+
+var emptyFunction = require('./emptyFunction');
+var nativeRequestAnimationFrame = require('./nativeRequestAnimationFrame');
+
+var lastTime = 0;
+
+/**
+ * Here is the native and polyfill version of requestAnimationFrame.
+ * Please don't use it directly and use requestAnimationFrame module instead.
+ */
+var requestAnimationFrame = nativeRequestAnimationFrame || function (callback) {
+  var currTime = Date.now();
+  var timeDelay = Math.max(0, 16 - (currTime - lastTime));
+  lastTime = currTime + timeDelay;
+  return global.setTimeout(function () {
+    callback(Date.now());
+  }, timeDelay);
+};
+
+// Works around a rare bug in Safari 6 where the first request is never invoked.
+requestAnimationFrame(emptyFunction);
+
+module.exports = requestAnimationFrame;
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./emptyFunction":43,"./nativeRequestAnimationFrame":52}],55:[function(require,module,exports){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule shallowEqual
+ */
+
+'use strict';
+
+/**
+ * Performs equality by iterating through keys on an object and returning
+ * false when any key has values which are not strictly equal between
+ * objA and objB. Returns true when the values of all keys are strictly equal.
+ *
+ * @return {boolean}
+ */
+function shallowEqual(objA, objB) {
+  if (objA === objB) {
+    return true;
+  }
+
+  if (typeof objA !== 'object' || objA === null || typeof objB !== 'object' || objB === null) {
+    return false;
+  }
+
+  var keysA = Object.keys(objA);
+  var keysB = Object.keys(objB);
+
+  if (keysA.length !== keysB.length) {
+    return false;
+  }
+
+  // Test for A's keys different from B.
+  var bHasOwnProperty = Object.prototype.hasOwnProperty.bind(objB);
+  for (var i = 0; i < keysA.length; i++) {
+    if (!bHasOwnProperty(keysA[i]) || objA[keysA[i]] !== objB[keysA[i]]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+module.exports = shallowEqual;
+},{}],56:[function(require,module,exports){
+(function (global){
+/**
+ * Copyright (c) 2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule translateDOMPositionXY
+ * @typechecks
+ */
+
+'use strict';
+
+var BrowserSupportCore = require('./BrowserSupportCore');
+
+var getVendorPrefixedName = require('./getVendorPrefixedName');
+
+var TRANSFORM = getVendorPrefixedName('transform');
+var BACKFACE_VISIBILITY = getVendorPrefixedName('backfaceVisibility');
+
+var translateDOMPositionXY = (function () {
+  if (BrowserSupportCore.hasCSSTransforms()) {
+    var ua = global.window ? global.window.navigator.userAgent : 'UNKNOWN';
+    var isSafari = /Safari\//.test(ua) && !/Chrome\//.test(ua);
+    // It appears that Safari messes up the composition order
+    // of GPU-accelerated layers
+    // (see bug https://bugs.webkit.org/show_bug.cgi?id=61824).
+    // Use 2D translation instead.
+    if (!isSafari && BrowserSupportCore.hasCSS3DTransforms()) {
+      return function ( /*object*/style, /*number*/x, /*number*/y) {
+        style[TRANSFORM] = 'translate3d(' + x + 'px,' + y + 'px,0)';
+        style[BACKFACE_VISIBILITY] = 'hidden';
+      };
+    } else {
+      return function ( /*object*/style, /*number*/x, /*number*/y) {
+        style[TRANSFORM] = 'translate(' + x + 'px,' + y + 'px)';
+      };
+    }
+  } else {
+    return function ( /*object*/style, /*number*/x, /*number*/y) {
+      style.left = x + 'px';
+      style.top = y + 'px';
+    };
+  }
+})();
+
+module.exports = translateDOMPositionXY;
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./BrowserSupportCore":7,"./getVendorPrefixedName":44}],57:[function(require,module,exports){
+module.exports = require('./internal/FixedDataTableRoot');
+
+},{"./internal/FixedDataTableRoot":19}],58:[function(require,module,exports){
 var Dispatcher = require("./lib/dispatcher"),
     Flux = require("./lib/flux"),
     FluxMixin = require("./lib/flux_mixin"),
@@ -304,7 +6475,7 @@ var Fluxxor = {
 
 module.exports = Fluxxor;
 
-},{"./lib/create_store":6,"./lib/dispatcher":7,"./lib/flux":8,"./lib/flux_child_mixin":9,"./lib/flux_mixin":10,"./lib/store_watch_mixin":12,"./version":101}],6:[function(require,module,exports){
+},{"./lib/create_store":59,"./lib/dispatcher":60,"./lib/flux":61,"./lib/flux_child_mixin":62,"./lib/flux_mixin":63,"./lib/store_watch_mixin":65,"./version":154}],59:[function(require,module,exports){
 var _each = require("lodash/collection/forEach"),
     _isFunction = require("lodash/lang/isFunction"),
     Store = require("./store"),
@@ -346,7 +6517,7 @@ var createStore = function(spec) {
 
 module.exports = createStore;
 
-},{"./store":11,"./util/inherits":13,"lodash/collection/forEach":18,"lodash/lang/isFunction":85}],7:[function(require,module,exports){
+},{"./store":64,"./util/inherits":66,"lodash/collection/forEach":71,"lodash/lang/isFunction":138}],60:[function(require,module,exports){
 var _clone = require("lodash/lang/clone"),
     _mapValues = require("lodash/object/mapValues"),
     _forOwn = require("lodash/object/forOwn"),
@@ -510,7 +6681,7 @@ Dispatcher.prototype.setDispatchInterceptor = function(fn) {
 
 module.exports = Dispatcher;
 
-},{"lodash/array/intersection":15,"lodash/array/uniq":17,"lodash/collection/forEach":18,"lodash/collection/map":19,"lodash/collection/size":21,"lodash/lang/clone":82,"lodash/object/findKey":90,"lodash/object/forOwn":91,"lodash/object/keys":92,"lodash/object/mapValues":94}],8:[function(require,module,exports){
+},{"lodash/array/intersection":68,"lodash/array/uniq":70,"lodash/collection/forEach":71,"lodash/collection/map":72,"lodash/collection/size":74,"lodash/lang/clone":135,"lodash/object/findKey":143,"lodash/object/forOwn":144,"lodash/object/keys":145,"lodash/object/mapValues":147}],61:[function(require,module,exports){
 var EventEmitter = require("eventemitter3"),
     inherits = require("./util/inherits"),
     objectPath = require("object-path"),
@@ -635,7 +6806,7 @@ Flux.prototype.setDispatchInterceptor = function(fn) {
 
 module.exports = Flux;
 
-},{"./dispatcher":7,"./util/inherits":13,"eventemitter3":14,"lodash/collection/forEach":18,"lodash/collection/reduce":20,"lodash/lang/isFunction":85,"lodash/lang/isString":88,"object-path":100}],9:[function(require,module,exports){
+},{"./dispatcher":60,"./util/inherits":66,"eventemitter3":67,"lodash/collection/forEach":71,"lodash/collection/reduce":73,"lodash/lang/isFunction":138,"lodash/lang/isString":141,"object-path":153}],62:[function(require,module,exports){
 var FluxChildMixin = function(React) {
   return {
     componentWillMount: function() {
@@ -664,7 +6835,7 @@ FluxChildMixin.componentWillMount = function() {
 
 module.exports = FluxChildMixin;
 
-},{}],10:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 var FluxMixin = function(React) {
   return {
     componentWillMount: function() {
@@ -701,7 +6872,7 @@ FluxMixin.componentWillMount = function() {
 
 module.exports = FluxMixin;
 
-},{}],11:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 var EventEmitter = require("eventemitter3"),
     inherits = require("./util/inherits"),
     _isFunction = require("lodash/lang/isFunction"),
@@ -773,7 +6944,7 @@ Store.prototype.waitFor = function(stores, fn) {
 
 module.exports = Store;
 
-},{"./util/inherits":13,"eventemitter3":14,"lodash/lang/isFunction":85,"lodash/lang/isObject":87}],12:[function(require,module,exports){
+},{"./util/inherits":66,"eventemitter3":67,"lodash/lang/isFunction":138,"lodash/lang/isObject":140}],65:[function(require,module,exports){
 var _each = require("lodash/collection/forEach");
 
 var StoreWatchMixin = function() {
@@ -813,7 +6984,7 @@ StoreWatchMixin.componentWillMount = function() {
 
 module.exports = StoreWatchMixin;
 
-},{"lodash/collection/forEach":18}],13:[function(require,module,exports){
+},{"lodash/collection/forEach":71}],66:[function(require,module,exports){
 // From https://github.com/isaacs/inherits
 // inherits is licensed under the ISC license:
 //
@@ -858,7 +7029,7 @@ if (typeof Object.create === 'function') {
   };
 }
 
-},{}],14:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1089,7 +7260,7 @@ EventEmitter.EventEmitter3 = EventEmitter;
 //
 module.exports = EventEmitter;
 
-},{}],15:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 var baseIndexOf = require('../internal/baseIndexOf'),
     cacheIndexOf = require('../internal/cacheIndexOf'),
     createCache = require('../internal/createCache'),
@@ -1156,7 +7327,7 @@ function intersection() {
 
 module.exports = intersection;
 
-},{"../internal/baseIndexOf":36,"../internal/cacheIndexOf":52,"../internal/createCache":56,"../internal/isArrayLike":71}],16:[function(require,module,exports){
+},{"../internal/baseIndexOf":89,"../internal/cacheIndexOf":105,"../internal/createCache":109,"../internal/isArrayLike":124}],69:[function(require,module,exports){
 /**
  * Gets the last element of `array`.
  *
@@ -1177,7 +7348,7 @@ function last(array) {
 
 module.exports = last;
 
-},{}],17:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 var baseCallback = require('../internal/baseCallback'),
     baseUniq = require('../internal/baseUniq'),
     isIterateeCall = require('../internal/isIterateeCall'),
@@ -1250,7 +7421,7 @@ function uniq(array, isSorted, iteratee, thisArg) {
 
 module.exports = uniq;
 
-},{"../internal/baseCallback":28,"../internal/baseUniq":49,"../internal/isIterateeCall":73,"../internal/sortedUniq":79}],18:[function(require,module,exports){
+},{"../internal/baseCallback":81,"../internal/baseUniq":102,"../internal/isIterateeCall":126,"../internal/sortedUniq":132}],71:[function(require,module,exports){
 var arrayEach = require('../internal/arrayEach'),
     baseEach = require('../internal/baseEach'),
     createForEach = require('../internal/createForEach');
@@ -1289,7 +7460,7 @@ var forEach = createForEach(arrayEach, baseEach);
 
 module.exports = forEach;
 
-},{"../internal/arrayEach":24,"../internal/baseEach":31,"../internal/createForEach":58}],19:[function(require,module,exports){
+},{"../internal/arrayEach":77,"../internal/baseEach":84,"../internal/createForEach":111}],72:[function(require,module,exports){
 var arrayMap = require('../internal/arrayMap'),
     baseCallback = require('../internal/baseCallback'),
     baseMap = require('../internal/baseMap'),
@@ -1359,7 +7530,7 @@ function map(collection, iteratee, thisArg) {
 
 module.exports = map;
 
-},{"../internal/arrayMap":25,"../internal/baseCallback":28,"../internal/baseMap":41,"../lang/isArray":84}],20:[function(require,module,exports){
+},{"../internal/arrayMap":78,"../internal/baseCallback":81,"../internal/baseMap":94,"../lang/isArray":137}],73:[function(require,module,exports){
 var arrayReduce = require('../internal/arrayReduce'),
     baseEach = require('../internal/baseEach'),
     createReduce = require('../internal/createReduce');
@@ -1404,7 +7575,7 @@ var reduce = createReduce(arrayReduce, baseEach);
 
 module.exports = reduce;
 
-},{"../internal/arrayReduce":26,"../internal/baseEach":31,"../internal/createReduce":61}],21:[function(require,module,exports){
+},{"../internal/arrayReduce":79,"../internal/baseEach":84,"../internal/createReduce":114}],74:[function(require,module,exports){
 var getLength = require('../internal/getLength'),
     isLength = require('../internal/isLength'),
     keys = require('../object/keys');
@@ -1436,7 +7607,7 @@ function size(collection) {
 
 module.exports = size;
 
-},{"../internal/getLength":65,"../internal/isLength":75,"../object/keys":92}],22:[function(require,module,exports){
+},{"../internal/getLength":118,"../internal/isLength":128,"../object/keys":145}],75:[function(require,module,exports){
 (function (global){
 var cachePush = require('./cachePush'),
     isNative = require('../lang/isNative');
@@ -1469,7 +7640,7 @@ SetCache.prototype.push = cachePush;
 module.exports = SetCache;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../lang/isNative":86,"./cachePush":53}],23:[function(require,module,exports){
+},{"../lang/isNative":139,"./cachePush":106}],76:[function(require,module,exports){
 /**
  * Copies the values of `source` to `array`.
  *
@@ -1491,7 +7662,7 @@ function arrayCopy(source, array) {
 
 module.exports = arrayCopy;
 
-},{}],24:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 /**
  * A specialized version of `_.forEach` for arrays without support for callback
  * shorthands and `this` binding.
@@ -1515,7 +7686,7 @@ function arrayEach(array, iteratee) {
 
 module.exports = arrayEach;
 
-},{}],25:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 /**
  * A specialized version of `_.map` for arrays without support for callback
  * shorthands and `this` binding.
@@ -1538,7 +7709,7 @@ function arrayMap(array, iteratee) {
 
 module.exports = arrayMap;
 
-},{}],26:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 /**
  * A specialized version of `_.reduce` for arrays without support for callback
  * shorthands and `this` binding.
@@ -1566,7 +7737,7 @@ function arrayReduce(array, iteratee, accumulator, initFromArray) {
 
 module.exports = arrayReduce;
 
-},{}],27:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 var baseCopy = require('./baseCopy'),
     getSymbols = require('./getSymbols'),
     isNative = require('../lang/isNative'),
@@ -1615,7 +7786,7 @@ var baseAssign = nativeAssign || function(object, source) {
 
 module.exports = baseAssign;
 
-},{"../lang/isNative":86,"../object/keys":92,"./baseCopy":30,"./getSymbols":66}],28:[function(require,module,exports){
+},{"../lang/isNative":139,"../object/keys":145,"./baseCopy":83,"./getSymbols":119}],81:[function(require,module,exports){
 var baseMatches = require('./baseMatches'),
     baseMatchesProperty = require('./baseMatchesProperty'),
     bindCallback = require('./bindCallback'),
@@ -1652,7 +7823,7 @@ function baseCallback(func, thisArg, argCount) {
 
 module.exports = baseCallback;
 
-},{"../utility/identity":98,"../utility/property":99,"./baseMatches":42,"./baseMatchesProperty":43,"./bindCallback":50}],29:[function(require,module,exports){
+},{"../utility/identity":151,"../utility/property":152,"./baseMatches":95,"./baseMatchesProperty":96,"./bindCallback":103}],82:[function(require,module,exports){
 var arrayCopy = require('./arrayCopy'),
     arrayEach = require('./arrayEach'),
     baseAssign = require('./baseAssign'),
@@ -1782,7 +7953,7 @@ function baseClone(value, isDeep, customizer, key, object, stackA, stackB) {
 
 module.exports = baseClone;
 
-},{"../lang/isArray":84,"../lang/isObject":87,"./arrayCopy":23,"./arrayEach":24,"./baseAssign":27,"./baseForOwn":34,"./initCloneArray":68,"./initCloneByTag":69,"./initCloneObject":70}],30:[function(require,module,exports){
+},{"../lang/isArray":137,"../lang/isObject":140,"./arrayCopy":76,"./arrayEach":77,"./baseAssign":80,"./baseForOwn":87,"./initCloneArray":121,"./initCloneByTag":122,"./initCloneObject":123}],83:[function(require,module,exports){
 /**
  * Copies properties of `source` to `object`.
  *
@@ -1807,7 +7978,7 @@ function baseCopy(source, props, object) {
 
 module.exports = baseCopy;
 
-},{}],31:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 var baseForOwn = require('./baseForOwn'),
     createBaseEach = require('./createBaseEach');
 
@@ -1824,7 +7995,7 @@ var baseEach = createBaseEach(baseForOwn);
 
 module.exports = baseEach;
 
-},{"./baseForOwn":34,"./createBaseEach":54}],32:[function(require,module,exports){
+},{"./baseForOwn":87,"./createBaseEach":107}],85:[function(require,module,exports){
 /**
  * The base implementation of `_.find`, `_.findLast`, `_.findKey`, and `_.findLastKey`,
  * without support for callback shorthands and `this` binding, which iterates
@@ -1851,7 +8022,7 @@ function baseFind(collection, predicate, eachFunc, retKey) {
 
 module.exports = baseFind;
 
-},{}],33:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 var createBaseFor = require('./createBaseFor');
 
 /**
@@ -1870,7 +8041,7 @@ var baseFor = createBaseFor();
 
 module.exports = baseFor;
 
-},{"./createBaseFor":55}],34:[function(require,module,exports){
+},{"./createBaseFor":108}],87:[function(require,module,exports){
 var baseFor = require('./baseFor'),
     keys = require('../object/keys');
 
@@ -1889,7 +8060,7 @@ function baseForOwn(object, iteratee) {
 
 module.exports = baseForOwn;
 
-},{"../object/keys":92,"./baseFor":33}],35:[function(require,module,exports){
+},{"../object/keys":145,"./baseFor":86}],88:[function(require,module,exports){
 var toObject = require('./toObject');
 
 /**
@@ -1920,7 +8091,7 @@ function baseGet(object, path, pathKey) {
 
 module.exports = baseGet;
 
-},{"./toObject":80}],36:[function(require,module,exports){
+},{"./toObject":133}],89:[function(require,module,exports){
 var indexOfNaN = require('./indexOfNaN');
 
 /**
@@ -1949,7 +8120,7 @@ function baseIndexOf(array, value, fromIndex) {
 
 module.exports = baseIndexOf;
 
-},{"./indexOfNaN":67}],37:[function(require,module,exports){
+},{"./indexOfNaN":120}],90:[function(require,module,exports){
 var baseIsEqualDeep = require('./baseIsEqualDeep');
 
 /**
@@ -1984,7 +8155,7 @@ function baseIsEqual(value, other, customizer, isLoose, stackA, stackB) {
 
 module.exports = baseIsEqual;
 
-},{"./baseIsEqualDeep":38}],38:[function(require,module,exports){
+},{"./baseIsEqualDeep":91}],91:[function(require,module,exports){
 var equalArrays = require('./equalArrays'),
     equalByTag = require('./equalByTag'),
     equalObjects = require('./equalObjects'),
@@ -2088,7 +8259,7 @@ function baseIsEqualDeep(object, other, equalFunc, customizer, isLoose, stackA, 
 
 module.exports = baseIsEqualDeep;
 
-},{"../lang/isArray":84,"../lang/isTypedArray":89,"./equalArrays":62,"./equalByTag":63,"./equalObjects":64}],39:[function(require,module,exports){
+},{"../lang/isArray":137,"../lang/isTypedArray":142,"./equalArrays":115,"./equalByTag":116,"./equalObjects":117}],92:[function(require,module,exports){
 /**
  * The base implementation of `_.isFunction` without support for environments
  * with incorrect `typeof` results.
@@ -2105,7 +8276,7 @@ function baseIsFunction(value) {
 
 module.exports = baseIsFunction;
 
-},{}],40:[function(require,module,exports){
+},{}],93:[function(require,module,exports){
 var baseIsEqual = require('./baseIsEqual');
 
 /**
@@ -2156,7 +8327,7 @@ function baseIsMatch(object, props, values, strictCompareFlags, customizer) {
 
 module.exports = baseIsMatch;
 
-},{"./baseIsEqual":37}],41:[function(require,module,exports){
+},{"./baseIsEqual":90}],94:[function(require,module,exports){
 var baseEach = require('./baseEach'),
     isArrayLike = require('./isArrayLike');
 
@@ -2181,7 +8352,7 @@ function baseMap(collection, iteratee) {
 
 module.exports = baseMap;
 
-},{"./baseEach":31,"./isArrayLike":71}],42:[function(require,module,exports){
+},{"./baseEach":84,"./isArrayLike":124}],95:[function(require,module,exports){
 var baseIsMatch = require('./baseIsMatch'),
     constant = require('../utility/constant'),
     isStrictComparable = require('./isStrictComparable'),
@@ -2230,7 +8401,7 @@ function baseMatches(source) {
 
 module.exports = baseMatches;
 
-},{"../object/keys":92,"../utility/constant":97,"./baseIsMatch":40,"./isStrictComparable":77,"./toObject":80}],43:[function(require,module,exports){
+},{"../object/keys":145,"../utility/constant":150,"./baseIsMatch":93,"./isStrictComparable":130,"./toObject":133}],96:[function(require,module,exports){
 var baseGet = require('./baseGet'),
     baseIsEqual = require('./baseIsEqual'),
     baseSlice = require('./baseSlice'),
@@ -2278,7 +8449,7 @@ function baseMatchesProperty(path, value) {
 
 module.exports = baseMatchesProperty;
 
-},{"../array/last":16,"../lang/isArray":84,"./baseGet":35,"./baseIsEqual":37,"./baseSlice":47,"./isKey":74,"./isStrictComparable":77,"./toObject":80,"./toPath":81}],44:[function(require,module,exports){
+},{"../array/last":69,"../lang/isArray":137,"./baseGet":88,"./baseIsEqual":90,"./baseSlice":100,"./isKey":127,"./isStrictComparable":130,"./toObject":133,"./toPath":134}],97:[function(require,module,exports){
 /**
  * The base implementation of `_.property` without support for deep paths.
  *
@@ -2294,7 +8465,7 @@ function baseProperty(key) {
 
 module.exports = baseProperty;
 
-},{}],45:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 var baseGet = require('./baseGet'),
     toPath = require('./toPath');
 
@@ -2315,7 +8486,7 @@ function basePropertyDeep(path) {
 
 module.exports = basePropertyDeep;
 
-},{"./baseGet":35,"./toPath":81}],46:[function(require,module,exports){
+},{"./baseGet":88,"./toPath":134}],99:[function(require,module,exports){
 /**
  * The base implementation of `_.reduce` and `_.reduceRight` without support
  * for callback shorthands and `this` binding, which iterates over `collection`
@@ -2341,7 +8512,7 @@ function baseReduce(collection, iteratee, accumulator, initFromCollection, eachF
 
 module.exports = baseReduce;
 
-},{}],47:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 /**
  * The base implementation of `_.slice` without an iteratee call guard.
  *
@@ -2375,7 +8546,7 @@ function baseSlice(array, start, end) {
 
 module.exports = baseSlice;
 
-},{}],48:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 /**
  * Converts `value` to a string if it is not one. An empty string is returned
  * for `null` or `undefined` values.
@@ -2393,7 +8564,7 @@ function baseToString(value) {
 
 module.exports = baseToString;
 
-},{}],49:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 var baseIndexOf = require('./baseIndexOf'),
     cacheIndexOf = require('./cacheIndexOf'),
     createCache = require('./createCache');
@@ -2452,7 +8623,7 @@ function baseUniq(array, iteratee) {
 
 module.exports = baseUniq;
 
-},{"./baseIndexOf":36,"./cacheIndexOf":52,"./createCache":56}],50:[function(require,module,exports){
+},{"./baseIndexOf":89,"./cacheIndexOf":105,"./createCache":109}],103:[function(require,module,exports){
 var identity = require('../utility/identity');
 
 /**
@@ -2493,7 +8664,7 @@ function bindCallback(func, thisArg, argCount) {
 
 module.exports = bindCallback;
 
-},{"../utility/identity":98}],51:[function(require,module,exports){
+},{"../utility/identity":151}],104:[function(require,module,exports){
 (function (global){
 var constant = require('../utility/constant'),
     isNative = require('../lang/isNative');
@@ -2552,7 +8723,7 @@ if (!bufferSlice) {
 module.exports = bufferClone;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../lang/isNative":86,"../utility/constant":97}],52:[function(require,module,exports){
+},{"../lang/isNative":139,"../utility/constant":150}],105:[function(require,module,exports){
 var isObject = require('../lang/isObject');
 
 /**
@@ -2573,7 +8744,7 @@ function cacheIndexOf(cache, value) {
 
 module.exports = cacheIndexOf;
 
-},{"../lang/isObject":87}],53:[function(require,module,exports){
+},{"../lang/isObject":140}],106:[function(require,module,exports){
 var isObject = require('../lang/isObject');
 
 /**
@@ -2595,7 +8766,7 @@ function cachePush(value) {
 
 module.exports = cachePush;
 
-},{"../lang/isObject":87}],54:[function(require,module,exports){
+},{"../lang/isObject":140}],107:[function(require,module,exports){
 var getLength = require('./getLength'),
     isLength = require('./isLength'),
     toObject = require('./toObject');
@@ -2628,7 +8799,7 @@ function createBaseEach(eachFunc, fromRight) {
 
 module.exports = createBaseEach;
 
-},{"./getLength":65,"./isLength":75,"./toObject":80}],55:[function(require,module,exports){
+},{"./getLength":118,"./isLength":128,"./toObject":133}],108:[function(require,module,exports){
 var toObject = require('./toObject');
 
 /**
@@ -2657,7 +8828,7 @@ function createBaseFor(fromRight) {
 
 module.exports = createBaseFor;
 
-},{"./toObject":80}],56:[function(require,module,exports){
+},{"./toObject":133}],109:[function(require,module,exports){
 (function (global){
 var SetCache = require('./SetCache'),
     constant = require('../utility/constant'),
@@ -2683,7 +8854,7 @@ var createCache = !(nativeCreate && Set) ? constant(null) : function(values) {
 module.exports = createCache;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../lang/isNative":86,"../utility/constant":97,"./SetCache":22}],57:[function(require,module,exports){
+},{"../lang/isNative":139,"../utility/constant":150,"./SetCache":75}],110:[function(require,module,exports){
 var baseCallback = require('./baseCallback'),
     baseFind = require('./baseFind');
 
@@ -2703,7 +8874,7 @@ function createFindKey(objectFunc) {
 
 module.exports = createFindKey;
 
-},{"./baseCallback":28,"./baseFind":32}],58:[function(require,module,exports){
+},{"./baseCallback":81,"./baseFind":85}],111:[function(require,module,exports){
 var bindCallback = require('./bindCallback'),
     isArray = require('../lang/isArray');
 
@@ -2725,7 +8896,7 @@ function createForEach(arrayFunc, eachFunc) {
 
 module.exports = createForEach;
 
-},{"../lang/isArray":84,"./bindCallback":50}],59:[function(require,module,exports){
+},{"../lang/isArray":137,"./bindCallback":103}],112:[function(require,module,exports){
 var bindCallback = require('./bindCallback');
 
 /**
@@ -2746,7 +8917,7 @@ function createForOwn(objectFunc) {
 
 module.exports = createForOwn;
 
-},{"./bindCallback":50}],60:[function(require,module,exports){
+},{"./bindCallback":103}],113:[function(require,module,exports){
 var baseCallback = require('./baseCallback'),
     baseForOwn = require('./baseForOwn');
 
@@ -2774,7 +8945,7 @@ function createObjectMapper(isMapKeys) {
 
 module.exports = createObjectMapper;
 
-},{"./baseCallback":28,"./baseForOwn":34}],61:[function(require,module,exports){
+},{"./baseCallback":81,"./baseForOwn":87}],114:[function(require,module,exports){
 var baseCallback = require('./baseCallback'),
     baseReduce = require('./baseReduce'),
     isArray = require('../lang/isArray');
@@ -2798,7 +8969,7 @@ function createReduce(arrayFunc, eachFunc) {
 
 module.exports = createReduce;
 
-},{"../lang/isArray":84,"./baseCallback":28,"./baseReduce":46}],62:[function(require,module,exports){
+},{"../lang/isArray":137,"./baseCallback":81,"./baseReduce":99}],115:[function(require,module,exports){
 /**
  * A specialized version of `baseIsEqualDeep` for arrays with support for
  * partial deep comparisons.
@@ -2854,7 +9025,7 @@ function equalArrays(array, other, equalFunc, customizer, isLoose, stackA, stack
 
 module.exports = equalArrays;
 
-},{}],63:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 /** `Object#toString` result references. */
 var boolTag = '[object Boolean]',
     dateTag = '[object Date]',
@@ -2904,7 +9075,7 @@ function equalByTag(object, other, tag) {
 
 module.exports = equalByTag;
 
-},{}],64:[function(require,module,exports){
+},{}],117:[function(require,module,exports){
 var keys = require('../object/keys');
 
 /** Used for native method references. */
@@ -2980,7 +9151,7 @@ function equalObjects(object, other, equalFunc, customizer, isLoose, stackA, sta
 
 module.exports = equalObjects;
 
-},{"../object/keys":92}],65:[function(require,module,exports){
+},{"../object/keys":145}],118:[function(require,module,exports){
 var baseProperty = require('./baseProperty');
 
 /**
@@ -2997,7 +9168,7 @@ var getLength = baseProperty('length');
 
 module.exports = getLength;
 
-},{"./baseProperty":44}],66:[function(require,module,exports){
+},{"./baseProperty":97}],119:[function(require,module,exports){
 var constant = require('../utility/constant'),
     isNative = require('../lang/isNative'),
     toObject = require('./toObject');
@@ -3018,7 +9189,7 @@ var getSymbols = !getOwnPropertySymbols ? constant([]) : function(object) {
 
 module.exports = getSymbols;
 
-},{"../lang/isNative":86,"../utility/constant":97,"./toObject":80}],67:[function(require,module,exports){
+},{"../lang/isNative":139,"../utility/constant":150,"./toObject":133}],120:[function(require,module,exports){
 /**
  * Gets the index at which the first occurrence of `NaN` is found in `array`.
  *
@@ -3043,7 +9214,7 @@ function indexOfNaN(array, fromIndex, fromRight) {
 
 module.exports = indexOfNaN;
 
-},{}],68:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 /** Used for native method references. */
 var objectProto = Object.prototype;
 
@@ -3071,7 +9242,7 @@ function initCloneArray(array) {
 
 module.exports = initCloneArray;
 
-},{}],69:[function(require,module,exports){
+},{}],122:[function(require,module,exports){
 var bufferClone = require('./bufferClone');
 
 /** `Object#toString` result references. */
@@ -3136,7 +9307,7 @@ function initCloneByTag(object, tag, isDeep) {
 
 module.exports = initCloneByTag;
 
-},{"./bufferClone":51}],70:[function(require,module,exports){
+},{"./bufferClone":104}],123:[function(require,module,exports){
 /**
  * Initializes an object clone.
  *
@@ -3154,7 +9325,7 @@ function initCloneObject(object) {
 
 module.exports = initCloneObject;
 
-},{}],71:[function(require,module,exports){
+},{}],124:[function(require,module,exports){
 var getLength = require('./getLength'),
     isLength = require('./isLength');
 
@@ -3171,7 +9342,7 @@ function isArrayLike(value) {
 
 module.exports = isArrayLike;
 
-},{"./getLength":65,"./isLength":75}],72:[function(require,module,exports){
+},{"./getLength":118,"./isLength":128}],125:[function(require,module,exports){
 /**
  * Used as the [maximum length](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.max_safe_integer)
  * of an array-like value.
@@ -3194,7 +9365,7 @@ function isIndex(value, length) {
 
 module.exports = isIndex;
 
-},{}],73:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 var isArrayLike = require('./isArrayLike'),
     isIndex = require('./isIndex'),
     isObject = require('../lang/isObject');
@@ -3224,7 +9395,7 @@ function isIterateeCall(value, index, object) {
 
 module.exports = isIterateeCall;
 
-},{"../lang/isObject":87,"./isArrayLike":71,"./isIndex":72}],74:[function(require,module,exports){
+},{"../lang/isObject":140,"./isArrayLike":124,"./isIndex":125}],127:[function(require,module,exports){
 var isArray = require('../lang/isArray'),
     toObject = require('./toObject');
 
@@ -3254,7 +9425,7 @@ function isKey(value, object) {
 
 module.exports = isKey;
 
-},{"../lang/isArray":84,"./toObject":80}],75:[function(require,module,exports){
+},{"../lang/isArray":137,"./toObject":133}],128:[function(require,module,exports){
 /**
  * Used as the [maximum length](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.max_safe_integer)
  * of an array-like value.
@@ -3276,7 +9447,7 @@ function isLength(value) {
 
 module.exports = isLength;
 
-},{}],76:[function(require,module,exports){
+},{}],129:[function(require,module,exports){
 /**
  * Checks if `value` is object-like.
  *
@@ -3290,7 +9461,7 @@ function isObjectLike(value) {
 
 module.exports = isObjectLike;
 
-},{}],77:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
 var isObject = require('../lang/isObject');
 
 /**
@@ -3307,7 +9478,7 @@ function isStrictComparable(value) {
 
 module.exports = isStrictComparable;
 
-},{"../lang/isObject":87}],78:[function(require,module,exports){
+},{"../lang/isObject":140}],131:[function(require,module,exports){
 var isArguments = require('../lang/isArguments'),
     isArray = require('../lang/isArray'),
     isIndex = require('./isIndex'),
@@ -3351,7 +9522,7 @@ function shimKeys(object) {
 
 module.exports = shimKeys;
 
-},{"../lang/isArguments":83,"../lang/isArray":84,"../object/keysIn":93,"../support":96,"./isIndex":72,"./isLength":75}],79:[function(require,module,exports){
+},{"../lang/isArguments":136,"../lang/isArray":137,"../object/keysIn":146,"../support":149,"./isIndex":125,"./isLength":128}],132:[function(require,module,exports){
 /**
  * An implementation of `_.uniq` optimized for sorted arrays without support
  * for callback shorthands and `this` binding.
@@ -3382,7 +9553,7 @@ function sortedUniq(array, iteratee) {
 
 module.exports = sortedUniq;
 
-},{}],80:[function(require,module,exports){
+},{}],133:[function(require,module,exports){
 var isObject = require('../lang/isObject');
 
 /**
@@ -3398,7 +9569,7 @@ function toObject(value) {
 
 module.exports = toObject;
 
-},{"../lang/isObject":87}],81:[function(require,module,exports){
+},{"../lang/isObject":140}],134:[function(require,module,exports){
 var baseToString = require('./baseToString'),
     isArray = require('../lang/isArray');
 
@@ -3428,7 +9599,7 @@ function toPath(value) {
 
 module.exports = toPath;
 
-},{"../lang/isArray":84,"./baseToString":48}],82:[function(require,module,exports){
+},{"../lang/isArray":137,"./baseToString":101}],135:[function(require,module,exports){
 var baseClone = require('../internal/baseClone'),
     bindCallback = require('../internal/bindCallback'),
     isIterateeCall = require('../internal/isIterateeCall');
@@ -3499,7 +9670,7 @@ function clone(value, isDeep, customizer, thisArg) {
 
 module.exports = clone;
 
-},{"../internal/baseClone":29,"../internal/bindCallback":50,"../internal/isIterateeCall":73}],83:[function(require,module,exports){
+},{"../internal/baseClone":82,"../internal/bindCallback":103,"../internal/isIterateeCall":126}],136:[function(require,module,exports){
 var isArrayLike = require('../internal/isArrayLike'),
     isObjectLike = require('../internal/isObjectLike');
 
@@ -3537,7 +9708,7 @@ function isArguments(value) {
 
 module.exports = isArguments;
 
-},{"../internal/isArrayLike":71,"../internal/isObjectLike":76}],84:[function(require,module,exports){
+},{"../internal/isArrayLike":124,"../internal/isObjectLike":129}],137:[function(require,module,exports){
 var isLength = require('../internal/isLength'),
     isNative = require('./isNative'),
     isObjectLike = require('../internal/isObjectLike');
@@ -3579,7 +9750,7 @@ var isArray = nativeIsArray || function(value) {
 
 module.exports = isArray;
 
-},{"../internal/isLength":75,"../internal/isObjectLike":76,"./isNative":86}],85:[function(require,module,exports){
+},{"../internal/isLength":128,"../internal/isObjectLike":129,"./isNative":139}],138:[function(require,module,exports){
 (function (global){
 var baseIsFunction = require('../internal/baseIsFunction'),
     isNative = require('./isNative');
@@ -3625,7 +9796,7 @@ var isFunction = !(baseIsFunction(/x/) || (Uint8Array && !baseIsFunction(Uint8Ar
 module.exports = isFunction;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../internal/baseIsFunction":39,"./isNative":86}],86:[function(require,module,exports){
+},{"../internal/baseIsFunction":92,"./isNative":139}],139:[function(require,module,exports){
 var escapeRegExp = require('../string/escapeRegExp'),
     isObjectLike = require('../internal/isObjectLike');
 
@@ -3681,7 +9852,7 @@ function isNative(value) {
 
 module.exports = isNative;
 
-},{"../internal/isObjectLike":76,"../string/escapeRegExp":95}],87:[function(require,module,exports){
+},{"../internal/isObjectLike":129,"../string/escapeRegExp":148}],140:[function(require,module,exports){
 /**
  * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
  * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
@@ -3711,7 +9882,7 @@ function isObject(value) {
 
 module.exports = isObject;
 
-},{}],88:[function(require,module,exports){
+},{}],141:[function(require,module,exports){
 var isObjectLike = require('../internal/isObjectLike');
 
 /** `Object#toString` result references. */
@@ -3748,7 +9919,7 @@ function isString(value) {
 
 module.exports = isString;
 
-},{"../internal/isObjectLike":76}],89:[function(require,module,exports){
+},{"../internal/isObjectLike":129}],142:[function(require,module,exports){
 var isLength = require('../internal/isLength'),
     isObjectLike = require('../internal/isObjectLike');
 
@@ -3824,7 +9995,7 @@ function isTypedArray(value) {
 
 module.exports = isTypedArray;
 
-},{"../internal/isLength":75,"../internal/isObjectLike":76}],90:[function(require,module,exports){
+},{"../internal/isLength":128,"../internal/isObjectLike":129}],143:[function(require,module,exports){
 var baseForOwn = require('../internal/baseForOwn'),
     createFindKey = require('../internal/createFindKey');
 
@@ -3880,7 +10051,7 @@ var findKey = createFindKey(baseForOwn);
 
 module.exports = findKey;
 
-},{"../internal/baseForOwn":34,"../internal/createFindKey":57}],91:[function(require,module,exports){
+},{"../internal/baseForOwn":87,"../internal/createFindKey":110}],144:[function(require,module,exports){
 var baseForOwn = require('../internal/baseForOwn'),
     createForOwn = require('../internal/createForOwn');
 
@@ -3915,7 +10086,7 @@ var forOwn = createForOwn(baseForOwn);
 
 module.exports = forOwn;
 
-},{"../internal/baseForOwn":34,"../internal/createForOwn":59}],92:[function(require,module,exports){
+},{"../internal/baseForOwn":87,"../internal/createForOwn":112}],145:[function(require,module,exports){
 var isArrayLike = require('../internal/isArrayLike'),
     isNative = require('../lang/isNative'),
     isObject = require('../lang/isObject'),
@@ -3962,7 +10133,7 @@ var keys = !nativeKeys ? shimKeys : function(object) {
 
 module.exports = keys;
 
-},{"../internal/isArrayLike":71,"../internal/shimKeys":78,"../lang/isNative":86,"../lang/isObject":87}],93:[function(require,module,exports){
+},{"../internal/isArrayLike":124,"../internal/shimKeys":131,"../lang/isNative":139,"../lang/isObject":140}],146:[function(require,module,exports){
 var isArguments = require('../lang/isArguments'),
     isArray = require('../lang/isArray'),
     isIndex = require('../internal/isIndex'),
@@ -4029,7 +10200,7 @@ function keysIn(object) {
 
 module.exports = keysIn;
 
-},{"../internal/isIndex":72,"../internal/isLength":75,"../lang/isArguments":83,"../lang/isArray":84,"../lang/isObject":87,"../support":96}],94:[function(require,module,exports){
+},{"../internal/isIndex":125,"../internal/isLength":128,"../lang/isArguments":136,"../lang/isArray":137,"../lang/isObject":140,"../support":149}],147:[function(require,module,exports){
 var createObjectMapper = require('../internal/createObjectMapper');
 
 /**
@@ -4077,7 +10248,7 @@ var mapValues = createObjectMapper();
 
 module.exports = mapValues;
 
-},{"../internal/createObjectMapper":60}],95:[function(require,module,exports){
+},{"../internal/createObjectMapper":113}],148:[function(require,module,exports){
 var baseToString = require('../internal/baseToString');
 
 /**
@@ -4111,7 +10282,7 @@ function escapeRegExp(string) {
 
 module.exports = escapeRegExp;
 
-},{"../internal/baseToString":48}],96:[function(require,module,exports){
+},{"../internal/baseToString":101}],149:[function(require,module,exports){
 (function (global){
 /** Used for native method references. */
 var objectProto = Object.prototype;
@@ -4192,7 +10363,7 @@ var support = {};
 module.exports = support;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],97:[function(require,module,exports){
+},{}],150:[function(require,module,exports){
 /**
  * Creates a function that returns `value`.
  *
@@ -4217,7 +10388,7 @@ function constant(value) {
 
 module.exports = constant;
 
-},{}],98:[function(require,module,exports){
+},{}],151:[function(require,module,exports){
 /**
  * This method returns the first argument provided to it.
  *
@@ -4239,7 +10410,7 @@ function identity(value) {
 
 module.exports = identity;
 
-},{}],99:[function(require,module,exports){
+},{}],152:[function(require,module,exports){
 var baseProperty = require('../internal/baseProperty'),
     basePropertyDeep = require('../internal/basePropertyDeep'),
     isKey = require('../internal/isKey');
@@ -4272,7 +10443,7 @@ function property(path) {
 
 module.exports = property;
 
-},{"../internal/baseProperty":44,"../internal/basePropertyDeep":45,"../internal/isKey":74}],100:[function(require,module,exports){
+},{"../internal/baseProperty":97,"../internal/basePropertyDeep":98,"../internal/isKey":127}],153:[function(require,module,exports){
 (function (root, factory){
   'use strict';
 
@@ -4514,9 +10685,9 @@ module.exports = property;
 
   return objectPath;
 });
-},{}],101:[function(require,module,exports){
+},{}],154:[function(require,module,exports){
 module.exports = "1.6.0"
-},{}],102:[function(require,module,exports){
+},{}],155:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -4543,7 +10714,7 @@ var AutoFocusMixin = {
 
 module.exports = AutoFocusMixin;
 
-},{"./focusNode":220}],103:[function(require,module,exports){
+},{"./focusNode":276}],156:[function(require,module,exports){
 /**
  * Copyright 2013-2015 Facebook, Inc.
  * All rights reserved.
@@ -5038,7 +11209,7 @@ var BeforeInputEventPlugin = {
 
 module.exports = BeforeInputEventPlugin;
 
-},{"./EventConstants":115,"./EventPropagators":120,"./ExecutionEnvironment":121,"./FallbackCompositionState":122,"./SyntheticCompositionEvent":194,"./SyntheticInputEvent":198,"./keyOf":242}],104:[function(require,module,exports){
+},{"./EventConstants":168,"./EventPropagators":173,"./ExecutionEnvironment":174,"./FallbackCompositionState":175,"./SyntheticCompositionEvent":249,"./SyntheticInputEvent":253,"./keyOf":299}],157:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -5163,7 +11334,7 @@ var CSSProperty = {
 
 module.exports = CSSProperty;
 
-},{}],105:[function(require,module,exports){
+},{}],158:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -5345,7 +11516,7 @@ var CSSPropertyOperations = {
 module.exports = CSSPropertyOperations;
 
 }).call(this,require('_process'))
-},{"./CSSProperty":104,"./ExecutionEnvironment":121,"./camelizeStyleName":209,"./dangerousStyleValue":214,"./hyphenateStyleName":234,"./memoizeStringOnly":244,"./warning":255,"_process":4}],106:[function(require,module,exports){
+},{"./CSSProperty":157,"./ExecutionEnvironment":174,"./camelizeStyleName":264,"./dangerousStyleValue":270,"./hyphenateStyleName":290,"./memoizeStringOnly":301,"./warning":312,"_process":6}],159:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -5445,7 +11616,7 @@ PooledClass.addPoolingTo(CallbackQueue);
 module.exports = CallbackQueue;
 
 }).call(this,require('_process'))
-},{"./Object.assign":127,"./PooledClass":128,"./invariant":236,"_process":4}],107:[function(require,module,exports){
+},{"./Object.assign":180,"./PooledClass":181,"./invariant":292,"_process":6}],160:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -5827,7 +11998,7 @@ var ChangeEventPlugin = {
 
 module.exports = ChangeEventPlugin;
 
-},{"./EventConstants":115,"./EventPluginHub":117,"./EventPropagators":120,"./ExecutionEnvironment":121,"./ReactUpdates":188,"./SyntheticEvent":196,"./isEventSupported":237,"./isTextInputElement":239,"./keyOf":242}],108:[function(require,module,exports){
+},{"./EventConstants":168,"./EventPluginHub":170,"./EventPropagators":173,"./ExecutionEnvironment":174,"./ReactUpdates":243,"./SyntheticEvent":251,"./isEventSupported":293,"./isTextInputElement":295,"./keyOf":299}],161:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -5852,7 +12023,7 @@ var ClientReactRootIndex = {
 
 module.exports = ClientReactRootIndex;
 
-},{}],109:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -5990,7 +12161,7 @@ var DOMChildrenOperations = {
 module.exports = DOMChildrenOperations;
 
 }).call(this,require('_process'))
-},{"./Danger":112,"./ReactMultiChildUpdateTypes":173,"./invariant":236,"./setTextContent":250,"_process":4}],110:[function(require,module,exports){
+},{"./Danger":165,"./ReactMultiChildUpdateTypes":227,"./invariant":292,"./setTextContent":307,"_process":6}],163:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -6289,7 +12460,7 @@ var DOMProperty = {
 module.exports = DOMProperty;
 
 }).call(this,require('_process'))
-},{"./invariant":236,"_process":4}],111:[function(require,module,exports){
+},{"./invariant":292,"_process":6}],164:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -6481,7 +12652,7 @@ var DOMPropertyOperations = {
 module.exports = DOMPropertyOperations;
 
 }).call(this,require('_process'))
-},{"./DOMProperty":110,"./quoteAttributeValueForBrowser":248,"./warning":255,"_process":4}],112:[function(require,module,exports){
+},{"./DOMProperty":163,"./quoteAttributeValueForBrowser":305,"./warning":312,"_process":6}],165:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -6668,7 +12839,7 @@ var Danger = {
 module.exports = Danger;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":121,"./createNodesFromMarkup":213,"./emptyFunction":215,"./getMarkupWrap":228,"./invariant":236,"_process":4}],113:[function(require,module,exports){
+},{"./ExecutionEnvironment":174,"./createNodesFromMarkup":269,"./emptyFunction":271,"./getMarkupWrap":284,"./invariant":292,"_process":6}],166:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -6707,7 +12878,7 @@ var DefaultEventPluginOrder = [
 
 module.exports = DefaultEventPluginOrder;
 
-},{"./keyOf":242}],114:[function(require,module,exports){
+},{"./keyOf":299}],167:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -6847,7 +13018,7 @@ var EnterLeaveEventPlugin = {
 
 module.exports = EnterLeaveEventPlugin;
 
-},{"./EventConstants":115,"./EventPropagators":120,"./ReactMount":171,"./SyntheticMouseEvent":200,"./keyOf":242}],115:[function(require,module,exports){
+},{"./EventConstants":168,"./EventPropagators":173,"./ReactMount":225,"./SyntheticMouseEvent":255,"./keyOf":299}],168:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -6919,7 +13090,7 @@ var EventConstants = {
 
 module.exports = EventConstants;
 
-},{"./keyMirror":241}],116:[function(require,module,exports){
+},{"./keyMirror":298}],169:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -7009,7 +13180,7 @@ var EventListener = {
 module.exports = EventListener;
 
 }).call(this,require('_process'))
-},{"./emptyFunction":215,"_process":4}],117:[function(require,module,exports){
+},{"./emptyFunction":271,"_process":6}],170:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -7287,7 +13458,7 @@ var EventPluginHub = {
 module.exports = EventPluginHub;
 
 }).call(this,require('_process'))
-},{"./EventPluginRegistry":118,"./EventPluginUtils":119,"./accumulateInto":206,"./forEachAccumulated":221,"./invariant":236,"_process":4}],118:[function(require,module,exports){
+},{"./EventPluginRegistry":171,"./EventPluginUtils":172,"./accumulateInto":261,"./forEachAccumulated":277,"./invariant":292,"_process":6}],171:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -7567,7 +13738,7 @@ var EventPluginRegistry = {
 module.exports = EventPluginRegistry;
 
 }).call(this,require('_process'))
-},{"./invariant":236,"_process":4}],119:[function(require,module,exports){
+},{"./invariant":292,"_process":6}],172:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -7788,7 +13959,7 @@ var EventPluginUtils = {
 module.exports = EventPluginUtils;
 
 }).call(this,require('_process'))
-},{"./EventConstants":115,"./invariant":236,"_process":4}],120:[function(require,module,exports){
+},{"./EventConstants":168,"./invariant":292,"_process":6}],173:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -7930,7 +14101,7 @@ var EventPropagators = {
 module.exports = EventPropagators;
 
 }).call(this,require('_process'))
-},{"./EventConstants":115,"./EventPluginHub":117,"./accumulateInto":206,"./forEachAccumulated":221,"_process":4}],121:[function(require,module,exports){
+},{"./EventConstants":168,"./EventPluginHub":170,"./accumulateInto":261,"./forEachAccumulated":277,"_process":6}],174:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -7974,7 +14145,7 @@ var ExecutionEnvironment = {
 
 module.exports = ExecutionEnvironment;
 
-},{}],122:[function(require,module,exports){
+},{}],175:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -8065,7 +14236,7 @@ PooledClass.addPoolingTo(FallbackCompositionState);
 
 module.exports = FallbackCompositionState;
 
-},{"./Object.assign":127,"./PooledClass":128,"./getTextContentAccessor":231}],123:[function(require,module,exports){
+},{"./Object.assign":180,"./PooledClass":181,"./getTextContentAccessor":287}],176:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -8276,7 +14447,7 @@ var HTMLDOMPropertyConfig = {
 
 module.exports = HTMLDOMPropertyConfig;
 
-},{"./DOMProperty":110,"./ExecutionEnvironment":121}],124:[function(require,module,exports){
+},{"./DOMProperty":163,"./ExecutionEnvironment":174}],177:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -8432,7 +14603,7 @@ var LinkedValueUtils = {
 module.exports = LinkedValueUtils;
 
 }).call(this,require('_process'))
-},{"./ReactPropTypes":179,"./invariant":236,"_process":4}],125:[function(require,module,exports){
+},{"./ReactPropTypes":234,"./invariant":292,"_process":6}],178:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -8489,7 +14660,7 @@ var LocalEventTrapMixin = {
 module.exports = LocalEventTrapMixin;
 
 }).call(this,require('_process'))
-},{"./ReactBrowserEventEmitter":131,"./accumulateInto":206,"./forEachAccumulated":221,"./invariant":236,"_process":4}],126:[function(require,module,exports){
+},{"./ReactBrowserEventEmitter":184,"./accumulateInto":261,"./forEachAccumulated":277,"./invariant":292,"_process":6}],179:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -8547,7 +14718,7 @@ var MobileSafariClickEventPlugin = {
 
 module.exports = MobileSafariClickEventPlugin;
 
-},{"./EventConstants":115,"./emptyFunction":215}],127:[function(require,module,exports){
+},{"./EventConstants":168,"./emptyFunction":271}],180:[function(require,module,exports){
 /**
  * Copyright 2014-2015, Facebook, Inc.
  * All rights reserved.
@@ -8596,7 +14767,7 @@ function assign(target, sources) {
 
 module.exports = assign;
 
-},{}],128:[function(require,module,exports){
+},{}],181:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -8712,7 +14883,7 @@ var PooledClass = {
 module.exports = PooledClass;
 
 }).call(this,require('_process'))
-},{"./invariant":236,"_process":4}],129:[function(require,module,exports){
+},{"./invariant":292,"_process":6}],182:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -8864,7 +15035,7 @@ React.version = '0.13.3';
 module.exports = React;
 
 }).call(this,require('_process'))
-},{"./EventPluginUtils":119,"./ExecutionEnvironment":121,"./Object.assign":127,"./ReactChildren":133,"./ReactClass":134,"./ReactComponent":135,"./ReactContext":139,"./ReactCurrentOwner":140,"./ReactDOM":141,"./ReactDOMTextComponent":152,"./ReactDefaultInjection":155,"./ReactElement":158,"./ReactElementValidator":159,"./ReactInstanceHandles":167,"./ReactMount":171,"./ReactPerf":176,"./ReactPropTypes":179,"./ReactReconciler":182,"./ReactServerRendering":185,"./findDOMNode":218,"./onlyChild":245,"_process":4}],130:[function(require,module,exports){
+},{"./EventPluginUtils":172,"./ExecutionEnvironment":174,"./Object.assign":180,"./ReactChildren":186,"./ReactClass":187,"./ReactComponent":188,"./ReactContext":193,"./ReactCurrentOwner":194,"./ReactDOM":195,"./ReactDOMTextComponent":206,"./ReactDefaultInjection":209,"./ReactElement":212,"./ReactElementValidator":213,"./ReactInstanceHandles":221,"./ReactMount":225,"./ReactPerf":230,"./ReactPropTypes":234,"./ReactReconciler":237,"./ReactServerRendering":240,"./findDOMNode":274,"./onlyChild":302,"_process":6}],183:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -8895,7 +15066,7 @@ var ReactBrowserComponentMixin = {
 
 module.exports = ReactBrowserComponentMixin;
 
-},{"./findDOMNode":218}],131:[function(require,module,exports){
+},{"./findDOMNode":274}],184:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -9248,7 +15419,7 @@ var ReactBrowserEventEmitter = assign({}, ReactEventEmitterMixin, {
 
 module.exports = ReactBrowserEventEmitter;
 
-},{"./EventConstants":115,"./EventPluginHub":117,"./EventPluginRegistry":118,"./Object.assign":127,"./ReactEventEmitterMixin":162,"./ViewportMetrics":205,"./isEventSupported":237}],132:[function(require,module,exports){
+},{"./EventConstants":168,"./EventPluginHub":170,"./EventPluginRegistry":171,"./Object.assign":180,"./ReactEventEmitterMixin":216,"./ViewportMetrics":260,"./isEventSupported":293}],185:[function(require,module,exports){
 /**
  * Copyright 2014-2015, Facebook, Inc.
  * All rights reserved.
@@ -9375,7 +15546,7 @@ var ReactChildReconciler = {
 
 module.exports = ReactChildReconciler;
 
-},{"./ReactReconciler":182,"./flattenChildren":219,"./instantiateReactComponent":235,"./shouldUpdateReactComponent":252}],133:[function(require,module,exports){
+},{"./ReactReconciler":237,"./flattenChildren":275,"./instantiateReactComponent":291,"./shouldUpdateReactComponent":309}],186:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -9528,7 +15699,7 @@ var ReactChildren = {
 module.exports = ReactChildren;
 
 }).call(this,require('_process'))
-},{"./PooledClass":128,"./ReactFragment":164,"./traverseAllChildren":254,"./warning":255,"_process":4}],134:[function(require,module,exports){
+},{"./PooledClass":181,"./ReactFragment":218,"./traverseAllChildren":311,"./warning":312,"_process":6}],187:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -10474,7 +16645,7 @@ var ReactClass = {
 module.exports = ReactClass;
 
 }).call(this,require('_process'))
-},{"./Object.assign":127,"./ReactComponent":135,"./ReactCurrentOwner":140,"./ReactElement":158,"./ReactErrorUtils":161,"./ReactInstanceMap":168,"./ReactLifeCycle":169,"./ReactPropTypeLocationNames":177,"./ReactPropTypeLocations":178,"./ReactUpdateQueue":187,"./invariant":236,"./keyMirror":241,"./keyOf":242,"./warning":255,"_process":4}],135:[function(require,module,exports){
+},{"./Object.assign":180,"./ReactComponent":188,"./ReactCurrentOwner":194,"./ReactElement":212,"./ReactErrorUtils":215,"./ReactInstanceMap":222,"./ReactLifeCycle":223,"./ReactPropTypeLocationNames":232,"./ReactPropTypeLocations":233,"./ReactUpdateQueue":242,"./invariant":292,"./keyMirror":298,"./keyOf":299,"./warning":312,"_process":6}],188:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -10628,7 +16799,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = ReactComponent;
 
 }).call(this,require('_process'))
-},{"./ReactUpdateQueue":187,"./invariant":236,"./warning":255,"_process":4}],136:[function(require,module,exports){
+},{"./ReactUpdateQueue":242,"./invariant":292,"./warning":312,"_process":6}],189:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -10675,7 +16846,7 @@ var ReactComponentBrowserEnvironment = {
 
 module.exports = ReactComponentBrowserEnvironment;
 
-},{"./ReactDOMIDOperations":145,"./ReactMount":171}],137:[function(require,module,exports){
+},{"./ReactDOMIDOperations":199,"./ReactMount":225}],190:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -10736,7 +16907,56 @@ var ReactComponentEnvironment = {
 module.exports = ReactComponentEnvironment;
 
 }).call(this,require('_process'))
-},{"./invariant":236,"_process":4}],138:[function(require,module,exports){
+},{"./invariant":292,"_process":6}],191:[function(require,module,exports){
+/**
+ * Copyright 2013-2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+* @providesModule ReactComponentWithPureRenderMixin
+*/
+
+'use strict';
+
+var shallowEqual = require("./shallowEqual");
+
+/**
+ * If your React component's render function is "pure", e.g. it will render the
+ * same result given the same props and state, provide this Mixin for a
+ * considerable performance boost.
+ *
+ * Most React components have pure render functions.
+ *
+ * Example:
+ *
+ *   var ReactComponentWithPureRenderMixin =
+ *     require('ReactComponentWithPureRenderMixin');
+ *   React.createClass({
+ *     mixins: [ReactComponentWithPureRenderMixin],
+ *
+ *     render: function() {
+ *       return <div className={this.props.className}>foo</div>;
+ *     }
+ *   });
+ *
+ * Note: This only checks shallow equality for props and state. If these contain
+ * complex data structures this mixin may have false-negatives for deeper
+ * differences. Only mixin to components which have simple props and state, or
+ * use `forceUpdate()` when you know deep data structures have changed.
+ */
+var ReactComponentWithPureRenderMixin = {
+  shouldComponentUpdate: function(nextProps, nextState) {
+    return !shallowEqual(this.props, nextProps) ||
+           !shallowEqual(this.state, nextState);
+  }
+};
+
+module.exports = ReactComponentWithPureRenderMixin;
+
+},{"./shallowEqual":308}],192:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -11649,7 +17869,7 @@ var ReactCompositeComponent = {
 module.exports = ReactCompositeComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":127,"./ReactComponentEnvironment":137,"./ReactContext":139,"./ReactCurrentOwner":140,"./ReactElement":158,"./ReactElementValidator":159,"./ReactInstanceMap":168,"./ReactLifeCycle":169,"./ReactNativeComponent":174,"./ReactPerf":176,"./ReactPropTypeLocationNames":177,"./ReactPropTypeLocations":178,"./ReactReconciler":182,"./ReactUpdates":188,"./emptyObject":216,"./invariant":236,"./shouldUpdateReactComponent":252,"./warning":255,"_process":4}],139:[function(require,module,exports){
+},{"./Object.assign":180,"./ReactComponentEnvironment":190,"./ReactContext":193,"./ReactCurrentOwner":194,"./ReactElement":212,"./ReactElementValidator":213,"./ReactInstanceMap":222,"./ReactLifeCycle":223,"./ReactNativeComponent":228,"./ReactPerf":230,"./ReactPropTypeLocationNames":232,"./ReactPropTypeLocations":233,"./ReactReconciler":237,"./ReactUpdates":243,"./emptyObject":272,"./invariant":292,"./shouldUpdateReactComponent":309,"./warning":312,"_process":6}],193:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -11727,7 +17947,7 @@ var ReactContext = {
 module.exports = ReactContext;
 
 }).call(this,require('_process'))
-},{"./Object.assign":127,"./emptyObject":216,"./warning":255,"_process":4}],140:[function(require,module,exports){
+},{"./Object.assign":180,"./emptyObject":272,"./warning":312,"_process":6}],194:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -11761,7 +17981,7 @@ var ReactCurrentOwner = {
 
 module.exports = ReactCurrentOwner;
 
-},{}],141:[function(require,module,exports){
+},{}],195:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -11940,7 +18160,7 @@ var ReactDOM = mapObject({
 module.exports = ReactDOM;
 
 }).call(this,require('_process'))
-},{"./ReactElement":158,"./ReactElementValidator":159,"./mapObject":243,"_process":4}],142:[function(require,module,exports){
+},{"./ReactElement":212,"./ReactElementValidator":213,"./mapObject":300,"_process":6}],196:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -12004,7 +18224,7 @@ var ReactDOMButton = ReactClass.createClass({
 
 module.exports = ReactDOMButton;
 
-},{"./AutoFocusMixin":102,"./ReactBrowserComponentMixin":130,"./ReactClass":134,"./ReactElement":158,"./keyMirror":241}],143:[function(require,module,exports){
+},{"./AutoFocusMixin":155,"./ReactBrowserComponentMixin":183,"./ReactClass":187,"./ReactElement":212,"./keyMirror":298}],197:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -12514,7 +18734,7 @@ ReactDOMComponent.injection = {
 module.exports = ReactDOMComponent;
 
 }).call(this,require('_process'))
-},{"./CSSPropertyOperations":105,"./DOMProperty":110,"./DOMPropertyOperations":111,"./Object.assign":127,"./ReactBrowserEventEmitter":131,"./ReactComponentBrowserEnvironment":136,"./ReactMount":171,"./ReactMultiChild":172,"./ReactPerf":176,"./escapeTextContentForBrowser":217,"./invariant":236,"./isEventSupported":237,"./keyOf":242,"./warning":255,"_process":4}],144:[function(require,module,exports){
+},{"./CSSPropertyOperations":158,"./DOMProperty":163,"./DOMPropertyOperations":164,"./Object.assign":180,"./ReactBrowserEventEmitter":184,"./ReactComponentBrowserEnvironment":189,"./ReactMount":225,"./ReactMultiChild":226,"./ReactPerf":230,"./escapeTextContentForBrowser":273,"./invariant":292,"./isEventSupported":293,"./keyOf":299,"./warning":312,"_process":6}],198:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -12563,7 +18783,7 @@ var ReactDOMForm = ReactClass.createClass({
 
 module.exports = ReactDOMForm;
 
-},{"./EventConstants":115,"./LocalEventTrapMixin":125,"./ReactBrowserComponentMixin":130,"./ReactClass":134,"./ReactElement":158}],145:[function(require,module,exports){
+},{"./EventConstants":168,"./LocalEventTrapMixin":178,"./ReactBrowserComponentMixin":183,"./ReactClass":187,"./ReactElement":212}],199:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -12731,7 +18951,7 @@ ReactPerf.measureMethods(ReactDOMIDOperations, 'ReactDOMIDOperations', {
 module.exports = ReactDOMIDOperations;
 
 }).call(this,require('_process'))
-},{"./CSSPropertyOperations":105,"./DOMChildrenOperations":109,"./DOMPropertyOperations":111,"./ReactMount":171,"./ReactPerf":176,"./invariant":236,"./setInnerHTML":249,"_process":4}],146:[function(require,module,exports){
+},{"./CSSPropertyOperations":158,"./DOMChildrenOperations":162,"./DOMPropertyOperations":164,"./ReactMount":225,"./ReactPerf":230,"./invariant":292,"./setInnerHTML":306,"_process":6}],200:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -12776,7 +18996,7 @@ var ReactDOMIframe = ReactClass.createClass({
 
 module.exports = ReactDOMIframe;
 
-},{"./EventConstants":115,"./LocalEventTrapMixin":125,"./ReactBrowserComponentMixin":130,"./ReactClass":134,"./ReactElement":158}],147:[function(require,module,exports){
+},{"./EventConstants":168,"./LocalEventTrapMixin":178,"./ReactBrowserComponentMixin":183,"./ReactClass":187,"./ReactElement":212}],201:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -12822,7 +19042,7 @@ var ReactDOMImg = ReactClass.createClass({
 
 module.exports = ReactDOMImg;
 
-},{"./EventConstants":115,"./LocalEventTrapMixin":125,"./ReactBrowserComponentMixin":130,"./ReactClass":134,"./ReactElement":158}],148:[function(require,module,exports){
+},{"./EventConstants":168,"./LocalEventTrapMixin":178,"./ReactBrowserComponentMixin":183,"./ReactClass":187,"./ReactElement":212}],202:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -12999,7 +19219,7 @@ var ReactDOMInput = ReactClass.createClass({
 module.exports = ReactDOMInput;
 
 }).call(this,require('_process'))
-},{"./AutoFocusMixin":102,"./DOMPropertyOperations":111,"./LinkedValueUtils":124,"./Object.assign":127,"./ReactBrowserComponentMixin":130,"./ReactClass":134,"./ReactElement":158,"./ReactMount":171,"./ReactUpdates":188,"./invariant":236,"_process":4}],149:[function(require,module,exports){
+},{"./AutoFocusMixin":155,"./DOMPropertyOperations":164,"./LinkedValueUtils":177,"./Object.assign":180,"./ReactBrowserComponentMixin":183,"./ReactClass":187,"./ReactElement":212,"./ReactMount":225,"./ReactUpdates":243,"./invariant":292,"_process":6}],203:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -13051,7 +19271,7 @@ var ReactDOMOption = ReactClass.createClass({
 module.exports = ReactDOMOption;
 
 }).call(this,require('_process'))
-},{"./ReactBrowserComponentMixin":130,"./ReactClass":134,"./ReactElement":158,"./warning":255,"_process":4}],150:[function(require,module,exports){
+},{"./ReactBrowserComponentMixin":183,"./ReactClass":187,"./ReactElement":212,"./warning":312,"_process":6}],204:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -13229,7 +19449,7 @@ var ReactDOMSelect = ReactClass.createClass({
 
 module.exports = ReactDOMSelect;
 
-},{"./AutoFocusMixin":102,"./LinkedValueUtils":124,"./Object.assign":127,"./ReactBrowserComponentMixin":130,"./ReactClass":134,"./ReactElement":158,"./ReactUpdates":188}],151:[function(require,module,exports){
+},{"./AutoFocusMixin":155,"./LinkedValueUtils":177,"./Object.assign":180,"./ReactBrowserComponentMixin":183,"./ReactClass":187,"./ReactElement":212,"./ReactUpdates":243}],205:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -13442,7 +19662,7 @@ var ReactDOMSelection = {
 
 module.exports = ReactDOMSelection;
 
-},{"./ExecutionEnvironment":121,"./getNodeForCharacterOffset":229,"./getTextContentAccessor":231}],152:[function(require,module,exports){
+},{"./ExecutionEnvironment":174,"./getNodeForCharacterOffset":285,"./getTextContentAccessor":287}],206:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -13559,7 +19779,7 @@ assign(ReactDOMTextComponent.prototype, {
 
 module.exports = ReactDOMTextComponent;
 
-},{"./DOMPropertyOperations":111,"./Object.assign":127,"./ReactComponentBrowserEnvironment":136,"./ReactDOMComponent":143,"./escapeTextContentForBrowser":217}],153:[function(require,module,exports){
+},{"./DOMPropertyOperations":164,"./Object.assign":180,"./ReactComponentBrowserEnvironment":189,"./ReactDOMComponent":197,"./escapeTextContentForBrowser":273}],207:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -13699,7 +19919,7 @@ var ReactDOMTextarea = ReactClass.createClass({
 module.exports = ReactDOMTextarea;
 
 }).call(this,require('_process'))
-},{"./AutoFocusMixin":102,"./DOMPropertyOperations":111,"./LinkedValueUtils":124,"./Object.assign":127,"./ReactBrowserComponentMixin":130,"./ReactClass":134,"./ReactElement":158,"./ReactUpdates":188,"./invariant":236,"./warning":255,"_process":4}],154:[function(require,module,exports){
+},{"./AutoFocusMixin":155,"./DOMPropertyOperations":164,"./LinkedValueUtils":177,"./Object.assign":180,"./ReactBrowserComponentMixin":183,"./ReactClass":187,"./ReactElement":212,"./ReactUpdates":243,"./invariant":292,"./warning":312,"_process":6}],208:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -13772,7 +19992,7 @@ var ReactDefaultBatchingStrategy = {
 
 module.exports = ReactDefaultBatchingStrategy;
 
-},{"./Object.assign":127,"./ReactUpdates":188,"./Transaction":204,"./emptyFunction":215}],155:[function(require,module,exports){
+},{"./Object.assign":180,"./ReactUpdates":243,"./Transaction":259,"./emptyFunction":271}],209:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -13931,7 +20151,7 @@ module.exports = {
 };
 
 }).call(this,require('_process'))
-},{"./BeforeInputEventPlugin":103,"./ChangeEventPlugin":107,"./ClientReactRootIndex":108,"./DefaultEventPluginOrder":113,"./EnterLeaveEventPlugin":114,"./ExecutionEnvironment":121,"./HTMLDOMPropertyConfig":123,"./MobileSafariClickEventPlugin":126,"./ReactBrowserComponentMixin":130,"./ReactClass":134,"./ReactComponentBrowserEnvironment":136,"./ReactDOMButton":142,"./ReactDOMComponent":143,"./ReactDOMForm":144,"./ReactDOMIDOperations":145,"./ReactDOMIframe":146,"./ReactDOMImg":147,"./ReactDOMInput":148,"./ReactDOMOption":149,"./ReactDOMSelect":150,"./ReactDOMTextComponent":152,"./ReactDOMTextarea":153,"./ReactDefaultBatchingStrategy":154,"./ReactDefaultPerf":156,"./ReactElement":158,"./ReactEventListener":163,"./ReactInjection":165,"./ReactInstanceHandles":167,"./ReactMount":171,"./ReactReconcileTransaction":181,"./SVGDOMPropertyConfig":189,"./SelectEventPlugin":190,"./ServerReactRootIndex":191,"./SimpleEventPlugin":192,"./createFullPageComponent":212,"_process":4}],156:[function(require,module,exports){
+},{"./BeforeInputEventPlugin":156,"./ChangeEventPlugin":160,"./ClientReactRootIndex":161,"./DefaultEventPluginOrder":166,"./EnterLeaveEventPlugin":167,"./ExecutionEnvironment":174,"./HTMLDOMPropertyConfig":176,"./MobileSafariClickEventPlugin":179,"./ReactBrowserComponentMixin":183,"./ReactClass":187,"./ReactComponentBrowserEnvironment":189,"./ReactDOMButton":196,"./ReactDOMComponent":197,"./ReactDOMForm":198,"./ReactDOMIDOperations":199,"./ReactDOMIframe":200,"./ReactDOMImg":201,"./ReactDOMInput":202,"./ReactDOMOption":203,"./ReactDOMSelect":204,"./ReactDOMTextComponent":206,"./ReactDOMTextarea":207,"./ReactDefaultBatchingStrategy":208,"./ReactDefaultPerf":210,"./ReactElement":212,"./ReactEventListener":217,"./ReactInjection":219,"./ReactInstanceHandles":221,"./ReactMount":225,"./ReactReconcileTransaction":236,"./SVGDOMPropertyConfig":244,"./SelectEventPlugin":245,"./ServerReactRootIndex":246,"./SimpleEventPlugin":247,"./createFullPageComponent":268,"_process":6}],210:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -14197,7 +20417,7 @@ var ReactDefaultPerf = {
 
 module.exports = ReactDefaultPerf;
 
-},{"./DOMProperty":110,"./ReactDefaultPerfAnalysis":157,"./ReactMount":171,"./ReactPerf":176,"./performanceNow":247}],157:[function(require,module,exports){
+},{"./DOMProperty":163,"./ReactDefaultPerfAnalysis":211,"./ReactMount":225,"./ReactPerf":230,"./performanceNow":304}],211:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -14403,7 +20623,7 @@ var ReactDefaultPerfAnalysis = {
 
 module.exports = ReactDefaultPerfAnalysis;
 
-},{"./Object.assign":127}],158:[function(require,module,exports){
+},{"./Object.assign":180}],212:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -14711,7 +20931,7 @@ ReactElement.isValidElement = function(object) {
 module.exports = ReactElement;
 
 }).call(this,require('_process'))
-},{"./Object.assign":127,"./ReactContext":139,"./ReactCurrentOwner":140,"./warning":255,"_process":4}],159:[function(require,module,exports){
+},{"./Object.assign":180,"./ReactContext":193,"./ReactCurrentOwner":194,"./warning":312,"_process":6}],213:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -15176,7 +21396,7 @@ var ReactElementValidator = {
 module.exports = ReactElementValidator;
 
 }).call(this,require('_process'))
-},{"./ReactCurrentOwner":140,"./ReactElement":158,"./ReactFragment":164,"./ReactNativeComponent":174,"./ReactPropTypeLocationNames":177,"./ReactPropTypeLocations":178,"./getIteratorFn":227,"./invariant":236,"./warning":255,"_process":4}],160:[function(require,module,exports){
+},{"./ReactCurrentOwner":194,"./ReactElement":212,"./ReactFragment":218,"./ReactNativeComponent":228,"./ReactPropTypeLocationNames":232,"./ReactPropTypeLocations":233,"./getIteratorFn":283,"./invariant":292,"./warning":312,"_process":6}],214:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -15271,7 +21491,7 @@ var ReactEmptyComponent = {
 module.exports = ReactEmptyComponent;
 
 }).call(this,require('_process'))
-},{"./ReactElement":158,"./ReactInstanceMap":168,"./invariant":236,"_process":4}],161:[function(require,module,exports){
+},{"./ReactElement":212,"./ReactInstanceMap":222,"./invariant":292,"_process":6}],215:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -15303,7 +21523,7 @@ var ReactErrorUtils = {
 
 module.exports = ReactErrorUtils;
 
-},{}],162:[function(require,module,exports){
+},{}],216:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -15353,7 +21573,7 @@ var ReactEventEmitterMixin = {
 
 module.exports = ReactEventEmitterMixin;
 
-},{"./EventPluginHub":117}],163:[function(require,module,exports){
+},{"./EventPluginHub":170}],217:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -15536,7 +21756,7 @@ var ReactEventListener = {
 
 module.exports = ReactEventListener;
 
-},{"./EventListener":116,"./ExecutionEnvironment":121,"./Object.assign":127,"./PooledClass":128,"./ReactInstanceHandles":167,"./ReactMount":171,"./ReactUpdates":188,"./getEventTarget":226,"./getUnboundedScrollPosition":232}],164:[function(require,module,exports){
+},{"./EventListener":169,"./ExecutionEnvironment":174,"./Object.assign":180,"./PooledClass":181,"./ReactInstanceHandles":221,"./ReactMount":225,"./ReactUpdates":243,"./getEventTarget":282,"./getUnboundedScrollPosition":288}],218:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2015, Facebook, Inc.
@@ -15721,7 +21941,7 @@ var ReactFragment = {
 module.exports = ReactFragment;
 
 }).call(this,require('_process'))
-},{"./ReactElement":158,"./warning":255,"_process":4}],165:[function(require,module,exports){
+},{"./ReactElement":212,"./warning":312,"_process":6}],219:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -15763,7 +21983,7 @@ var ReactInjection = {
 
 module.exports = ReactInjection;
 
-},{"./DOMProperty":110,"./EventPluginHub":117,"./ReactBrowserEventEmitter":131,"./ReactClass":134,"./ReactComponentEnvironment":137,"./ReactDOMComponent":143,"./ReactEmptyComponent":160,"./ReactNativeComponent":174,"./ReactPerf":176,"./ReactRootIndex":184,"./ReactUpdates":188}],166:[function(require,module,exports){
+},{"./DOMProperty":163,"./EventPluginHub":170,"./ReactBrowserEventEmitter":184,"./ReactClass":187,"./ReactComponentEnvironment":190,"./ReactDOMComponent":197,"./ReactEmptyComponent":214,"./ReactNativeComponent":228,"./ReactPerf":230,"./ReactRootIndex":239,"./ReactUpdates":243}],220:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -15898,7 +22118,7 @@ var ReactInputSelection = {
 
 module.exports = ReactInputSelection;
 
-},{"./ReactDOMSelection":151,"./containsNode":210,"./focusNode":220,"./getActiveElement":222}],167:[function(require,module,exports){
+},{"./ReactDOMSelection":205,"./containsNode":266,"./focusNode":276,"./getActiveElement":278}],221:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -16234,7 +22454,7 @@ var ReactInstanceHandles = {
 module.exports = ReactInstanceHandles;
 
 }).call(this,require('_process'))
-},{"./ReactRootIndex":184,"./invariant":236,"_process":4}],168:[function(require,module,exports){
+},{"./ReactRootIndex":239,"./invariant":292,"_process":6}],222:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -16283,7 +22503,7 @@ var ReactInstanceMap = {
 
 module.exports = ReactInstanceMap;
 
-},{}],169:[function(require,module,exports){
+},{}],223:[function(require,module,exports){
 /**
  * Copyright 2015, Facebook, Inc.
  * All rights reserved.
@@ -16320,7 +22540,7 @@ var ReactLifeCycle = {
 
 module.exports = ReactLifeCycle;
 
-},{}],170:[function(require,module,exports){
+},{}],224:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -16368,7 +22588,7 @@ var ReactMarkupChecksum = {
 
 module.exports = ReactMarkupChecksum;
 
-},{"./adler32":207}],171:[function(require,module,exports){
+},{"./adler32":262}],225:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -17259,7 +23479,7 @@ ReactPerf.measureMethods(ReactMount, 'ReactMount', {
 module.exports = ReactMount;
 
 }).call(this,require('_process'))
-},{"./DOMProperty":110,"./ReactBrowserEventEmitter":131,"./ReactCurrentOwner":140,"./ReactElement":158,"./ReactElementValidator":159,"./ReactEmptyComponent":160,"./ReactInstanceHandles":167,"./ReactInstanceMap":168,"./ReactMarkupChecksum":170,"./ReactPerf":176,"./ReactReconciler":182,"./ReactUpdateQueue":187,"./ReactUpdates":188,"./containsNode":210,"./emptyObject":216,"./getReactRootElementInContainer":230,"./instantiateReactComponent":235,"./invariant":236,"./setInnerHTML":249,"./shouldUpdateReactComponent":252,"./warning":255,"_process":4}],172:[function(require,module,exports){
+},{"./DOMProperty":163,"./ReactBrowserEventEmitter":184,"./ReactCurrentOwner":194,"./ReactElement":212,"./ReactElementValidator":213,"./ReactEmptyComponent":214,"./ReactInstanceHandles":221,"./ReactInstanceMap":222,"./ReactMarkupChecksum":224,"./ReactPerf":230,"./ReactReconciler":237,"./ReactUpdateQueue":242,"./ReactUpdates":243,"./containsNode":266,"./emptyObject":272,"./getReactRootElementInContainer":286,"./instantiateReactComponent":291,"./invariant":292,"./setInnerHTML":306,"./shouldUpdateReactComponent":309,"./warning":312,"_process":6}],226:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -17689,7 +23909,7 @@ var ReactMultiChild = {
 
 module.exports = ReactMultiChild;
 
-},{"./ReactChildReconciler":132,"./ReactComponentEnvironment":137,"./ReactMultiChildUpdateTypes":173,"./ReactReconciler":182}],173:[function(require,module,exports){
+},{"./ReactChildReconciler":185,"./ReactComponentEnvironment":190,"./ReactMultiChildUpdateTypes":227,"./ReactReconciler":237}],227:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -17722,7 +23942,7 @@ var ReactMultiChildUpdateTypes = keyMirror({
 
 module.exports = ReactMultiChildUpdateTypes;
 
-},{"./keyMirror":241}],174:[function(require,module,exports){
+},{"./keyMirror":298}],228:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -17829,7 +24049,7 @@ var ReactNativeComponent = {
 module.exports = ReactNativeComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":127,"./invariant":236,"_process":4}],175:[function(require,module,exports){
+},{"./Object.assign":180,"./invariant":292,"_process":6}],229:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -17941,7 +24161,7 @@ var ReactOwner = {
 module.exports = ReactOwner;
 
 }).call(this,require('_process'))
-},{"./invariant":236,"_process":4}],176:[function(require,module,exports){
+},{"./invariant":292,"_process":6}],230:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -18045,7 +24265,117 @@ function _noMeasure(objName, fnName, func) {
 module.exports = ReactPerf;
 
 }).call(this,require('_process'))
-},{"_process":4}],177:[function(require,module,exports){
+},{"_process":6}],231:[function(require,module,exports){
+/**
+ * Copyright 2013-2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule ReactPropTransferer
+ */
+
+'use strict';
+
+var assign = require("./Object.assign");
+var emptyFunction = require("./emptyFunction");
+var joinClasses = require("./joinClasses");
+
+/**
+ * Creates a transfer strategy that will merge prop values using the supplied
+ * `mergeStrategy`. If a prop was previously unset, this just sets it.
+ *
+ * @param {function} mergeStrategy
+ * @return {function}
+ */
+function createTransferStrategy(mergeStrategy) {
+  return function(props, key, value) {
+    if (!props.hasOwnProperty(key)) {
+      props[key] = value;
+    } else {
+      props[key] = mergeStrategy(props[key], value);
+    }
+  };
+}
+
+var transferStrategyMerge = createTransferStrategy(function(a, b) {
+  // `merge` overrides the first object's (`props[key]` above) keys using the
+  // second object's (`value`) keys. An object's style's existing `propA` would
+  // get overridden. Flip the order here.
+  return assign({}, b, a);
+});
+
+/**
+ * Transfer strategies dictate how props are transferred by `transferPropsTo`.
+ * NOTE: if you add any more exceptions to this list you should be sure to
+ * update `cloneWithProps()` accordingly.
+ */
+var TransferStrategies = {
+  /**
+   * Never transfer `children`.
+   */
+  children: emptyFunction,
+  /**
+   * Transfer the `className` prop by merging them.
+   */
+  className: createTransferStrategy(joinClasses),
+  /**
+   * Transfer the `style` prop (which is an object) by merging them.
+   */
+  style: transferStrategyMerge
+};
+
+/**
+ * Mutates the first argument by transferring the properties from the second
+ * argument.
+ *
+ * @param {object} props
+ * @param {object} newProps
+ * @return {object}
+ */
+function transferInto(props, newProps) {
+  for (var thisKey in newProps) {
+    if (!newProps.hasOwnProperty(thisKey)) {
+      continue;
+    }
+
+    var transferStrategy = TransferStrategies[thisKey];
+
+    if (transferStrategy && TransferStrategies.hasOwnProperty(thisKey)) {
+      transferStrategy(props, thisKey, newProps[thisKey]);
+    } else if (!props.hasOwnProperty(thisKey)) {
+      props[thisKey] = newProps[thisKey];
+    }
+  }
+  return props;
+}
+
+/**
+ * ReactPropTransferer are capable of transferring props to another component
+ * using a `transferPropsTo` method.
+ *
+ * @class ReactPropTransferer
+ */
+var ReactPropTransferer = {
+
+  /**
+   * Merge two props objects using TransferStrategies.
+   *
+   * @param {object} oldProps original props (they take precedence)
+   * @param {object} newProps new props to merge in
+   * @return {object} a new object containing both sets of props merged.
+   */
+  mergeProps: function(oldProps, newProps) {
+    return transferInto(assign({}, oldProps), newProps);
+  }
+
+};
+
+module.exports = ReactPropTransferer;
+
+},{"./Object.assign":180,"./emptyFunction":271,"./joinClasses":297}],232:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -18073,7 +24403,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = ReactPropTypeLocationNames;
 
 }).call(this,require('_process'))
-},{"_process":4}],178:[function(require,module,exports){
+},{"_process":6}],233:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18097,7 +24427,7 @@ var ReactPropTypeLocations = keyMirror({
 
 module.exports = ReactPropTypeLocations;
 
-},{"./keyMirror":241}],179:[function(require,module,exports){
+},{"./keyMirror":298}],234:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18446,7 +24776,7 @@ function getPreciseType(propValue) {
 
 module.exports = ReactPropTypes;
 
-},{"./ReactElement":158,"./ReactFragment":164,"./ReactPropTypeLocationNames":177,"./emptyFunction":215}],180:[function(require,module,exports){
+},{"./ReactElement":212,"./ReactFragment":218,"./ReactPropTypeLocationNames":232,"./emptyFunction":271}],235:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18502,7 +24832,7 @@ PooledClass.addPoolingTo(ReactPutListenerQueue);
 
 module.exports = ReactPutListenerQueue;
 
-},{"./Object.assign":127,"./PooledClass":128,"./ReactBrowserEventEmitter":131}],181:[function(require,module,exports){
+},{"./Object.assign":180,"./PooledClass":181,"./ReactBrowserEventEmitter":184}],236:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18678,7 +25008,7 @@ PooledClass.addPoolingTo(ReactReconcileTransaction);
 
 module.exports = ReactReconcileTransaction;
 
-},{"./CallbackQueue":106,"./Object.assign":127,"./PooledClass":128,"./ReactBrowserEventEmitter":131,"./ReactInputSelection":166,"./ReactPutListenerQueue":180,"./Transaction":204}],182:[function(require,module,exports){
+},{"./CallbackQueue":159,"./Object.assign":180,"./PooledClass":181,"./ReactBrowserEventEmitter":184,"./ReactInputSelection":220,"./ReactPutListenerQueue":235,"./Transaction":259}],237:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -18802,7 +25132,7 @@ var ReactReconciler = {
 module.exports = ReactReconciler;
 
 }).call(this,require('_process'))
-},{"./ReactElementValidator":159,"./ReactRef":183,"_process":4}],183:[function(require,module,exports){
+},{"./ReactElementValidator":213,"./ReactRef":238,"_process":6}],238:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18873,7 +25203,7 @@ ReactRef.detachRefs = function(instance, element) {
 
 module.exports = ReactRef;
 
-},{"./ReactOwner":175}],184:[function(require,module,exports){
+},{"./ReactOwner":229}],239:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -18904,7 +25234,7 @@ var ReactRootIndex = {
 
 module.exports = ReactRootIndex;
 
-},{}],185:[function(require,module,exports){
+},{}],240:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -18986,7 +25316,7 @@ module.exports = {
 };
 
 }).call(this,require('_process'))
-},{"./ReactElement":158,"./ReactInstanceHandles":167,"./ReactMarkupChecksum":170,"./ReactServerRenderingTransaction":186,"./emptyObject":216,"./instantiateReactComponent":235,"./invariant":236,"_process":4}],186:[function(require,module,exports){
+},{"./ReactElement":212,"./ReactInstanceHandles":221,"./ReactMarkupChecksum":224,"./ReactServerRenderingTransaction":241,"./emptyObject":272,"./instantiateReactComponent":291,"./invariant":292,"_process":6}],241:[function(require,module,exports){
 /**
  * Copyright 2014-2015, Facebook, Inc.
  * All rights reserved.
@@ -19099,7 +25429,7 @@ PooledClass.addPoolingTo(ReactServerRenderingTransaction);
 
 module.exports = ReactServerRenderingTransaction;
 
-},{"./CallbackQueue":106,"./Object.assign":127,"./PooledClass":128,"./ReactPutListenerQueue":180,"./Transaction":204,"./emptyFunction":215}],187:[function(require,module,exports){
+},{"./CallbackQueue":159,"./Object.assign":180,"./PooledClass":181,"./ReactPutListenerQueue":235,"./Transaction":259,"./emptyFunction":271}],242:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2015, Facebook, Inc.
@@ -19398,7 +25728,7 @@ var ReactUpdateQueue = {
 module.exports = ReactUpdateQueue;
 
 }).call(this,require('_process'))
-},{"./Object.assign":127,"./ReactCurrentOwner":140,"./ReactElement":158,"./ReactInstanceMap":168,"./ReactLifeCycle":169,"./ReactUpdates":188,"./invariant":236,"./warning":255,"_process":4}],188:[function(require,module,exports){
+},{"./Object.assign":180,"./ReactCurrentOwner":194,"./ReactElement":212,"./ReactInstanceMap":222,"./ReactLifeCycle":223,"./ReactUpdates":243,"./invariant":292,"./warning":312,"_process":6}],243:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -19680,7 +26010,7 @@ var ReactUpdates = {
 module.exports = ReactUpdates;
 
 }).call(this,require('_process'))
-},{"./CallbackQueue":106,"./Object.assign":127,"./PooledClass":128,"./ReactCurrentOwner":140,"./ReactPerf":176,"./ReactReconciler":182,"./Transaction":204,"./invariant":236,"./warning":255,"_process":4}],189:[function(require,module,exports){
+},{"./CallbackQueue":159,"./Object.assign":180,"./PooledClass":181,"./ReactCurrentOwner":194,"./ReactPerf":230,"./ReactReconciler":237,"./Transaction":259,"./invariant":292,"./warning":312,"_process":6}],244:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -19774,7 +26104,7 @@ var SVGDOMPropertyConfig = {
 
 module.exports = SVGDOMPropertyConfig;
 
-},{"./DOMProperty":110}],190:[function(require,module,exports){
+},{"./DOMProperty":163}],245:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -19969,7 +26299,7 @@ var SelectEventPlugin = {
 
 module.exports = SelectEventPlugin;
 
-},{"./EventConstants":115,"./EventPropagators":120,"./ReactInputSelection":166,"./SyntheticEvent":196,"./getActiveElement":222,"./isTextInputElement":239,"./keyOf":242,"./shallowEqual":251}],191:[function(require,module,exports){
+},{"./EventConstants":168,"./EventPropagators":173,"./ReactInputSelection":220,"./SyntheticEvent":251,"./getActiveElement":278,"./isTextInputElement":295,"./keyOf":299,"./shallowEqual":308}],246:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -20000,7 +26330,7 @@ var ServerReactRootIndex = {
 
 module.exports = ServerReactRootIndex;
 
-},{}],192:[function(require,module,exports){
+},{}],247:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -20428,7 +26758,7 @@ var SimpleEventPlugin = {
 module.exports = SimpleEventPlugin;
 
 }).call(this,require('_process'))
-},{"./EventConstants":115,"./EventPluginUtils":119,"./EventPropagators":120,"./SyntheticClipboardEvent":193,"./SyntheticDragEvent":195,"./SyntheticEvent":196,"./SyntheticFocusEvent":197,"./SyntheticKeyboardEvent":199,"./SyntheticMouseEvent":200,"./SyntheticTouchEvent":201,"./SyntheticUIEvent":202,"./SyntheticWheelEvent":203,"./getEventCharCode":223,"./invariant":236,"./keyOf":242,"./warning":255,"_process":4}],193:[function(require,module,exports){
+},{"./EventConstants":168,"./EventPluginUtils":172,"./EventPropagators":173,"./SyntheticClipboardEvent":248,"./SyntheticDragEvent":250,"./SyntheticEvent":251,"./SyntheticFocusEvent":252,"./SyntheticKeyboardEvent":254,"./SyntheticMouseEvent":255,"./SyntheticTouchEvent":256,"./SyntheticUIEvent":257,"./SyntheticWheelEvent":258,"./getEventCharCode":279,"./invariant":292,"./keyOf":299,"./warning":312,"_process":6}],248:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -20473,7 +26803,7 @@ SyntheticEvent.augmentClass(SyntheticClipboardEvent, ClipboardEventInterface);
 
 module.exports = SyntheticClipboardEvent;
 
-},{"./SyntheticEvent":196}],194:[function(require,module,exports){
+},{"./SyntheticEvent":251}],249:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -20518,7 +26848,7 @@ SyntheticEvent.augmentClass(
 
 module.exports = SyntheticCompositionEvent;
 
-},{"./SyntheticEvent":196}],195:[function(require,module,exports){
+},{"./SyntheticEvent":251}],250:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -20557,7 +26887,7 @@ SyntheticMouseEvent.augmentClass(SyntheticDragEvent, DragEventInterface);
 
 module.exports = SyntheticDragEvent;
 
-},{"./SyntheticMouseEvent":200}],196:[function(require,module,exports){
+},{"./SyntheticMouseEvent":255}],251:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -20723,7 +27053,7 @@ PooledClass.addPoolingTo(SyntheticEvent, PooledClass.threeArgumentPooler);
 
 module.exports = SyntheticEvent;
 
-},{"./Object.assign":127,"./PooledClass":128,"./emptyFunction":215,"./getEventTarget":226}],197:[function(require,module,exports){
+},{"./Object.assign":180,"./PooledClass":181,"./emptyFunction":271,"./getEventTarget":282}],252:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -20762,7 +27092,7 @@ SyntheticUIEvent.augmentClass(SyntheticFocusEvent, FocusEventInterface);
 
 module.exports = SyntheticFocusEvent;
 
-},{"./SyntheticUIEvent":202}],198:[function(require,module,exports){
+},{"./SyntheticUIEvent":257}],253:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -20808,7 +27138,7 @@ SyntheticEvent.augmentClass(
 
 module.exports = SyntheticInputEvent;
 
-},{"./SyntheticEvent":196}],199:[function(require,module,exports){
+},{"./SyntheticEvent":251}],254:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -20895,7 +27225,7 @@ SyntheticUIEvent.augmentClass(SyntheticKeyboardEvent, KeyboardEventInterface);
 
 module.exports = SyntheticKeyboardEvent;
 
-},{"./SyntheticUIEvent":202,"./getEventCharCode":223,"./getEventKey":224,"./getEventModifierState":225}],200:[function(require,module,exports){
+},{"./SyntheticUIEvent":257,"./getEventCharCode":279,"./getEventKey":280,"./getEventModifierState":281}],255:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -20976,7 +27306,7 @@ SyntheticUIEvent.augmentClass(SyntheticMouseEvent, MouseEventInterface);
 
 module.exports = SyntheticMouseEvent;
 
-},{"./SyntheticUIEvent":202,"./ViewportMetrics":205,"./getEventModifierState":225}],201:[function(require,module,exports){
+},{"./SyntheticUIEvent":257,"./ViewportMetrics":260,"./getEventModifierState":281}],256:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21024,7 +27354,7 @@ SyntheticUIEvent.augmentClass(SyntheticTouchEvent, TouchEventInterface);
 
 module.exports = SyntheticTouchEvent;
 
-},{"./SyntheticUIEvent":202,"./getEventModifierState":225}],202:[function(require,module,exports){
+},{"./SyntheticUIEvent":257,"./getEventModifierState":281}],257:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21086,7 +27416,7 @@ SyntheticEvent.augmentClass(SyntheticUIEvent, UIEventInterface);
 
 module.exports = SyntheticUIEvent;
 
-},{"./SyntheticEvent":196,"./getEventTarget":226}],203:[function(require,module,exports){
+},{"./SyntheticEvent":251,"./getEventTarget":282}],258:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21147,7 +27477,7 @@ SyntheticMouseEvent.augmentClass(SyntheticWheelEvent, WheelEventInterface);
 
 module.exports = SyntheticWheelEvent;
 
-},{"./SyntheticMouseEvent":200}],204:[function(require,module,exports){
+},{"./SyntheticMouseEvent":255}],259:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -21388,7 +27718,7 @@ var Transaction = {
 module.exports = Transaction;
 
 }).call(this,require('_process'))
-},{"./invariant":236,"_process":4}],205:[function(require,module,exports){
+},{"./invariant":292,"_process":6}],260:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21417,7 +27747,7 @@ var ViewportMetrics = {
 
 module.exports = ViewportMetrics;
 
-},{}],206:[function(require,module,exports){
+},{}],261:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -21483,7 +27813,7 @@ function accumulateInto(current, next) {
 module.exports = accumulateInto;
 
 }).call(this,require('_process'))
-},{"./invariant":236,"_process":4}],207:[function(require,module,exports){
+},{"./invariant":292,"_process":6}],262:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21517,7 +27847,7 @@ function adler32(data) {
 
 module.exports = adler32;
 
-},{}],208:[function(require,module,exports){
+},{}],263:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21549,7 +27879,7 @@ function camelize(string) {
 
 module.exports = camelize;
 
-},{}],209:[function(require,module,exports){
+},{}],264:[function(require,module,exports){
 /**
  * Copyright 2014-2015, Facebook, Inc.
  * All rights reserved.
@@ -21591,7 +27921,66 @@ function camelizeStyleName(string) {
 
 module.exports = camelizeStyleName;
 
-},{"./camelize":208}],210:[function(require,module,exports){
+},{"./camelize":263}],265:[function(require,module,exports){
+(function (process){
+/**
+ * Copyright 2013-2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @typechecks static-only
+ * @providesModule cloneWithProps
+ */
+
+'use strict';
+
+var ReactElement = require("./ReactElement");
+var ReactPropTransferer = require("./ReactPropTransferer");
+
+var keyOf = require("./keyOf");
+var warning = require("./warning");
+
+var CHILDREN_PROP = keyOf({children: null});
+
+/**
+ * Sometimes you want to change the props of a child passed to you. Usually
+ * this is to add a CSS class.
+ *
+ * @param {ReactElement} child child element you'd like to clone
+ * @param {object} props props you'd like to modify. className and style will be
+ * merged automatically.
+ * @return {ReactElement} a clone of child with props merged in.
+ */
+function cloneWithProps(child, props) {
+  if ("production" !== process.env.NODE_ENV) {
+    ("production" !== process.env.NODE_ENV ? warning(
+      !child.ref,
+      'You are calling cloneWithProps() on a child with a ref. This is ' +
+      'dangerous because you\'re creating a new child which will not be ' +
+      'added as a ref to its parent.'
+    ) : null);
+  }
+
+  var newProps = ReactPropTransferer.mergeProps(props, child.props);
+
+  // Use `child.props.children` if it is provided.
+  if (!newProps.hasOwnProperty(CHILDREN_PROP) &&
+      child.props.hasOwnProperty(CHILDREN_PROP)) {
+    newProps.children = child.props.children;
+  }
+
+  // The current API doesn't retain _owner and _context, which is why this
+  // doesn't use ReactElement.cloneAndReplaceProps.
+  return ReactElement.createElement(child.type, newProps);
+}
+
+module.exports = cloneWithProps;
+
+}).call(this,require('_process'))
+},{"./ReactElement":212,"./ReactPropTransferer":231,"./keyOf":299,"./warning":312,"_process":6}],266:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21635,7 +28024,7 @@ function containsNode(outerNode, innerNode) {
 
 module.exports = containsNode;
 
-},{"./isTextNode":240}],211:[function(require,module,exports){
+},{"./isTextNode":296}],267:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21721,7 +28110,7 @@ function createArrayFromMixed(obj) {
 
 module.exports = createArrayFromMixed;
 
-},{"./toArray":253}],212:[function(require,module,exports){
+},{"./toArray":310}],268:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -21783,7 +28172,7 @@ function createFullPageComponent(tag) {
 module.exports = createFullPageComponent;
 
 }).call(this,require('_process'))
-},{"./ReactClass":134,"./ReactElement":158,"./invariant":236,"_process":4}],213:[function(require,module,exports){
+},{"./ReactClass":187,"./ReactElement":212,"./invariant":292,"_process":6}],269:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -21873,7 +28262,7 @@ function createNodesFromMarkup(markup, handleScript) {
 module.exports = createNodesFromMarkup;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":121,"./createArrayFromMixed":211,"./getMarkupWrap":228,"./invariant":236,"_process":4}],214:[function(require,module,exports){
+},{"./ExecutionEnvironment":174,"./createArrayFromMixed":267,"./getMarkupWrap":284,"./invariant":292,"_process":6}],270:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21931,7 +28320,7 @@ function dangerousStyleValue(name, value) {
 
 module.exports = dangerousStyleValue;
 
-},{"./CSSProperty":104}],215:[function(require,module,exports){
+},{"./CSSProperty":157}],271:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -21965,7 +28354,7 @@ emptyFunction.thatReturnsArgument = function(arg) { return arg; };
 
 module.exports = emptyFunction;
 
-},{}],216:[function(require,module,exports){
+},{}],272:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -21989,7 +28378,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = emptyObject;
 
 }).call(this,require('_process'))
-},{"_process":4}],217:[function(require,module,exports){
+},{"_process":6}],273:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22029,7 +28418,7 @@ function escapeTextContentForBrowser(text) {
 
 module.exports = escapeTextContentForBrowser;
 
-},{}],218:[function(require,module,exports){
+},{}],274:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -22102,7 +28491,7 @@ function findDOMNode(componentOrElement) {
 module.exports = findDOMNode;
 
 }).call(this,require('_process'))
-},{"./ReactCurrentOwner":140,"./ReactInstanceMap":168,"./ReactMount":171,"./invariant":236,"./isNode":238,"./warning":255,"_process":4}],219:[function(require,module,exports){
+},{"./ReactCurrentOwner":194,"./ReactInstanceMap":222,"./ReactMount":225,"./invariant":292,"./isNode":294,"./warning":312,"_process":6}],275:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -22160,7 +28549,7 @@ function flattenChildren(children) {
 module.exports = flattenChildren;
 
 }).call(this,require('_process'))
-},{"./traverseAllChildren":254,"./warning":255,"_process":4}],220:[function(require,module,exports){
+},{"./traverseAllChildren":311,"./warning":312,"_process":6}],276:[function(require,module,exports){
 /**
  * Copyright 2014-2015, Facebook, Inc.
  * All rights reserved.
@@ -22189,7 +28578,7 @@ function focusNode(node) {
 
 module.exports = focusNode;
 
-},{}],221:[function(require,module,exports){
+},{}],277:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22220,7 +28609,7 @@ var forEachAccumulated = function(arr, cb, scope) {
 
 module.exports = forEachAccumulated;
 
-},{}],222:[function(require,module,exports){
+},{}],278:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22249,7 +28638,7 @@ function getActiveElement() /*?DOMElement*/ {
 
 module.exports = getActiveElement;
 
-},{}],223:[function(require,module,exports){
+},{}],279:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22301,7 +28690,7 @@ function getEventCharCode(nativeEvent) {
 
 module.exports = getEventCharCode;
 
-},{}],224:[function(require,module,exports){
+},{}],280:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22406,7 +28795,7 @@ function getEventKey(nativeEvent) {
 
 module.exports = getEventKey;
 
-},{"./getEventCharCode":223}],225:[function(require,module,exports){
+},{"./getEventCharCode":279}],281:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22453,7 +28842,7 @@ function getEventModifierState(nativeEvent) {
 
 module.exports = getEventModifierState;
 
-},{}],226:[function(require,module,exports){
+},{}],282:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22484,7 +28873,7 @@ function getEventTarget(nativeEvent) {
 
 module.exports = getEventTarget;
 
-},{}],227:[function(require,module,exports){
+},{}],283:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22528,7 +28917,7 @@ function getIteratorFn(maybeIterable) {
 
 module.exports = getIteratorFn;
 
-},{}],228:[function(require,module,exports){
+},{}],284:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -22647,7 +29036,7 @@ function getMarkupWrap(nodeName) {
 module.exports = getMarkupWrap;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":121,"./invariant":236,"_process":4}],229:[function(require,module,exports){
+},{"./ExecutionEnvironment":174,"./invariant":292,"_process":6}],285:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22722,7 +29111,7 @@ function getNodeForCharacterOffset(root, offset) {
 
 module.exports = getNodeForCharacterOffset;
 
-},{}],230:[function(require,module,exports){
+},{}],286:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22757,7 +29146,7 @@ function getReactRootElementInContainer(container) {
 
 module.exports = getReactRootElementInContainer;
 
-},{}],231:[function(require,module,exports){
+},{}],287:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22794,7 +29183,7 @@ function getTextContentAccessor() {
 
 module.exports = getTextContentAccessor;
 
-},{"./ExecutionEnvironment":121}],232:[function(require,module,exports){
+},{"./ExecutionEnvironment":174}],288:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22834,7 +29223,7 @@ function getUnboundedScrollPosition(scrollable) {
 
 module.exports = getUnboundedScrollPosition;
 
-},{}],233:[function(require,module,exports){
+},{}],289:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22867,7 +29256,7 @@ function hyphenate(string) {
 
 module.exports = hyphenate;
 
-},{}],234:[function(require,module,exports){
+},{}],290:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -22908,7 +29297,7 @@ function hyphenateStyleName(string) {
 
 module.exports = hyphenateStyleName;
 
-},{"./hyphenate":233}],235:[function(require,module,exports){
+},{"./hyphenate":289}],291:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -23046,7 +29435,7 @@ function instantiateReactComponent(node, parentCompositeType) {
 module.exports = instantiateReactComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":127,"./ReactCompositeComponent":138,"./ReactEmptyComponent":160,"./ReactNativeComponent":174,"./invariant":236,"./warning":255,"_process":4}],236:[function(require,module,exports){
+},{"./Object.assign":180,"./ReactCompositeComponent":192,"./ReactEmptyComponent":214,"./ReactNativeComponent":228,"./invariant":292,"./warning":312,"_process":6}],292:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -23103,7 +29492,7 @@ var invariant = function(condition, format, a, b, c, d, e, f) {
 module.exports = invariant;
 
 }).call(this,require('_process'))
-},{"_process":4}],237:[function(require,module,exports){
+},{"_process":6}],293:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23168,7 +29557,7 @@ function isEventSupported(eventNameSuffix, capture) {
 
 module.exports = isEventSupported;
 
-},{"./ExecutionEnvironment":121}],238:[function(require,module,exports){
+},{"./ExecutionEnvironment":174}],294:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23195,7 +29584,7 @@ function isNode(object) {
 
 module.exports = isNode;
 
-},{}],239:[function(require,module,exports){
+},{}],295:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23238,7 +29627,7 @@ function isTextInputElement(elem) {
 
 module.exports = isTextInputElement;
 
-},{}],240:[function(require,module,exports){
+},{}],296:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23263,7 +29652,48 @@ function isTextNode(object) {
 
 module.exports = isTextNode;
 
-},{"./isNode":238}],241:[function(require,module,exports){
+},{"./isNode":294}],297:[function(require,module,exports){
+/**
+ * Copyright 2013-2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule joinClasses
+ * @typechecks static-only
+ */
+
+'use strict';
+
+/**
+ * Combines multiple className strings into one.
+ * http://jsperf.com/joinclasses-args-vs-array
+ *
+ * @param {...?string} classes
+ * @return {string}
+ */
+function joinClasses(className/*, ... */) {
+  if (!className) {
+    className = '';
+  }
+  var nextClass;
+  var argLength = arguments.length;
+  if (argLength > 1) {
+    for (var ii = 1; ii < argLength; ii++) {
+      nextClass = arguments[ii];
+      if (nextClass) {
+        className = (className ? className + ' ' : '') + nextClass;
+      }
+    }
+  }
+  return className;
+}
+
+module.exports = joinClasses;
+
+},{}],298:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -23318,7 +29748,7 @@ var keyMirror = function(obj) {
 module.exports = keyMirror;
 
 }).call(this,require('_process'))
-},{"./invariant":236,"_process":4}],242:[function(require,module,exports){
+},{"./invariant":292,"_process":6}],299:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23354,7 +29784,7 @@ var keyOf = function(oneKeyObj) {
 
 module.exports = keyOf;
 
-},{}],243:[function(require,module,exports){
+},{}],300:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23407,7 +29837,7 @@ function mapObject(object, callback, context) {
 
 module.exports = mapObject;
 
-},{}],244:[function(require,module,exports){
+},{}],301:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23440,7 +29870,7 @@ function memoizeStringOnly(callback) {
 
 module.exports = memoizeStringOnly;
 
-},{}],245:[function(require,module,exports){
+},{}],302:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -23480,7 +29910,7 @@ function onlyChild(children) {
 module.exports = onlyChild;
 
 }).call(this,require('_process'))
-},{"./ReactElement":158,"./invariant":236,"_process":4}],246:[function(require,module,exports){
+},{"./ReactElement":212,"./invariant":292,"_process":6}],303:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23508,7 +29938,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = performance || {};
 
-},{"./ExecutionEnvironment":121}],247:[function(require,module,exports){
+},{"./ExecutionEnvironment":174}],304:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23536,7 +29966,7 @@ var performanceNow = performance.now.bind(performance);
 
 module.exports = performanceNow;
 
-},{"./performance":246}],248:[function(require,module,exports){
+},{"./performance":303}],305:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23564,7 +29994,7 @@ function quoteAttributeValueForBrowser(value) {
 
 module.exports = quoteAttributeValueForBrowser;
 
-},{"./escapeTextContentForBrowser":217}],249:[function(require,module,exports){
+},{"./escapeTextContentForBrowser":273}],306:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23653,7 +30083,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = setInnerHTML;
 
-},{"./ExecutionEnvironment":121}],250:[function(require,module,exports){
+},{"./ExecutionEnvironment":174}],307:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23695,7 +30125,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = setTextContent;
 
-},{"./ExecutionEnvironment":121,"./escapeTextContentForBrowser":217,"./setInnerHTML":249}],251:[function(require,module,exports){
+},{"./ExecutionEnvironment":174,"./escapeTextContentForBrowser":273,"./setInnerHTML":306}],308:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23739,7 +30169,7 @@ function shallowEqual(objA, objB) {
 
 module.exports = shallowEqual;
 
-},{}],252:[function(require,module,exports){
+},{}],309:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -23843,7 +30273,7 @@ function shouldUpdateReactComponent(prevElement, nextElement) {
 module.exports = shouldUpdateReactComponent;
 
 }).call(this,require('_process'))
-},{"./warning":255,"_process":4}],253:[function(require,module,exports){
+},{"./warning":312,"_process":6}],310:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -23915,7 +30345,7 @@ function toArray(obj) {
 module.exports = toArray;
 
 }).call(this,require('_process'))
-},{"./invariant":236,"_process":4}],254:[function(require,module,exports){
+},{"./invariant":292,"_process":6}],311:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -24168,7 +30598,7 @@ function traverseAllChildren(children, callback, traverseContext) {
 module.exports = traverseAllChildren;
 
 }).call(this,require('_process'))
-},{"./ReactElement":158,"./ReactFragment":164,"./ReactInstanceHandles":167,"./getIteratorFn":227,"./invariant":236,"./warning":255,"_process":4}],255:[function(require,module,exports){
+},{"./ReactElement":212,"./ReactFragment":218,"./ReactInstanceHandles":221,"./getIteratorFn":283,"./invariant":292,"./warning":312,"_process":6}],312:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -24231,965 +30661,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = warning;
 
 }).call(this,require('_process'))
-},{"./emptyFunction":215,"_process":4}],256:[function(require,module,exports){
+},{"./emptyFunction":271,"_process":6}],313:[function(require,module,exports){
 module.exports = require('./lib/React');
 
-},{"./lib/React":129}],257:[function(require,module,exports){
-(function (root, factory) {
-    if (typeof define === 'function' && define.amd) { // AMD. Register as an anonymous module.
-        define(['react'], factory);
-    } else if (typeof exports === 'object') {
-        // Node. Does not work with strict CommonJS, but
-        // only CommonJS-like environments that support module.exports,
-        // like Node.
-        module.exports = factory(require('react'));
-    } else {
-        // Browser globals (root is window)
-        root.Reactable = factory(root.React);
-    }
-}(this, function (React) {
-    "use strict";
-    var exports = {};
-
-    // Array.prototype.map polyfill - see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map#Polyfill
-    // Production steps of ECMA-262, Edition 5, 15.4.4.19
-    // Reference: http://es5.github.io/#x15.4.4.19
-    if (!Array.prototype.map) {
-
-        Array.prototype.map = function(callback, thisArg) {
-            var T, A, k;
-
-            if (this === null) {
-                throw new TypeError(" this is null or not defined");
-            }
-
-            var O = Object(this);
-            var len = O.length >>> 0;
-
-            if (typeof callback !== "function") {
-                throw new TypeError(callback + " is not a function");
-            }
-
-            if (arguments.length > 1) {
-                T = thisArg;
-            }
-
-            A = new Array(len);
-            k = 0;
-
-            while (k < len) {
-                var kValue, mappedValue;
-                if (k in O) {
-                    kValue = O[k];
-                    mappedValue = callback.call(T, kValue, k, O);
-                    A[k] = mappedValue;
-                }
-                k++;
-            }
-            return A;
-        };
-    }
-
-    // Array.prototype.indexOf polyfill for IE8
-    if (!Array.prototype.indexOf) {
-        Array.prototype.indexOf = function(elt /*, from*/) {
-            var len = this.length >>> 0;
-
-            var from = Number(arguments[1]) || 0;
-            from = (from < 0) ? Math.ceil(from) : Math.floor(from);
-            if (from < 0) {
-                from += len;
-            }
-
-            for (; from < len; from++) {
-                if (from in this && this[from] === elt) {
-                    return from;
-                }
-            }
-            return -1;
-        };
-    }
-
-    // Array.prototype.find polyfill - see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
-    if (!Array.prototype.find) {
-        Object.defineProperty(Array.prototype, 'find', {
-            enumerable: false,
-            configurable: true,
-            writable: true,
-            value: function(predicate) {
-                if (this === null) {
-                    throw new TypeError('Array.prototype.find called on null or undefined');
-                }
-                if (typeof predicate !== 'function') {
-                    throw new TypeError('predicate must be a function');
-                }
-                var list = Object(this);
-                var length = list.length >>> 0;
-                var thisArg = arguments[1];
-                var value;
-
-                for (var i = 0; i < length; i++) {
-                    if (i in list) {
-                        value = list[i];
-                        if (predicate.call(thisArg, value, i, list)) {
-                            return value;
-                        }
-                    }
-                }
-                return undefined;
-            }
-        });
-    }
-
-    if (!Array.isArray) {
-        Array.isArray = function (value) {
-            return Object.prototype.toString.call(value) === '[object Array]';
-        };
-    }
-
-    if (!Object.assign) {
-        Object.defineProperty(Object, "assign", {
-            enumerable: false,
-            configurable: true,
-            writable: true,
-            value: function(target, firstSource) {
-                if (target === undefined || target === null)
-                    throw new TypeError("Cannot convert first argument to object");
-                var to = Object(target);
-                for (var i = 1; i < arguments.length; i++) {
-                    var nextSource = arguments[i];
-                    if (nextSource === undefined || nextSource === null) continue;
-                    var keysArray = Object.keys(Object(nextSource));
-                    for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
-                        var nextKey = keysArray[nextIndex];
-                        var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
-                        if (desc !== undefined && desc.enumerable) to[nextKey] = nextSource[nextKey];
-                    }
-                }
-                return to;
-            }
-        });
-    }
-
-    function Unsafe(content) {
-        this.content = content;
-    }
-
-    Unsafe.prototype.toString = function() {
-        return this.content;
-    };
-
-    function stringable(thing) {
-        return thing !== null && typeof(thing) !== 'undefined' && typeof(thing.toString === 'function');
-    }
-
-    // this is a bit hacky - it'd be nice if React exposed an API for this
-    function isReactComponent(thing) {
-        return thing !== null && typeof(thing) === 'object' && typeof(thing.props) !== 'undefined';
-    }
-
-    React.Children.children = function(children) {
-        return React.Children.map(children, function(x) { return x; }) || [];
-    };
-
-    exports.unsafe = function(str) {
-        return new Unsafe(str);
-    };
-
-    exports.Sort = {
-        Numeric: function(a, b) {
-            var valA = parseFloat(a.toString().replace(/,/g,''));
-            var valB = parseFloat(b.toString().replace(/,/g,''));
-
-            // Sort non-numeric values alphabetically at the bottom of the list
-            if (isNaN(valA) && isNaN(valB)) {
-                valA = a;
-                valB = b;
-            } else {
-                if (isNaN(valA)) {
-                    return 1;
-                }
-                if (isNaN(valB)) {
-                    return -1;
-                }
-            }
-
-            if (valA < valB) {
-                return -1;
-            }
-            if (valA > valB) {
-                return 1;
-            }
-
-            return 0;
-        },
-
-        NumericInteger: function(a, b) {
-          if (isNaN(a) || isNaN(b)) {
-            return a > b ? 1 : -1;
-          }
-
-          return a - b;
-        },
-
-        Currency: function(a, b) {
-            // Parse out dollar signs, then do a regular numeric sort
-            // TODO: handle non-American currency
-
-            if (a[0] === '$') {
-                a = a.substring(1);
-            }
-            if (b[0] === '$') {
-                b = b.substring(1);
-            }
-
-            return exports.Sort.Numeric(a, b);
-        },
-
-        Date: function(a, b) {
-            // Note: this function tries to do a standard javascript string -> date conversion
-            // If you need more control over the date string format, consider using a different
-            // date library and writing your own function
-            var valA = Date.parse(a);
-            var valB = Date.parse(b);
-
-            // Handle non-date values with numeric sort
-            // Sort non-numeric values alphabetically at the bottom of the list
-            if (isNaN(valA) || isNaN(valB)) {
-                return exports.Sort.Numeric(a, b);
-            }
-
-            if (valA > valB) {
-                return 1;
-            }
-            if (valB > valA) {
-                return -1;
-            }
-
-            return 0;
-        },
-
-        CaseInsensitive: function(a, b) {
-            return a.toLowerCase().localeCompare(b.toLowerCase());
-        }
-    };
-
-    var Td = exports.Td = React.createClass({displayName: "Td",
-        handleClick: function(e){
-            if (typeof this.props.handleClick === 'function') {
-                return this.props.handleClick(e, this);
-            }
-        },
-        render: function() {
-            var tdProps = {
-                className: this.props.className,
-                onClick: this.handleClick
-            };
-
-            // Attach any properties on the column to this Td object to allow things like custom event handlers
-            if (typeof(this.props.column) === 'object') {
-                for (var key in this.props.column) {
-                    if (key !== 'key' && key !== 'name') {
-                        tdProps[key] = this.props.column[key];
-                    }
-                }
-            }
-
-            var data = this.props.data;
-
-            if (typeof(this.props.children) !== 'undefined') {
-                if (isReactComponent(this.props.children)) {
-                    data = this.props.children;
-                } else if (
-                    typeof(this.props.data) === 'undefined' &&
-                        stringable(this.props.children)
-                ) {
-                    data = this.props.children.toString();
-                }
-
-                if (this.props.children instanceof Unsafe) {
-                    tdProps.dangerouslySetInnerHTML = { __html: this.props.children.toString() };
-                } else {
-                    tdProps.children = data;
-                }
-            }
-
-            return React.DOM.td(tdProps);
-        }
-    });
-
-
-    var Tr = exports.Tr = React.createClass({displayName: "Tr",
-        statics: {
-            childNode: Td,
-            dataType: 'object'
-        },
-        render: function() {
-            var children = toArray(React.Children.children(this.props.children));
-
-            if (
-                this.props.data &&
-                    this.props.columns &&
-                        typeof this.props.columns.map === 'function'
-            ) {
-                if (typeof(children.concat) === 'undefined') { console.log(children); }
-
-                children = children.concat(this.props.columns.map(function(column, i) {
-                    if (this.props.data.hasOwnProperty(column.key)) {
-                        var value = this.props.data[column.key];
-                        var props = {};
-
-                        if (
-                            typeof(value) !== 'undefined' &&
-                                value !== null &&
-                                    value.__reactableMeta === true
-                        ) {
-                            props = value.props;
-                            value = value.value;
-                        }
-
-                        return React.createElement(Td, React.__spread({column: column, key: column.key},  props), value);
-                    } else {
-                        return React.createElement(Td, {column: column, key: column.key});
-                    }
-                }.bind(this)));
-            }
-
-            // Manually transfer props
-            var props = filterPropsFrom(this.props);
-
-            return React.DOM.tr(props, children);
-        }
-    });
-
-    var Thead = exports.Thead = React.createClass({displayName: "Thead",
-        getColumns: function() {
-            return React.Children.map(this.props.children, function(th) {
-                if (typeof th.props.children === 'string') {
-                    return th.props.children;
-                } else {
-                    throw new TypeError('<th> must have a string child');
-                }
-            });
-        },
-        handleClickTh: function (column) {
-            this.props.onSort(column.key);
-        },
-        render: function() {
-
-            // Declare the list of Ths
-            var Ths = [];
-            for (var index = 0; index < this.props.columns.length; index++) {
-                var column = this.props.columns[index];
-                var sortClass = '';
-
-                if (this.props.sortableColumns[column.key]) {
-                    sortClass += 'reactable-header-sortable ';
-                }
-
-                if (this.props.sort.column === column.key) {
-                    sortClass += 'reactable-header-sort';
-                    if (this.props.sort.direction === 1) {
-                        sortClass += '-asc';
-                    }
-                    else {
-                        sortClass += '-desc';
-                    }
-                }
-
-                Ths.push(
-                    React.createElement(Th, {className: sortClass, key: index, onClick: this.handleClickTh.bind(this, column)}, 
-                        column.label
-                    )
-                );
-            }
-
-            // Manually transfer props
-            var props = filterPropsFrom(this.props);
-
-            return (
-                React.createElement("thead", React.__spread({},  props), 
-                    this.props.filtering === true ?
-                        React.createElement(Filterer, {
-                            colSpan: this.props.columns.length, 
-                            onFilter: this.props.onFilter, 
-                            placeholder: this.props.filterPlaceholder, 
-                            value: this.props.currentFilter}
-                        ) : '', 
-                    React.createElement("tr", {className: "reactable-column-header"}, Ths)
-                )
-            );
-        }
-    });
-
-    var Th = exports.Th = React.createClass({displayName: "Th",
-        render: function() {
-                var childProps
-            if (this.props.children instanceof Unsafe) {
-                return React.createElement("th", React.__spread({},  filterPropsFrom(this.props), 
-                    {dangerouslySetInnerHTML: {__html: this.props.children.toString()}}))
-            } else {
-                return React.createElement("th", React.__spread({},  filterPropsFrom(this.props)), 
-                    this.props.children
-                );
-            }
-        }
-    });
-
-    var FiltererInput = React.createClass({displayName: "FiltererInput",
-        onChange: function() {
-            this.props.onFilter(this.getDOMNode().value);
-        },
-        render: function() {
-            return (
-                React.createElement("input", {type: "text", 
-                    className: "reactable-filter-input", 
-                    placeholder: this.props.placeholder, 
-                    value: this.props.value, 
-                    onKeyUp: this.onChange, 
-                    onChange: this.onChange})
-            );
-        }
-    });
-
-    var Filterer = React.createClass({displayName: "Filterer",
-        render: function() {
-            if (typeof this.props.colSpan === 'undefined') {
-                throw new TypeError('Must pass a colSpan argument to Filterer');
-            }
-
-            return (
-                React.createElement("tr", {className: "reactable-filterer"}, 
-                    React.createElement("td", {colSpan: this.props.colSpan}, 
-                        React.createElement(FiltererInput, {onFilter: this.props.onFilter, 
-                            value: this.props.value, 
-                            placeholder: this.props.placeholder})
-                    )
-                )
-            );
-        }
-    });
-
-    var Paginator = React.createClass({displayName: "Paginator",
-        render: function() {
-            if (typeof this.props.colSpan === 'undefined') {
-                throw new TypeError('Must pass a colSpan argument to Paginator');
-            }
-
-            if (typeof this.props.numPages === 'undefined') {
-                throw new TypeError('Must pass a non-zero numPages argument to Paginator');
-            }
-
-            if (typeof this.props.currentPage === 'undefined') {
-                throw new TypeError('Must pass a currentPage argument to Paginator');
-            }
-
-            var pageButtons = [];
-            for (var i = 0; i < this.props.numPages; i++) {
-                var pageNum = i;
-                var className = "reactable-page-button";
-                if (this.props.currentPage === i) {
-                    className += " reactable-current-page";
-                }
-
-                pageButtons.push(
-                    React.createElement("a", {className: className, key: i, 
-                        // create function to get around for-loop closure issue
-                        onClick: (function(pageNum) {
-                            return function() {
-                                this.props.onPageChange(pageNum);
-                            }.bind(this);
-                        }.bind(this))(i)}, i + 1)
-                );
-            }
-
-            return (
-                React.createElement("tbody", {className: "reactable-pagination"}, 
-                    React.createElement("tr", null, 
-                        React.createElement("td", {colSpan: this.props.colSpan}, 
-                            pageButtons
-                        )
-                    )
-                )
-            );
-        }
-    });
-
-    var Table = exports.Table = React.createClass({displayName: "Table",
-        // Translate a user defined column array to hold column objects if strings are specified
-        // (e.g. ['column1'] => [{key: 'column1', label: 'column1'}])
-        translateColumnsArray: function(columns) {
-            return columns.map(function(column, i) {
-                if (typeof(column) === 'string') {
-                    return {
-                        key:   column,
-                        label: column
-                    };
-                } else {
-                    if (typeof(column.sortable) !== 'undefined') {
-                        var sortFunction = column.sortable === true ? 'default' : column.sortable;
-                        this._sortable[column.key] = sortFunction;
-                    }
-
-                    return column;
-                }
-            }.bind(this));
-        },
-        parseChildData: function(props) {
-            var data = [];
-
-            // Transform any children back to a data array
-            if (typeof(props.children) !== 'undefined') {
-                React.Children.forEach(props.children, function(child) {
-                    // TODO: figure out a new way to determine the type of a component
-                    /*
-                       if (child.type.ConvenienceConstructor !== Tr) {
-                       return; // (continue)
-                       }
-                       */
-                    if (child == null || typeof(child.props) !== 'object') { return; }
-
-                    var childData = child.props.data || {};
-
-                    React.Children.forEach(child.props.children, function(descendant) {
-                        // TODO
-                        /* if (descendant.type.ConvenienceConstructor === Td) { */
-                        if (
-                            typeof(descendant) !== 'object' ||
-                            descendant == null
-                        ) {
-                            return;
-                        } else if (typeof(descendant.props.column) !== 'undefined') {
-                            var value;
-
-                            if (typeof(descendant.props.data) !== 'undefined') {
-                                value = descendant.props.data;
-                            } else if (typeof(descendant.props.children) !== 'undefined') {
-                                value = descendant.props.children;
-                            } else {
-                                console.warn('exports.Td specified without ' +
-                                             'a `data` property or children, ' +
-                                             'ignoring');
-                                return;
-                            }
-
-                            childData[descendant.props.column] = {
-                                value: value,
-                                props: filterPropsFrom(descendant.props),
-                                __reactableMeta: true
-                            };
-                        } else {
-                            console.warn('exports.Td specified without a ' +
-                                         '`column` property, ignoring');
-                        }
-                    });
-
-                    data.push({
-                        data: childData,
-                        props: filterPropsFrom(child.props),
-                        __reactableMeta: true
-                    });
-                }.bind(this));
-            }
-
-            return data;
-        },
-
-        initialize: function(props) {
-            this.data = props.data || [];
-            this.data = this.data.concat(this.parseChildData(props));
-            this.initializeSorts(props);
-        },
-
-        initializeSorts: function() {
-            this._sortable = {};
-            // Transform sortable properties into a more friendly list
-            for (var i in this.props.sortable) {
-                var column = this.props.sortable[i];
-                var columnName, sortFunction;
-
-                if (column instanceof Object) {
-                    if (typeof(column.column) !== 'undefined') {
-                        columnName = column.column;
-                    } else {
-                        console.warn('Sortable column specified without column name');
-                        return;
-                    }
-
-                    if (typeof(column.sortFunction) === 'function') {
-                        sortFunction = column.sortFunction;
-                    } else {
-                        sortFunction = 'default';
-                    }
-                } else {
-                    columnName      = column;
-                    sortFunction    = 'default';
-                }
-
-                this._sortable[columnName] = sortFunction;
-            }
-        },
-
-        getDefaultProps: function() {
-            var defaultProps = {
-                sortBy: false,
-                defaultSort: false,
-                itemsPerPage: 0,
-            };
-            return defaultProps;
-        },
-
-        getInitialState: function() {
-            var initialState = {
-                currentPage: 0,
-                currentSort: {
-                    column: null,
-                    direction: 1
-                },
-                filter: ''
-            };
-
-            // Set the state of the current sort to the default sort
-            if (this.props.sortBy !== false || this.props.defaultSort !== false) {
-                var sortingColumn = this.props.sortBy || this.props.defaultSort;
-                initialState.currentSort = this.getCurrentSort(sortingColumn);
-            }
-            return initialState;
-        },
-
-        getCurrentSort: function(column) {
-            var columnName, sortDirection;
-
-            if (column instanceof Object) {
-                if (typeof(column.column) !== 'undefined') {
-                    columnName = column.column;
-                } else {
-                    console.warn('Default column specified without column name');
-                    return;
-                }
-
-                if (typeof(column.direction) !== 'undefined') {
-                    if (column.direction === 1 || column.direction === 'asc') {
-                        sortDirection = 1;
-                    } else if (column.direction === -1 || column.direction === 'desc') {
-                        sortDirection = -1;
-                    } else {
-                        console.warn('Invalid default sort specified.  Defaulting to ascending');
-                        sortDirection = 1;
-                    }
-                } else {
-                    sortDirection = 1;
-                }
-            } else {
-                columnName      = column;
-                sortDirection   = 1;
-            }
-
-            return {
-                column: columnName,
-                direction: sortDirection
-            };
-        },
-
-        updateCurrentSort: function(sortBy) {
-            if (sortBy !== false &&
-                sortBy.column !== this.state.currentSort.column &&
-                    sortBy.direction !== this.state.currentSort.direction) {
-
-                this.setState({ currentSort: this.getCurrentSort(sortBy) });
-            }
-        },
-
-        componentWillMount: function() {
-            this.initialize(this.props);
-            this.sortByCurrentSort();
-        },
-        componentWillReceiveProps: function(nextProps) {
-            this.initialize(nextProps);
-            this.updateCurrentSort(nextProps.sortBy);
-            this.sortByCurrentSort();
-        },
-        onPageChange: function(page) {
-            this.setState({ currentPage: page });
-        },
-        filterBy: function(filter) {
-            this.setState({ filter: filter });
-        },
-        applyFilter: function(filter, children) {
-            // Helper function to apply filter text to a list of table rows
-            filter = filter.toLowerCase();
-            var matchedChildren = [];
-
-            for (var i = 0; i < children.length; i++) {
-                var data = children[i].props.data;
-
-                for (var j = 0; j < this.props.filterable.length; j++) {
-                    var filterColumn = this.props.filterable[j];
-
-                    if (
-                        typeof(data[filterColumn]) !== 'undefined' &&
-                            extractDataFrom(data, filterColumn).toString().toLowerCase().indexOf(filter) > -1
-                    ) {
-                        matchedChildren.push(children[i]);
-                        break;
-                    }
-                }
-            }
-
-            return matchedChildren;
-        },
-        sortByCurrentSort: function(){
-            // Apply a sort function according to the current sort in the state.
-            // This allows us to perform a default sort even on a non sortable column.
-            var currentSort = this.state.currentSort;
-
-            if (currentSort.column === null) {
-                return;
-            }
-
-            this.data.sort(function(a, b){
-                var keyA = extractDataFrom(a, currentSort.column);
-                keyA = (keyA instanceof Unsafe) ? keyA.toString() : keyA || '';
-                var keyB = extractDataFrom(b, currentSort.column);
-                keyB = (keyB instanceof Unsafe) ? keyB.toString() : keyB || '';
-
-                // Default sort
-                if (
-                    typeof(this._sortable[currentSort.column]) === 'undefined' ||
-                        this._sortable[currentSort.column] === 'default'
-                ) {
-
-                    // Reverse direction if we're doing a reverse sort
-                    if (keyA < keyB) {
-                        return -1 * currentSort.direction;
-                    }
-
-                    if (keyA > keyB) {
-                        return 1 * currentSort.direction;
-                    }
-
-                    return 0;
-                } else {
-                    // Reverse columns if we're doing a reverse sort
-                    if (currentSort.direction === 1) {
-                        return this._sortable[currentSort.column](keyA, keyB);
-                    } else {
-                        return this._sortable[currentSort.column](keyB, keyA);
-                    }
-                }
-            }.bind(this));
-        },
-        onSort: function(column) {
-            // Don't perform sort on unsortable columns
-            if (typeof(this._sortable[column]) === 'undefined') {
-                return;
-            }
-
-            var currentSort = this.state.currentSort;
-
-            if (currentSort.column === column) {
-                currentSort.direction *= -1;
-            } else {
-                currentSort.column = column;
-                currentSort.direction = 1;
-            }
-
-            // Set the current sort and pass it to the sort function
-            this.setState({ currentSort: currentSort });
-            this.sortByCurrentSort();
-        },
-        render: function() {
-            var children = [];
-            var columns;
-            var userColumnsSpecified = false;
-
-            if (
-                this.props.children &&
-                    this.props.children.length > 0 &&
-                        this.props.children[0].type.ConvenienceConstructor === Thead
-            ) {
-                columns = this.props.children[0].getColumns();
-            } else {
-                columns = this.props.columns || [];
-            }
-
-            if (columns.length > 0) {
-                userColumnsSpecified = true;
-                columns = this.translateColumnsArray(columns);
-            }
-
-            // Build up table rows
-            if (this.data && typeof this.data.map === 'function') {
-                // Build up the columns array
-                children = children.concat(this.data.map(function(rawData, i) {
-                    var data = rawData;
-                    var props = {};
-                    if (rawData.__reactableMeta === true) {
-                        data = rawData.data;
-                        props = rawData.props;
-                    }
-
-                    // Loop through the keys in each data row and build a td for it
-                    for (var k in data) {
-                        if (data.hasOwnProperty(k)) {
-                            // Update the columns array with the data's keys if columns were not
-                            // already specified
-                            if (userColumnsSpecified === false) {
-                                var column = {
-                                    key:   k,
-                                    label: k
-                                };
-
-                                // Only add a new column if it doesn't already exist in the columns array
-                                if (
-                                    columns.find(function(element) {
-                                    return element.key === column.key;
-                                }) === undefined
-                                ) {
-                                    columns.push(column);
-                                }
-                            }
-                        }
-                    }
-
-                    return (
-                        React.createElement(Tr, React.__spread({columns: columns, key: i, data: data},  props))
-                    );
-                }.bind(this)));
-            }
-
-            if (this.props.sortable === true) {
-                for (var i = 0; i < columns.length; i++) {
-                    this._sortable[columns[i].key] = 'default';
-                }
-            }
-
-            // Determine if we render the filter box
-            var filtering = false;
-            if (
-                this.props.filterable &&
-                    Array.isArray(this.props.filterable) &&
-                        this.props.filterable.length > 0
-            ) {
-                filtering = true;
-            }
-
-            // Apply filters
-            var filteredChildren = children;
-            if (this.state.filter !== '') {
-                filteredChildren = this.applyFilter(this.state.filter, filteredChildren);
-            }
-
-            // Determine pagination properties and which columns to display
-            var itemsPerPage = 0;
-            var pagination = false;
-            var numPages;
-            var currentPage = this.state.currentPage;
-
-            var currentChildren = filteredChildren;
-            if (this.props.itemsPerPage > 0) {
-                itemsPerPage = this.props.itemsPerPage;
-                numPages = Math.ceil(filteredChildren.length / itemsPerPage);
-
-                if (currentPage > numPages - 1) {
-                    currentPage = numPages - 1;
-                }
-
-                pagination = true;
-                currentChildren = filteredChildren.slice(
-                    currentPage * itemsPerPage,
-                    (currentPage + 1) * itemsPerPage
-                );
-            }
-
-            // Manually transfer props
-            var props = filterPropsFrom(this.props);
-
-            return React.createElement("table", React.__spread({},  props), [
-                (columns && columns.length > 0 ?
-                 React.createElement(Thead, {columns: columns, 
-                     filtering: filtering, 
-                     onFilter: this.filterBy, 
-                     filterPlaceholder: this.props.filterPlaceholder, 
-                     currentFilter: this.state.filter, 
-                     sort: this.state.currentSort, 
-                     sortableColumns: this._sortable, 
-                     onSort: this.onSort, 
-                     key: "thead"})
-                 : null
-                ),
-                React.createElement("tbody", {className: "reactable-data", key: "tbody"}, 
-                    currentChildren
-                ),
-                (pagination === true ?
-                 React.createElement(Paginator, {colSpan: columns.length, 
-                     numPages: numPages, 
-                     currentPage: currentPage, 
-                     onPageChange: this.onPageChange, 
-                     key: "paginator"})
-                 : null
-                )
-            ]);
-        }
-    });
-
-    function toArray(obj) {
-        var ret = [];
-        for (var attr in obj) {
-            ret[attr] = obj;
-        }
-
-        return ret;
-    }
-
-    function filterPropsFrom(baseProps) {
-        baseProps = baseProps || {};
-        var props = {};
-        for (var key in baseProps) {
-            if (!(key in internalProps)) {
-                props[key] = baseProps[key];
-            }
-        }
-        return props;
-    }
-
-    function extractDataFrom(key, column) {
-        var value;
-        if (
-            typeof(key) !== 'undefined' &&
-                key !== null &&
-                    key.__reactableMeta === true
-        ) {
-            value = key.data[column];
-        } else {
-            value = key[column];
-        }
-
-        if (
-            typeof(value) !== 'undefined' &&
-                value !== null &&
-                    value.__reactableMeta === true
-        ) {
-            value = (typeof(value.props.value) !== 'undefined' && value.props.value !== null) ?
-                value.props.value : value.value;
-        }
-
-        return (stringable(value) ? value : '');
-    }
-
-    var internalProps = {
-        columns: true,
-        sortable: true,
-        filterable: true,
-        sortBy: true,
-        defaultSort: true,
-        itemsPerPage: true,
-        childNode: true,
-        data: true,
-        children: true
-    };
-
-    return exports;
-}));
-
-},{"react":256}]},{},[1]);
+},{"./lib/React":182}]},{},[1]);
