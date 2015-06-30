@@ -1,5 +1,8 @@
 var React = require('react');
 var Fluxxor = require('fluxxor');
+var Button = require('react-bootstrap/lib/Button');
+var Input = require('react-bootstrap/lib/Input');
+var Panel = require('react-bootstrap/lib/Panel');
 
 var constants = {
   UPDATE_COUNTER: "UPDATE_COUNTER"
@@ -7,7 +10,7 @@ var constants = {
 
 var CounterStore = Fluxxor.createStore({
   initialize: function() {
-    this.counter = 1;
+    this.counter = 0;
     this.bindActions(constants.UPDATE_COUNTER, this.onUpdateCounter);
   },
   onUpdateCounter: function(payload) {
@@ -69,13 +72,11 @@ var Counter = React.createClass({
   },
   render: function() {
     return <div>
-      <span>
-        count: {this.props.value}
-      </span>
-      <div>
-        <button onClick={this.onClickPlus}>+1</button>
-        <button onClick={this.onClickMinus}>-1</button>
-      </div>
+      <Panel>
+        {this.props.value}
+      </Panel>
+      <Button onClick={this.onClickPlus}>+1</Button>
+      <Button onClick={this.onClickMinus}>-1</Button>
     </div>
   }
 });
@@ -91,9 +92,7 @@ var CounterOneHundredApp = React.createClass({
   render: function(){
     return(
         <div>
-          <h4>+100</h4>
           <CounterOneHundred />
-          <h4>足したい数字を入力</h4>
           <CounterInput />
         </div>
     );
@@ -110,7 +109,7 @@ var CounterOneHundred = React.createClass({
   render: function(){
     return (
         <div>
-          <button onClick={this.onClickPlusOneHundred}>+100</button>
+          <Button onClick={this.onClickPlusOneHundred}>+100</Button>
         </div>
     );
   }
@@ -122,7 +121,7 @@ var CounterInput = React.createClass({
     var value = parseInt(document.getElementById("plus_value_input").value);
 
     if(isNaN(value)){
-      alert("数字を入力してください");
+      alert("Input Number.");
       return;
     }
 
@@ -131,9 +130,9 @@ var CounterInput = React.createClass({
 
   render: function(){
     return (
-        <div>
-          <input type="text" id="plus_value_input"/>
-          <button onClick={this.onClickPlusInputValue}>plus</button>
+        <div className=''>
+          <Input type='text' id='plus_value_input' wrapperClassName='col-xs-3 width-100' />
+          <Button onClick={this.onClickPlusInputValue} className='col-xs-3' >plus</Button>
         </div>
     );
   }
@@ -145,7 +144,7 @@ var flux = new Fluxxor.Flux(stores , actions);
 
 React.render(
     <CounterApp flux={flux}/>,
-    document.getElementById('app-container')
+    document.getElementById('counter')
 );
 
 React.render(

@@ -6,9 +6,14 @@ var reactify = require('reactify');
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var cssify = require('cssify');
+var less = require('gulp-less');
+var path = require('path');
 
 var jsSrcPath = './app/assets/javascripts';
 var jsDestPath = './public/javascripts';
+
+var cssSrcPath = './app/assets/stylesheets';
+var cssDestPath = './public/stylesheets';
 
 // local server
 gulp.task("connect", function(){
@@ -34,6 +39,14 @@ gulp.task('watchify', function() {
 
 gulp.task("default", ['watchify'], function(){
     //gulp.start(["connect"]);
+});
+
+gulp.task('less', function () {
+  return gulp.src(cssSrcPath + '/*.less')
+    .pipe(less({
+      paths: [ path.join(__dirname, 'less', 'includes') ]
+    }))
+    .pipe(gulp.dest('./public/stylesheets'));
 });
 
 function jsCompile(bundler) {

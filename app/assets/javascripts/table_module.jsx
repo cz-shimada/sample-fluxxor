@@ -29,9 +29,9 @@ var CheckBoxLayout = React.createClass({
   handleChange: function(event) {
     var name = this.props.name;
     if (event.target.checked) {
-        return this.getFlux().actions.checkedOn(name);
+      return this.getFlux().actions.checkedOn(name);
     } else {
-        return this.getFlux().actions.checkedOff(name);
+      return this.getFlux().actions.checkedOff(name);
     }
   },
   render: function() {
@@ -62,7 +62,7 @@ function checkBoxLayout(str, key, data, index) {
 }
 
 function inputLayout(str, key, data, index) {
-  return <Input type='text' bsSize="medium" placeholder="enter ..." />
+  return <Input type='text' labelClassName='col-xs-2' wrapperClassName='col-xs-10' />
 }
 
 // TableLayout.
