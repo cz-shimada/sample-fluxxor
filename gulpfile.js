@@ -50,6 +50,11 @@ gulp.task('less', function () {
     .pipe(gulp.dest('./public/stylesheets'));
 });
 
+gulp.task("compile", function(){
+    gulp.start(["browserify" , "less"]);
+});
+
+
 function jsCompile(bundler) {
     function rebundle() { return bundler
             .bundle()

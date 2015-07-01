@@ -8,8 +8,6 @@ var Fluxxor = require('fluxxor');
 var Button = require('react-bootstrap/lib/Button');
 var Input = require('react-bootstrap/lib/Input');
 var Panel = require('react-bootstrap/lib/Panel');
-var cssify = require('cssify');
-cssify.byUrl('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css');
 
 var constants = {
   UPDATE_COUNTER: "UPDATE_COUNTER"
@@ -160,7 +158,7 @@ React.render(
     document.getElementById('counter_other_component')
 );
 
-},{"cssify":7,"fluxxor":59,"react":331,"react-bootstrap/lib/Button":158,"react-bootstrap/lib/Input":164,"react-bootstrap/lib/Panel":166}],3:[function(require,module,exports){
+},{"fluxxor":59,"react":331,"react-bootstrap/lib/Button":158,"react-bootstrap/lib/Input":164,"react-bootstrap/lib/Panel":166}],3:[function(require,module,exports){
 var React = require('react');
 var Fluxxor = require('fluxxor');
 var FixedDataTable = require('fixed-data-table');
@@ -177,7 +175,8 @@ var FluxMixin = Fluxxor.FluxMixin(React),
 
 var constants = {
   CHECKEBOX_ON: "CHECKEBOX_ON",
-  CHECKEBOX_OFF: "CHECKEBOX_OFF"
+  CHECKEBOX_OFF: "CHECKEBOX_OFF",
+  LOAD_TABLE: "LOAD_TABLE"
 };
 
 // CheckBoxFluxGroup.
@@ -208,6 +207,9 @@ var CheckBoxLayout = React.createClass({displayName: "CheckBoxLayout",
 
 // Actions
 var checkboxActions = {
+    creator: function() {
+      console.log("create");
+    },
     checkedOn: function(name) {
       this.dispatch(constants.CHECKEBOX_ON, {
         value: name
@@ -217,6 +219,20 @@ var checkboxActions = {
       this.dispatch(constants.CHECKEBOX_OFF, {
         value: name
       });
+    }
+  };
+
+  // Actions
+var tableActions = {
+    initData: function() {
+      var requestData = [
+        ['1A', 'b1', 'c1' , 'd1'],
+        ['2B', 'b2', 'c2' , 'd2'],
+        ['3C', 'b3', 'c3' , 'd3']
+      ];
+      this.dispatch(constants.LOAD_TABLE, {
+        value: requestData
+      })
     }
   };
 
@@ -272,14 +288,17 @@ var TableLayout = React.createClass({displayName: "TableLayout",
     }
     return false;
   },
+  componentDidMount: function() {
+    this.getFlux().actions.initData();
+  },
   render: function() {
     return React.createElement(Table, {
       rowHeight: 50, 
       rowGetter: this.rowGetter, 
       rowClassNameGetter: this.rowClassNameGetter, 
-      rowsCount: 5, 
+      rowsCount: 20, 
       onRowClick: this.onRowClick, 
-      width: 800, 
+      width: 600, 
       height: 400, 
       headerHeight: 50}, 
     React.createElement(Column, {
@@ -287,6 +306,7 @@ var TableLayout = React.createClass({displayName: "TableLayout",
       width: 100, 
       height: 100, 
       dataKey: 0, 
+      fixed: true, 
       cellRenderer: checkBoxLayout, 
       align: "center"}
     ), 
@@ -355,15 +375,16 @@ var CheckBoxesStore = Fluxxor.createStore({
 
 var TableLayoutStore = Fluxxor.createStore({
   initialize: function() {
-    this.rows = [
-      ['1A', 'b1', 'c1' , 'd1'],
-      ['2B', 'b2', 'c2' , 'd2'],
-      ['3C', 'b3', 'c3' , 'd3']
-    ];
+    this.rows = [];
     this.bindActions(
       constants.CHECKEBOX_ON, this.checkboxOn,
-      constants.CHECKEBOX_OFF, this.checkboxOff
+      constants.CHECKEBOX_OFF, this.checkboxOff,
+      constants.LOAD_TABLE , this.initData
     );
+  },
+  initData: function(payload) {
+    this.rows = payload.value;
+    this.emit('change');
   },
   checkboxOn: function(payload) {
     this.emit('change');
@@ -381,7 +402,7 @@ var TableLayoutStore = Fluxxor.createStore({
 var checkboxStore = { CheckBoxesStore: new CheckBoxesStore() };
 var tableLayoutStore = { TableLayoutStore: new TableLayoutStore() };
 
-var tableFlux = new Fluxxor.Flux(ObjectAssign(checkboxStore , tableLayoutStore) , checkboxActions);
+var tableFlux = new Fluxxor.Flux(ObjectAssign(checkboxStore , tableLayoutStore) , ObjectAssign(checkboxActions , tableActions));
 var checkboxFlux = new Fluxxor.Flux(checkboxStore , checkboxActions);
 
 // Render
@@ -390,7 +411,7 @@ React.render(
     document.getElementById('table')
 );
 
-var buttonFlux = new Fluxxor.Flux(checkboxStore)
+var buttonFlux = new Fluxxor.Flux(checkboxStore);
 React.render(
   React.createElement(CheckBoxStateButtonLayout, {flux: buttonFlux}),
   document.getElementById('checkbox_state_button')

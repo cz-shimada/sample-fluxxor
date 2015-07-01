@@ -3,8 +3,6 @@ var Fluxxor = require('fluxxor');
 var Button = require('react-bootstrap/lib/Button');
 var Input = require('react-bootstrap/lib/Input');
 var Panel = require('react-bootstrap/lib/Panel');
-var cssify = require('cssify');
-cssify.byUrl('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css');
 
 var constants = {
   UPDATE_COUNTER: "UPDATE_COUNTER"
