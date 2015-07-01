@@ -37,8 +37,9 @@ gulp.task('watchify', function() {
     return jsCompile(bundler);
 });
 
-gulp.task("default", ['watchify'], function(){
-    //gulp.start(["connect"]);
+gulp.task("default", function(){
+    gulp.start(["watchify"]);
+    gulp.watch(cssSrcPath + '/*.less', ['less']);
 });
 
 gulp.task('less', function () {

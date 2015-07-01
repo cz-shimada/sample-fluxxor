@@ -8,6 +8,8 @@ var Fluxxor = require('fluxxor');
 var Button = require('react-bootstrap/lib/Button');
 var Input = require('react-bootstrap/lib/Input');
 var Panel = require('react-bootstrap/lib/Panel');
+var cssify = require('cssify');
+cssify.byUrl('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css');
 
 var constants = {
   UPDATE_COUNTER: "UPDATE_COUNTER"
@@ -98,6 +100,7 @@ var CounterOneHundredApp = React.createClass({displayName: "CounterOneHundredApp
     return(
         React.createElement("div", null, 
           React.createElement(CounterOneHundred, null), 
+          React.createElement("br", null), 
           React.createElement(CounterInput, null)
         )
     );
@@ -124,22 +127,22 @@ var CounterInput = React.createClass({displayName: "CounterInput",
   mixins: [ FluxMixin ],
   onClickPlusInputValue: function(){
     var value = parseInt(document.getElementById("plus_value_input").value);
-
     if(isNaN(value)){
       alert("Input Number.");
       return;
     }
-
     return this.getFlux().actions.calcCounter(value);
   },
 
   render: function(){
     return (
-        React.createElement("div", {className: ""}, 
-          React.createElement(Input, {type: "text", id: "plus_value_input", wrapperClassName: "col-xs-3 width-100"}), 
-          React.createElement(Button, {onClick: this.onClickPlusInputValue, className: "col-xs-3"}, "plus")
-        )
-    );
+      React.createElement("div", {className: "input-group width-200"}, 
+        React.createElement("span", {className: "input-group-btn"}, 
+          React.createElement(Button, {onClick: this.onClickPlusInputValue, className: "btn btn-default"}, "plus")
+        ), 
+        React.createElement(Input, {type: "text", id: "plus_value_input", className: "form-control"})
+      )
+    )
   }
 
 });
@@ -157,7 +160,7 @@ React.render(
     document.getElementById('counter_other_component')
 );
 
-},{"fluxxor":59,"react":331,"react-bootstrap/lib/Button":158,"react-bootstrap/lib/Input":164,"react-bootstrap/lib/Panel":166}],3:[function(require,module,exports){
+},{"cssify":7,"fluxxor":59,"react":331,"react-bootstrap/lib/Button":158,"react-bootstrap/lib/Input":164,"react-bootstrap/lib/Panel":166}],3:[function(require,module,exports){
 var React = require('react');
 var Fluxxor = require('fluxxor');
 var FixedDataTable = require('fixed-data-table');

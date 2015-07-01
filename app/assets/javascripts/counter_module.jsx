@@ -3,6 +3,8 @@ var Fluxxor = require('fluxxor');
 var Button = require('react-bootstrap/lib/Button');
 var Input = require('react-bootstrap/lib/Input');
 var Panel = require('react-bootstrap/lib/Panel');
+var cssify = require('cssify');
+cssify.byUrl('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css');
 
 var constants = {
   UPDATE_COUNTER: "UPDATE_COUNTER"
@@ -93,6 +95,7 @@ var CounterOneHundredApp = React.createClass({
     return(
         <div>
           <CounterOneHundred />
+          <br />
           <CounterInput />
         </div>
     );
@@ -119,22 +122,22 @@ var CounterInput = React.createClass({
   mixins: [ FluxMixin ],
   onClickPlusInputValue: function(){
     var value = parseInt(document.getElementById("plus_value_input").value);
-
     if(isNaN(value)){
       alert("Input Number.");
       return;
     }
-
     return this.getFlux().actions.calcCounter(value);
   },
 
   render: function(){
     return (
-        <div className=''>
-          <Input type='text' id='plus_value_input' wrapperClassName='col-xs-3 width-100' />
-          <Button onClick={this.onClickPlusInputValue} className='col-xs-3' >plus</Button>
-        </div>
-    );
+      <div className='input-group width-200'>
+        <span className="input-group-btn">
+          <Button onClick={this.onClickPlusInputValue} className='btn btn-default' >plus</Button>
+        </span>
+        <Input type='text' id='plus_value_input' className='form-control' />
+      </div>
+    )
   }
 
 });
