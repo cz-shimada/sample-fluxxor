@@ -19,3 +19,4 @@ dist
 *.gz
 generated.keystore
 /node_modules
+/public/javascripts/bundle.js

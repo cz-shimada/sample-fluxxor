@@ -6,13 +6,15 @@
     "browserify-shim": "^3.8.9",
     "bulk-require": "^0.2.1",
     "cssify": "^0.7.0",
-    "gulp": "^3.8.10",
     "gulp-browserify": "^0.5.1",
+    "gulp-duration": "0.0.0",
+    "gulp-less": "^3.0.3",
+    "gulp-uglify": "^1.2.0",
+    "gulp-util": "^3.0.6",
     "reactify": "^0.17.1",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.0.0",
     "vinyl-transform": "^1.0.0",
-    "watchify": "^3.2.2",
     "path": "^0.11.14",
     "gulp-less": "^3.0.3"
   },
@@ -31,7 +33,9 @@
   },
   "browserify": {
     "transform": [
-      "browserify-shim"
+      "browserify-shim",
+      "reactify",
+      "cssify"
     ]
   },
   "browserify-shim": {},
