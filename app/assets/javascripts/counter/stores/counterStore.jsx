@@ -13,13 +13,16 @@ class CounterStore {
   }
 
   handlePlusCounter() {
-      this.counter += 1;
+    console.log('store');
+    this.counter += 1;
   }
   handleMinusCounter() {
-      this.counter -= 1;
+    console.log('store');
+    this.counter -= 1;
   }
 
   handleCulcCounter(payLoad) {
+    console.log('store');
     this.counter += payLoad;
   }
 

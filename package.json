@@ -35,7 +35,6 @@
   "browserify": {
     "transform": [
       "browserify-shim",
-      "reactify",
       "cssify",
       "babelify"
     ]

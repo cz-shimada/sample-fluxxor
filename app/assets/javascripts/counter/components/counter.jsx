@@ -13,7 +13,16 @@ class CounterView extends React.Component {
       CounterActions.calcCounter(100);
     }
 
+    componentWillMount() {
+      console.log("before mount");
+    }
+
+    componentDidMount() {
+      console.log("mounted");
+    }
+
     render() {
+        console.log("renderd");
         return (
             <div>
               <Panel>
