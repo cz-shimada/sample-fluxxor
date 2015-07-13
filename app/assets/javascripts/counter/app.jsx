@@ -7,7 +7,7 @@ import CounterAppView from './components/counter.jsx';
 const flux = new Flux();
 
 React.render(
-    <AltContainer flux={this.props.flux} >
+    <AltContainer flux={flux} >
         <CounterAppView />
     </AltContainer>
     ,
