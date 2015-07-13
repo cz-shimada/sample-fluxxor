@@ -1,6 +1,4 @@
-import alt from '../alt.jsx';
-
-class CounterActions {
+export class CounterActions {
 
   constructor() {
       this.generateActions(
@@ -13,5 +11,3 @@ class CounterActions {
     return data;
   }
 }
-
-export default alt.createActions(CounterActions);

@@ -4,13 +4,15 @@ import Button from 'react-bootstrap/lib/Button';
 import Input from 'react-bootstrap/lib/Input';
 import Panel from 'react-bootstrap/lib/Panel';
 
-import CounterActions from '../actions/counterActions.jsx';
-import CounterStore from '../stores/counterStore.jsx';
+import { CounterActions } from '../actions/counterActions.js';
+import CounterStore from '../stores/counterStore.js';
+import connectToStores from 'alt/utils/connectToStores';
 
 class CounterView extends React.Component {
 
-    onClickCalcCunter() {
-      CounterActions.calcCounter(100);
+    static actions(props) {
+      console.log(props.flux.actions.CounterActions.plusCounter)
+      return props.flux.actions.CounterActions;
     }
 
     componentWillMount() {
@@ -26,12 +28,11 @@ class CounterView extends React.Component {
         return (
             <div>
               <Panel>
-                {this.props.counter}
+                {this.props.flux.getStore("CounterStore").getState().counter}
               </Panel>
               <div>
-                  <Button onClick={CounterActions.plusCounter}>+1</Button>
-                  <Button onClick={CounterActions.minusCounter}>-1</Button>
-                  <Button onClick={this.onClickCalcCunter}>+100</Button>
+                  <Button onClick={CounterView.actions(this.props).plusCounter}>+1</Button>
+                  <Button onClick={CounterView.actions(this.props).minusCounter}>-1</Button>
               </div>
             </div>
         );
@@ -43,7 +44,7 @@ class CounterAppView extends React.Component {
     render() {
         return (
             <div>
-                <AltContainer store={CounterStore}>
+                <AltContainer flux={this.props.flux} store={CounterStore}>
                     <CounterView />
                 </AltContainer>
             </div>

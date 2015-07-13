@@ -143,12 +143,12 @@ var CounterInput = React.createClass({
 var stores = { CounterStore: new CounterStore() };
 var flux = new Fluxxor.Flux(stores , actions);
 
-React.render(
-    <CounterApp flux={flux}/>,
-    document.getElementById('counter')
-);
-
-React.render(
-    <CounterOneHundredApp flux={flux}/>,
-    document.getElementById('counter_other_component')
-);
+// React.render(
+//     <CounterApp flux={flux}/>,
+//     document.getElementById('counter')
+// );
+//
+// React.render(
+//     <CounterOneHundredApp flux={flux}/>,
+//     document.getElementById('counter_other_component')
+// );

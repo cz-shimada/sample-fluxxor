@@ -96,6 +96,7 @@ var TableLayout = React.createClass({
     };
   },
   rowGetter: function(rowIndex) {
+    var aaa = this.props;
     var rows = this.getStateFromFlux().tableLayoutStore.data;
     return rows[rowIndex];
   },
@@ -244,14 +245,14 @@ var tableLayoutStore = { TableLayoutStore: new TableLayoutStore() };
 var tableFlux = new Fluxxor.Flux(ObjectAssign(checkboxStore , tableLayoutStore) , ObjectAssign(checkboxActions , tableActions));
 var checkboxFlux = new Fluxxor.Flux(checkboxStore , checkboxActions);
 
-// Render
-React.render(
-  <TableLayout flux={tableFlux} />,
-    document.getElementById('table')
-);
-
-var buttonFlux = new Fluxxor.Flux(checkboxStore);
-React.render(
-  <CheckBoxStateButtonLayout flux={buttonFlux} />,
-  document.getElementById('checkbox_state_button')
-);
+// // Render
+// React.render(
+//   <TableLayout flux={tableFlux} />,
+//     document.getElementById('table')
+// );
+//
+// var buttonFlux = new Fluxxor.Flux(checkboxStore);
+// React.render(
+//   <CheckBoxStateButtonLayout flux={buttonFlux} />,
+//   document.getElementById('checkbox_state_button')
+// );
