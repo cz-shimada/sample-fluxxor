@@ -6,11 +6,12 @@ import Panel from 'react-bootstrap/lib/Panel';
 import { CounterActions } from '../actions/counterActions.js';
 import CounterStore from '../stores/counterStore.js';
 import connectToStores from 'alt/utils/connectToStores';
+import AltContainer from 'alt/altContainer';
 
 class CounterView extends React.Component {
 
     static actions(props) {
-      console.log(props.flux.actions.CounterActions.plusCounter)
+      console.log(props.flux.actions.CounterActions.plusCounter);
       return props.flux.actions.CounterActions;
     }
 
@@ -43,10 +44,14 @@ class CounterAppView extends React.Component {
     render() {
         return (
             <div>
-                <CounterView flux={this.props.flux} />
+                <AltContainer flux={this.props.flux} store={this.props.flux.stores.CounterStore}>
+                    <CounterView />
+                </AltContainer>
             </div>
         );
     }
+
+
 }
 
 export default CounterAppView;
