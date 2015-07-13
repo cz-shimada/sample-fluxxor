@@ -19,7 +19,7 @@
     "vinyl-transform": "^1.0.0"
   },
   "dependencies": {
-    "alt": "^0.17.0",
+    "alt": "^0.17.1",
     "bootstrap": "^3.3.5",
     "collections": "^1.2.3",
     "fixed-data-table": "^0.3.0",

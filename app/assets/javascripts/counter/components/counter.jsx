@@ -1,5 +1,4 @@
 import React from 'react';
-import AltContainer from 'alt/altContainer';
 import Button from 'react-bootstrap/lib/Button';
 import Input from 'react-bootstrap/lib/Input';
 import Panel from 'react-bootstrap/lib/Panel';
@@ -24,11 +23,12 @@ class CounterView extends React.Component {
     }
 
     render() {
-        console.log("renderd");
+        var store = this.props.flux.stores.CounterStore;
+        console.log(this.props);
         return (
             <div>
               <Panel>
-                {this.props.flux.getStore("CounterStore").getState().counter}
+                {store.getState().counter}
               </Panel>
               <div>
                   <Button onClick={CounterView.actions(this.props).plusCounter}>+1</Button>
@@ -39,17 +39,14 @@ class CounterView extends React.Component {
     }
 }
 
-
 class CounterAppView extends React.Component {
     render() {
         return (
             <div>
-                <AltContainer flux={this.props.flux} store={CounterStore}>
-                    <CounterView />
-                </AltContainer>
+                <CounterView flux={this.props.flux} />
             </div>
         );
     }
 }
 
- export default CounterAppView;
+export default CounterAppView;

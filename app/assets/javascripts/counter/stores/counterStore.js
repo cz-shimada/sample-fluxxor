@@ -1,26 +1,28 @@
 export class CounterStore {
 
-  constructor() {
+  constructor(flux) {
     this.counter = 0;
     let counterActions = this.alt.getActions('CounterActions');
     this.bindListeners({
         handlePlusCounter: counterActions.plusCounter,
         handleMinusCounter: counterActions.minusCounter,
-        handleCulcCounter: counterActions.calcCounter
+        handleCalcCounter: counterActions.calcCounter
     });
   }
 
   handlePlusCounter() {
-    console.log('store');
     this.counter += 1;
-  }
-  
-  handleMinusCounter() {
-    console.log('store');
-    this.counter -= 1;
+    console.log(this.counter);
+    this.setState({counter:this.counter});
   }
 
-  handleCulcCounter(payLoad) {
+  handleMinusCounter() {
+    this.counter -= 1;
+    console.log(this.counter);
+    this.setState({counter:this.counter});
+  }
+
+  handleCalcCounter(payLoad) {
     console.log('store');
     this.counter += payLoad;
   }
