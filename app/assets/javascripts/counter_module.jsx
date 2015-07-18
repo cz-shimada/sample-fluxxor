@@ -4,6 +4,8 @@ var Button = require('react-bootstrap/lib/Button');
 var Input = require('react-bootstrap/lib/Input');
 var Panel = require('react-bootstrap/lib/Panel');
 
+var ReactToastr = require("react-toastr");
+
 var constants = {
   UPDATE_COUNTER: "UPDATE_COUNTER"
 };
@@ -59,6 +61,9 @@ var CounterApp = React.createClass({
   }
 });
 
+var { ToastContainer } = ReactToastr; // This is a React Element.
+var ToastMessageFactory = React.createFactory(ReactToastr.ToastMessage.animation);
+
 var Counter = React.createClass({
   mixins: [FluxMixin],
   propTypes: {
@@ -71,13 +76,16 @@ var Counter = React.createClass({
     return this.getFlux().actions.minusCounter();
   },
   render: function() {
-    return <div>
-      <Panel>
-        {this.props.value}
-      </Panel>
-      <Button onClick={this.onClickPlus}>+1</Button>
-      <Button onClick={this.onClickMinus}>-1</Button>
-    </div>
+    console.log(ToastMessageFactory);
+    return (
+      <div>
+        <Panel>
+          {this.props.value}
+        </Panel>
+        <Button onClick={this.onClickPlus}>+1</Button>
+        <Button onClick={this.onClickMinus}>-1</Button>
+      </div>
+    )
   }
 });
 
