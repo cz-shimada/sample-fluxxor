@@ -13,11 +13,11 @@ class CounterStore {
   }
 
   handlePlusCounter() {
-    console.log('store');
+    console.log('store plus');
     this.counter += 1;
   }
   handleMinusCounter() {
-    console.log('store');
+    console.log('store minus');
     this.counter -= 1;
   }
 
