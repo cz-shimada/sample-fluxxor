@@ -1,0 +1,44 @@
+{
+  "name": "sample-fluxxor",
+  "version": "1.0.0",
+  "devDependencies": {
+    "babelify": "^6.1.2",
+    "browserify": "^8.0.2",
+    "browserify-shim": "^3.8.9",
+    "bulk-require": "^0.2.1",
+    "cssify": "^0.7.0",
+    "gulp-browserify": "^0.5.1",
+    "gulp-duration": "0.0.0",
+    "gulp-less": "^3.0.3",
+    "gulp-uglify": "^1.2.0",
+    "gulp-util": "^3.0.6",
+    "path": "^0.11.14",
+    "reactify": "^0.17.1",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.0.0",
+    "vinyl-transform": "^1.0.0"
+  },
+  "dependencies": {
+    "alt": "^0.17.0",
+    "bootstrap": "^3.3.5",
+    "collections": "^1.2.3",
+    "fixed-data-table": "^0.3.0",
+    "fluxxor": "^1.6.0",
+    "get-style-property": "^0.1.1",
+    "object-assign": "^3.0.0",
+    "react": "^0.13.3",
+    "react-bootstrap": "^0.23.5",
+    "select2-browserify": "^3.4.5",
+    "superagent": "^1.2.0",
+    "superagent-no-cache": "^0.1.0"
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim",
+      "cssify",
+      "babelify"
+    ]
+  },
+  "browserify-shim": {},
+  "browser": {}
+}
